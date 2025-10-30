@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["DOM", "ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+
+    "types": ["vite/client"],          
+    "noUncheckedSideEffectImports": false,
+
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "sourceMap": true
+  },
+  "include": ["app/src", "app/src/**/*.d.ts"]  // <-- dein Code + Deklarationen
+}

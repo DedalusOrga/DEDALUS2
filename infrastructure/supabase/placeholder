@@ -1,0 +1,2 @@
+supabaseClient.ts     ← Verbindung zur Datenbank
+schema.sql            ← optional (DB-Struktur)
