@@ -1,7 +1,11 @@
+import { Outlet } from "react-router-dom";
+
 export default function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-2xl font-bold">DEDALUS 2 läuft 🎉</h1>
+    <div className="min-h-screen">
+      {/* simple shell, später ersetzen */}
+      <header className="p-4 border-b">DEDALUS 2</header>
+      <main className="p-4"><Outlet /></main>
     </div>
-  )
+  );
 }
