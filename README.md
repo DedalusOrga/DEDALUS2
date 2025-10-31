@@ -137,3 +137,12 @@ App läuft unter: [http://localhost:5173](http://localhost:5173)
 Universität / Hochschule: HKA  
 Betreuer: *[wird ergänzt]*  
 E-Mail: *[wird ergänzt]*  
+
+
+## Supabase
+
+User:
+user@test.com
+
+Passwort:
+1234
