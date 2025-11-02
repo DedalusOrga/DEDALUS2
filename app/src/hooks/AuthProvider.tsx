@@ -11,14 +11,27 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
+    })
+    .catch(() => {
+      if (!mounted) return;
+      setUser(null);
+      setLoading(false);
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
+
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+    if (!mounted) return;
+    setUser(session?.user ?? null);
     });
-    return () => sub.subscription.unsubscribe();
+
+    return () => {
+      mounted = false;
+      data?.subscription?.unsubscribe?.();
+        };
   }, []);
 
   async function signOut() {
