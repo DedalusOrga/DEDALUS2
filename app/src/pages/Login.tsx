@@ -14,18 +14,22 @@ export default function Login() {
     e.preventDefault();
     setErr(null); setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) { setErr(error.message); setBusy(false); return; }
+    setPassword(""); 
     setBusy(false);
-    if (error) return setErr(error.message);
     nav("/");
+
   }
+
+  
 
   return (
     <form onSubmit={onSubmit} className="max-w-sm mx-auto space-y-3">
       <h1 className="text-xl font-semibold">Login</h1>
       <input className="w-full border p-2" placeholder="E-Mail" type="email"
-             value={email} onChange={e=>setEmail(e.target.value)} />
+             value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" />
       <input className="w-full border p-2" placeholder="Passwort" type="password"
-             value={password} onChange={e=>setPassword(e.target.value)} />
+             value={password} onChange={e=>setPassword(e.target.value)} autoComplete="email" />
       {err && <p className="text-red-600">{err}</p>}
       <button className="border px-3 py-2" disabled={busy}>{busy ? "…" : "Einloggen"}</button>
     </form>
