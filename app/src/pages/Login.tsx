@@ -1,38 +1,73 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "../infrastructure/supabase/client";
-import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const nav = useNavigate();
-  const [email, setEmail] = useState(""); 
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [err, setErr] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  async function onSubmit(e: FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    setErr(null); setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setBusy(false);
-    
-    if (error) { setPassword(""); return setErr("E-Mail oder Passwort ist falsch."); }
-    setPassword("");   
-    nav("/");
+    setLoading(true);
+    setMessage(null);
 
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error)
+      setMessage("Login fehlgeschlagen. Bitte überprüfen Sie Ihre Daten.");
+    else navigate("/home");
+
+    setLoading(false);
   }
 
-  
-
   return (
-    <form onSubmit={onSubmit} className="max-w-sm mx-auto space-y-3">
-      <h1 className="text-xl font-semibold">Login</h1>
-      <input className="w-full border p-2" placeholder="E-Mail" type="email"
-             value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" />
-      <input className="w-full border p-2" placeholder="Passwort" type="password"
-             value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" />
-      {err && <p className="text-red-600">{err}</p>}
-      <button className="border px-3 py-2" disabled={busy}>{busy ? "…" : "Einloggen"}</button>
-    </form>
+    <div className="max-w-md mx-auto mt-16 p-6 bg-white shadow rounded-xl">
+      <h2 className="text-xl font-semibold mb-4 text-center">Login</h2>
+
+      <form onSubmit={handleLogin} className="space-y-3">
+        <input
+          type="email"
+          placeholder="E-Mail-Adresse"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="border rounded w-full p-2"
+          required
+        />
+        <input
+          type="password"
+          placeholder="Passwort"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="border rounded w-full p-2"
+          required
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-2 bg-blue-600 text-white rounded mt-2"
+        >
+          {loading ? "Bitte warten…" : "Einloggen"}
+        </button>
+      </form>
+
+      {message && <p className="text-sm text-gray-600 mt-3">{message}</p>}
+
+      {/* 👇 Neuer Registrierungs-Button */}
+      <div className="mt-6 text-center">
+        <p className="text-sm text-gray-500 mb-2">Noch kein Konto?</p>
+        <Link
+          to="/register"
+          className="inline-block w-full bg-green-600 hover:bg-green-700 text-white rounded py-2 transition-colors"
+        >
+          Jetzt registrieren
+        </Link>
+      </div>
+    </div>
   );
 }
