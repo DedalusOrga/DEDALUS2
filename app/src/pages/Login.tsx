@@ -19,6 +19,8 @@ export default function Login() {
       password,
     });
 
+    setPassword("");
+
     if (error)
       setMessage("Login fehlgeschlagen. Bitte überprüfen Sie Ihre Daten.");
     else navigate("/home");
@@ -38,6 +40,7 @@ export default function Login() {
           onChange={(e) => setEmail(e.target.value)}
           className="border rounded w-full p-2"
           required
+          autoComplete="email" 
         />
         <input
           type="password"
@@ -46,6 +49,7 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
           className="border rounded w-full p-2"
           required
+          autoComplete="current-password"
         />
         <button
           type="submit"
