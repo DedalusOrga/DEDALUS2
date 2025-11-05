@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "../infrastructure/supabase/client";
+import { handleLogin } from "../infrastructure/api/handleLogin";
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -9,20 +11,15 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  async function handleLogin(e: React.FormEvent) {
+   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
+    const result = await handleLogin(email, password);
     setPassword("");
 
-    if (error)
-      setMessage("Login fehlgeschlagen. Bitte überprüfen Sie Ihre Daten.");
+    if (result.error) setMessage(result.error);
     else navigate("/home");
 
     setLoading(false);
@@ -32,7 +29,7 @@ export default function Login() {
     <div className="max-w-md mx-auto mt-16 p-6 bg-white shadow rounded-xl">
       <h2 className="text-xl font-semibold mb-4 text-center">Login</h2>
 
-      <form onSubmit={handleLogin} className="space-y-3">
+      <form onSubmit={onSubmit} className="space-y-3">
         <input
           type="email"
           placeholder="E-Mail-Adresse"
