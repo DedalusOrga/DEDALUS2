@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "../infrastructure/supabase/client";
 import { handleLogin } from "../infrastructure/api/handleLogin";
 
 
