@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { handleLogin } from "../infrastructure/api/handleLogin";
+import { supabase } from "../infrastructure/supabase/client";
 
 
 export default function Login() {
