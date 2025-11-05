@@ -26,6 +26,16 @@ export default function Login() {
     setLoading(false);
   }
 
+  async function handleForgotPassword(e: React.MouseEvent) {
+    e.preventDefault();
+    if (!email) return alert("Bitte E-Mail eintragen.");
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset`,
+    });
+    if (error) alert(error.message);
+    else alert("Wenn die E-Mail existiert, wurde ein Reset-Link gesendet.");
+  }
+
   return (
     <div className="max-w-md mx-auto mt-16 p-6 bg-white shadow rounded-xl">
       <h2 className="text-xl font-semibold mb-4 text-center">Login</h2>
@@ -57,6 +67,16 @@ export default function Login() {
       </form>
 
       {message && <p className="text-sm text-gray-600 mt-3">{message}</p>}
+
+      <div className="mt-2 text-right">
+        <a
+          href="#"
+          onClick={handleForgotPassword}
+          className="text-sm underline text-gray-600"
+        >
+          Passwort vergessen?
+        </a>
+      </div>
 
       {/* 👇 Neuer Registrierungs-Button */}
       <div className="mt-6 text-center">
