@@ -1,21 +1,33 @@
+// src/main.tsx
+import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
-import Register from "./pages/Register";
-import ResetPassword from "./pages/ResetPassword";
-import Protected from "./components/Protected";
-import { AuthProvider } from "./hooks/AuthProvider";
 import "./index.css";
 
+// Auth / Core Pages
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ResetPassword from "./pages/ResetPassword";
+import Home from "./pages/Home";
+import Protected from "./components/Protected";
+
+// Neue Seiten (Informationen)
+import InformationenOverview from "./pages/InformationenOverview";
+import TherapieDetail from "./pages/TherapieDetail";
+
+// Router-Konfiguration
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
+      // Öffentliche Routen
       { path: "/login", element: <Login /> },
       { path: "/register", element: <Register /> },
+      { path: "/auth/reset", element: <ResetPassword /> },
+
+      // Geschützte Routen
       {
         path: "/",
         element: (
@@ -24,7 +36,6 @@ const router = createBrowserRouter([
           </Protected>
         ),
       },
-      { path: "/auth/reset", element: <ResetPassword /> },
       {
         path: "/home",
         element: (
@@ -32,14 +43,30 @@ const router = createBrowserRouter([
             <Home />
           </Protected>
         ),
-        // { path: "/auth/callback", element: <AuthCallback /> },
-      }, // ← NEU
+      },
+      {
+        path: "/informationen",
+        element: (
+          <Protected>
+            <InformationenOverview />
+          </Protected>
+        ),
+      },
+      {
+        path: "/informationen/:slug",
+        element: (
+          <Protected>
+            <TherapieDetail />
+          </Protected>
+        ),
+      },
     ],
   },
 ]);
 
+// Render
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <AuthProvider>
+  <React.StrictMode>
     <RouterProvider router={router} />
-  </AuthProvider>
+  </React.StrictMode>
 );
