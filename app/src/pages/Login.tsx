@@ -3,92 +3,101 @@ import { useNavigate, Link } from "react-router-dom";
 import { handleLogin } from "../infrastructure/api/handleLogin";
 import { supabase } from "../infrastructure/supabase/client";
 
-
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [message, setMessage] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
-   async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setMessage(null);
+    async function onSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        setLoading(true);
+        setMessage(null);
 
-    const result = await handleLogin(email, password);
-    setPassword("");
+        const result = await handleLogin(email, password);
+        setPassword("");
 
-    if (result.error) setMessage(result.error);
-    else navigate("/home");
+        if (result.error) setMessage(result.error);
+        else navigate("/home");
 
-    setLoading(false);
-  }
+        setLoading(false);
+    }
 
-  async function handleForgotPassword(e: React.MouseEvent) {
-    e.preventDefault();
-    if (!email) return alert("Bitte E-Mail eintragen.");
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset`,
-    });
-    if (error) alert(error.message);
-    else alert("Wenn die E-Mail existiert, wurde ein Reset-Link gesendet.");
-  }
 
-  return (
-    <div className="max-w-md mx-auto mt-16 p-6 bg-white shadow rounded-xl">
-      <h2 className="text-xl font-semibold mb-4 text-center">Login</h2>
+    return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[#EAF7E9] px-4 text-center">
 
-      <form onSubmit={onSubmit} className="space-y-3">
-        <input
-          type="email"
-          placeholder="E-Mail-Adresse"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border rounded w-full p-2"
-          required
-          autoComplete="email" 
-        />
-        <input
-          type="password"
-          placeholder="Passwort"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border rounded w-full p-2"
-          required
-          autoComplete="current-password"
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2 bg-blue-600 text-white rounded mt-2"
-        >
-          {loading ? "Bitte warten…" : "Einloggen"}
-        </button>
-      </form>
+                {/* Titel */}
+                <h1 className="text-6xl md:text-5xl font-bold text-green-900 mb-4">
+                    Willkommen zur DEDALUS 2
+                </h1>
 
-      {message && <p className="text-sm text-gray-600 mt-3">{message}</p>}
+                {/* Beschreibung */}
+                <p className="text-2xl mb-10 text-black font-semibold">
+                    Hier können Sie sich sicher anmelden.
+                </p>
 
-      <div className="mt-2 text-right">
-        <a
-          href="#"
-          onClick={handleForgotPassword}
-          className="text-sm underline text-gray-600"
-        >
-          Passwort vergessen?
-        </a>
-      </div>
+                {/* Nachricht bei Fehler */}
+                {message && <p className="text-red-600 mb-4">{message}</p>}
 
-      {/* 👇 Neuer Registrierungs-Button */}
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-500 mb-2">Noch kein Konto?</p>
-        <Link
-          to="/register"
-          className="inline-block w-full bg-green-600 hover:bg-green-700 text-white rounded py-2 transition-colors"
-        >
-          Jetzt registrieren
-        </Link>
-      </div>
-    </div>
-  );
+                {/* Login Formular */}
+                <form className="w-full max-w-sm space-y-6" onSubmit={onSubmit}>
+                    {/* E-Mail */}
+                    <div className="text-left">
+                        <label className="block text-black font-bold mb-1">E-Mail</label>
+                        <input
+                            type="email"
+                            className="w-full px-4 py-2 rounded-full border-2 focus:outline-none"
+                            style={{ borderColor: "#335F50" }}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    {/* Passwort */}
+                    <div className="text-left">
+                        <label className="block text-black font-bold mb-1">Passwort</label>
+                        <input
+                            type="password"
+                            className="w-full px-4 py-2 rounded-full border-2 focus:outline-none"
+                            style={{ borderColor: "#335F50" }}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    {/* Login Button */}
+                    <button
+                        type="submit"
+                        className="w-full text-white py-3 rounded-full text-lg font-bold transition"
+                        style={{ backgroundColor: "#133F32" }}
+                        disabled={loading}
+                    >
+                        {loading ? "Bitte warten..." : "Login"}
+                    </button>
+                </form>
+
+                {/* Link zu Registrieren */}
+                <p className="mt-14 text-lg text-black font-bold">
+                    Sie haben noch kein Konto?{" "}
+                    <Link
+                        to="/register"
+                        className="text-green-700 font-bold underline"
+                    >
+                        Registrieren
+                    </Link>
+                </p>
+
+                {/* Link zurück zur Startseite */}
+                <p className="mt-4">
+                    <Link to="/" className="text-green-700 underline">
+                        Zurück zur Startseite
+                    </Link>
+                </p>
+            </div>
+
+    );
 }
