@@ -8,6 +8,8 @@ import ResetPassword from "./pages/ResetPassword";
 import Protected from "./components/Protected";
 import { AuthProvider } from "./hooks/AuthProvider";
 import "./index.css";
+import QuestionsPage from "./pages/QuestionsPage";
+
 
 const router = createBrowserRouter([
   {
@@ -34,6 +36,42 @@ const router = createBrowserRouter([
         ),
         // { path: "/auth/callback", element: <AuthCallback /> },
       }, // ← NEU
+
+     // 🔽🔽🔽 AB HIER NUR NEU 🔽🔽🔽 Anastasia
+      {
+        path: "/entscheidungen",
+        element: (
+          <Protected>
+            <div className="p-6 text-lg">Entscheidungen (Platzhalter)</div>
+          </Protected>
+        ),
+      },
+      {
+        path: "/informationen",
+        element: (
+          <Protected>
+            <div className="p-6 text-lg">Informationen (Platzhalter)</div>
+          </Protected>
+        ),
+      },
+      {
+        path: "/einstellungen",
+        element: (
+          <Protected>
+            <div className="p-6 text-lg">Einstellungen (Platzhalter)</div>
+          </Protected>
+        ),
+      },
+      {
+        path: "/fragen",
+        element: (
+          <Protected>
+            <QuestionsPage />
+          </Protected>
+  ),
+},
+
+      // 🔼🔼🔼 NUR HINZUGEFÜGT 🔼🔼🔼
     ],
   },
 ]);
