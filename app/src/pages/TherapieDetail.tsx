@@ -1,46 +1,50 @@
+// app/src/pages/TherapieDetail.tsx
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
-type TherapyContent = {
-  title: string;
-  text: string;
-};
-
-const THERAPIES: Record<string, TherapyContent> = {
-  strahlentherapie: {
-    title: "Strahlentherapie",
-    text: "Hier stehen verständliche Informationen zur Chemotherapie. (Platzhaltertext – später mit echten Inhalten ersetzen.)",
-  },
-  chemotherapie: {
-    title: "Chemotherapie",
-    text: "Hier stehen verständliche Informationen zur Chemotherapie. (Platzhaltertext – später mit echten Inhalten ersetzen.)",
-  },
-  operationen: {
-    title: "Operationen",
-    text: "Informationen zu Operationen. (Platzhaltertext.)",
-  },
-  immuntherapie: {
-    title: "Immuntherapie",
-    text: "Informationen zur Immuntherapie. (Platzhaltertext.)",
-  },
-  "zielgerichtete-therapie": {
-    title: "Zielgerichtete Therapie",
-    text: "Informationen zur zielgerichteten Therapie. (Platzhaltertext.)",
-  },
-  palliativmedizin: {
-    title: "Palliativmedizin",
-    text: "Informationen zur Palliativmedizin. (Platzhaltertext.)",
-  },
-};
+import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 
 export default function TherapieDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
-  const therapy = slug ? THERAPIES[slug] : undefined;
+  const { modules, loading, loadedOnce, loadModules } = useContentModulesLazy({
+    type: "text",
+    slug,
+  });
 
-  const title = therapy?.title ?? "Therapie";
+  useEffect(() => {
+    if (slug) {
+      loadModules();
+    }
+  }, [slug, loadModules]);
+
+  const module = modules[0];
+
+  // Fallback-Titel auf Basis des Slugs, falls in der DB noch nichts steht
+  const title =
+    module?.title ??
+    (slug === "strahlentherapie"
+      ? "Strahlentherapie"
+      : slug === "chemotherapie"
+      ? "Chemotherapie"
+      : slug === "operationen"
+      ? "Operationen"
+      : slug === "immuntherapie"
+      ? "Immuntherapie"
+      : slug === "zielgerichtete-therapie"
+      ? "Zielgerichtete Therapie"
+      : slug === "palliativmedizin"
+      ? "Palliativmedizin"
+      : "Therapie");
+
+  // Text aus body_md, sonst Fallback
   const text =
-    therapy?.text ?? "Für diese Therapie sind noch keine Inhalte hinterlegt.";
+    module?.body_md ??
+    "Für diese Therapie sind noch keine Inhalte hinterlegt.";
+
+  // Video-URL aus data.video_url
+  const videoUrl = module?.data?.video_url ?? null;
+  const hasVideo = !!videoUrl;
 
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
@@ -59,21 +63,35 @@ export default function TherapieDetail() {
           {title}
         </h1>
 
-        {/* Weißer Content-Block: Text + Video-Placeholder */}
-        <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8 grid gap-8 md:grid-cols-2">
-          {/* Text */}
+        {/* Ladezustand */}
+        {loading && !loadedOnce && (
+          <div className="mb-4 text-emerald-900">
+            Inhalt wird geladen …
+          </div>
+        )}
+
+        {/* Weißer Content-Block: Text + optional Video */}
+        <div
+          className={
+            "bg-white rounded-3xl shadow-sm p-6 md:p-8 grid gap-8 " +
+            (hasVideo ? "md:grid-cols-2" : "md:grid-cols-1")
+          }
+        >
+          {/* Textbereich */}
           <div className="text-sm md:text-base leading-relaxed text-emerald-950 whitespace-pre-line">
             {text}
           </div>
 
-          {/* Video-Placeholder */}
-          <div className="flex items-center justify-center">
-            <div className="w-full bg-emerald-100/60 aspect-video flex items-center justify-center">
-              <div className="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center">
-                <div className="w-0 h-0 border-l-[18px] border-l-white border-y-[10px] border-y-transparent ml-1" />
-              </div>
+          {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
+          {hasVideo && (
+            <div className="flex items-center justify-center">
+              <video
+                src={videoUrl}
+                controls
+                className="w-full rounded-xl"
+              />
             </div>
-          </div>
+          )}
         </div>
 
         {/* Buttons unten */}

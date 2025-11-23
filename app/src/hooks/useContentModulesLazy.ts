@@ -17,7 +17,7 @@ export function useContentModulesLazy(filter?: ModuleFilter) {
 
     let query = supabase
       .from("content_modules")
-      .select("id, title, type, body_md, file_url, status")
+      .select("id, title, type, slug, body_md, file_url, status, data") // ← data dazu
       .eq("status", "published");
 
     if (filter?.type) {
