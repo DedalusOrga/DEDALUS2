@@ -16,11 +16,17 @@ export default function Register() {
 
     const { error } = await supabase.auth.signUp({ email, password });
 
-    if (error) setMsg("Fehler bei der Registrierung.");
-    else {
-      setMsg("Konto erstellt! Bitte jetzt einloggen …");
-      setTimeout(() => navigate("/login"), 1200);
+    if (error) {
+      console.log("Supabase Signup Error:", error);
+      setMsg(
+        "Registrierung nicht möglich. Bitte prüfen Sie Ihre Zugangsberechtigung oder wenden Sie sich an den Studienleiter."
+      );
+      setBusy(false);
+      return;
     }
+
+    setMsg("Konto erstellt! Bitte jetzt einloggen …");
+    setTimeout(() => navigate("/login"), 1200);
     setBusy(false);
   }
 
