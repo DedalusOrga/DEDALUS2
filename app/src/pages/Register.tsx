@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "../infrastructure/supabase/client"; // Pfad: pages/ → ../infrastructure
+import { supabase } from "../infrastructure/supabase/client";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -9,18 +9,45 @@ export default function Register() {
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
 
+  function validatePassword(pw: string): string | null {
+    if (pw.length < 12)
+      return "Das Passwort muss mindestens 12 Zeichen lang sein.";
+    if (!/[A-Z]/.test(pw))
+      return "Das Passwort muss mindestens einen Großbuchstaben enthalten.";
+    if (!/[a-z]/.test(pw))
+      return "Das Passwort muss mindestens einen Kleinbuchstaben enthalten.";
+    if (!/[0-9]/.test(pw))
+      return "Das Passwort muss mindestens eine Zahl enthalten.";
+    if (!/[!@#$%^&*(),.?":{}|<>_\-+=~]/.test(pw))
+      return "Das Passwort muss mindestens ein Sonderzeichen enthalten.";
+    return null;
+  }
+
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     setMsg(null);
 
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setMsg(passwordError);
+      setBusy(false);
+      return;
+    }
+
     const { error } = await supabase.auth.signUp({ email, password });
 
-    if (error) setMsg("Fehler bei der Registrierung.");
-    else {
-      setMsg("Konto erstellt! Bitte jetzt einloggen …");
-      setTimeout(() => navigate("/login"), 1200);
+    if (error) {
+      console.log("Supabase Signup Error:", error);
+      setMsg(
+        "Registrierung nicht möglich. Bitte prüfen Sie Ihre Zugangsberechtigung oder wenden Sie sich an den Studienleiter."
+      );
+      setBusy(false);
+      return;
     }
+
+    setMsg("Konto erstellt! Bitte jetzt einloggen …");
+    setTimeout(() => navigate("/login"), 1200);
     setBusy(false);
   }
 
@@ -36,6 +63,7 @@ export default function Register() {
           className="w-full border rounded p-2"
           required
         />
+
         <input
           type="password"
           placeholder="Passwort"
@@ -44,6 +72,7 @@ export default function Register() {
           className="w-full border rounded p-2"
           required
         />
+
         <button
           type="submit"
           disabled={busy}
