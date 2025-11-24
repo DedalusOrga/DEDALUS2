@@ -5,6 +5,7 @@ import { supabase } from "../infrastructure/supabase/client"; // Pfad: pages/ �
 export default function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [password2, setPassword2] = useState("");
     const [msg, setMsg] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
     const navigate = useNavigate();
@@ -13,7 +14,12 @@ export default function Register() {
         e.preventDefault();
         setBusy(true);
         setMsg(null);
+        if (password !== password2) {
+            setMsg("Die Passwörter stimmen nicht überein.");
+            return;
+        }
 
+        setBusy(true);
         const {error} = await supabase.auth.signUp({email, password});
 
         if (error) setMsg("Fehler bei der Registrierung.");
@@ -28,16 +34,16 @@ export default function Register() {
         <div className="min-h-screen flex flex-col items-center justify-center bg-[#EAF7E9] px-4 text-center">
 
             {/* Überschrift */}
-            <h1 className="text-6xl font-bold text-[#0D3B2E] mb-4">
+            <h1 className="text-6xl md:text-5xl font-bold text-green-900 mb-4">
                 Willkommen zur DEDALUS 2
             </h1>
 
             {/* Unterüberschrift */}
-            <p className=" text-2xl font-bold text-lg text-[#0D1B2A] mb-8">
+            <p className=" text-2xl font-bold  text-[#0D1B2A] mb-8">
                 Erstellen Sie ein Konto, um fortzufahren.
             </p>
 
-            <form className="w-full max-w-sm space-y-3">
+            <form  onSubmit={handleSignup}  className="w-full max-w-sm space-y-3">
                 {/* Name */}
                 <div className="flex flex-col w-full">
                     <label className="mb-1 font-bold text-[#0D1B2A] text-left">Name</label>
@@ -48,20 +54,26 @@ export default function Register() {
                 </div>
 
                 {/* E-Mail */}
-                <div className="flex flex-col w-full">
+                <div  className="flex flex-col w-full">
                     <label className="mb-1 font-bold text-[#0D1B2A] text-left">E-Mail</label>
                     <input
                         type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className="w-[100%] text-center border-2 border-[#335F50] rounded-full px-4 py-2 focus:outline-none"
+                        required
                     />
                 </div>
 
                 {/* Passwort */}
-                <div className="flex flex-col w-full">
+                <div  className="flex flex-col w-full">
                     <label className="mb-1 font-bold text-[#0D1B2A] text-left">Passwort</label>
                     <input
                         type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         className="w-[100%] text-center border-2 border-[#335F50] rounded-full px-4 py-2 focus:outline-none"
+                        required
                     />
                 </div>
 
@@ -70,18 +82,27 @@ export default function Register() {
                     <label className="mb-1 font-bold text-[#0D1B2A] text-left">Passwort bestätigen</label>
                     <input
                         type="password"
+                        value={password2}
+                        onChange={(e) => setPassword2(e.target.value)}
                         className="w-[100%] text-center border-2 border-[#335F50] rounded-full px-4 py-2 focus:outline-none"
+                        required
                     />
                 </div>
 
                 {/* Button */}
                 <button
                     type="submit"
+                    disabled={busy}
                     className="w-full bg-[#0D3B2E] text-white font-bold py-3 rounded-full mt-4"
                 >
-                    Registrieren
+                    {busy ? "Lädt…" : "Registrieren"}
                 </button>
             </form>
+            {msg && (
+                <p className="mt-4 text-lg font-semibold text-red-600">
+                    {msg}
+                </p>
+            )}
 
             {/* Unterer Text */}
             <p className="mt-6 font-bold text-[#0D1B2A]">

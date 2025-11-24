@@ -34,7 +34,7 @@ export default function Login() {
                 </h1>
 
                 {/* Beschreibung */}
-                <p className="text-2xl mb-10 text-black font-semibold">
+                <p className="text-2xl mb-10 text-black font-bold">
                     Hier können Sie sich sicher anmelden.
                 </p>
 
@@ -67,7 +67,20 @@ export default function Login() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
+                        <p className="text-left text-med text-green-700 font-semibold mt-0">
+                            <Link
+                                to="/auth/forgot"
+                            >
+                                Haben Sie Ihr Passwort vergessen?
+                            </Link>
+
+
+                        </p>
+
                     </div>
+
+                    {/* Passwort vergessen*/}
+
 
                     {/* Login Button */}
                     <button
