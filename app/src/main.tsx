@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Register from "./pages/Register";
 import ResetPassword from "./pages/ResetPassword";
+import ForgotPassword from "./pages/ForgotPassword";
 import Protected from "./components/Protected";
 import { AuthProvider } from "./hooks/AuthProvider";
 
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
   // 🔓 Public Routes (ohne Login)
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
+  { path: "/auth/forgot", element: <ForgotPassword /> },
   { path: "/auth/reset", element: <ResetPassword /> },
 
   // 🔐 Alle übrigen Routen nur mit Login erreichbar
@@ -57,9 +59,7 @@ const router = createBrowserRouter([
       // Einstellungen – derzeit Platzhalter
       {
         path: "/einstellungen",
-        element: (
-          <div className="p-6 text-lg">Einstellungen (Platzhalter)</div>
-        ),
+        element: <div className="p-6 text-lg">Einstellungen (Platzhalter)</div>,
       },
 
       // Fragen-Seite
