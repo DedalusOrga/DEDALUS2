@@ -2,6 +2,7 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import App from "./App";
+import Startseite from "./pages/Startseite";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Register from "./pages/Register";
@@ -15,6 +16,7 @@ import TherapieDetail from "./pages/TherapieDetail";
 
 import "./index.css";
 import QuestionsPage from "./pages/QuestionsPage";
+
 
 const router = createBrowserRouter([
   // 🔓 Public Routes (ohne Login)
@@ -31,11 +33,10 @@ const router = createBrowserRouter([
       </Protected>
     ),
     children: [
-      // Startseite nach Login
-      { path: "/", element: <Home /> },
-      { path: "/home", element: <Home /> }, // optionaler Alias
-
-      // Entscheidungen – aktuell Platzhalter
+        { path: "/", element: <Startseite /> },
+      { path: "/login", element: <Login /> },
+      { path: "/register", element: <Register /> },
+      { path: "/auth/forgot", element: <ForgotPassword /> },
       {
         path: "/entscheidungen",
         element: (

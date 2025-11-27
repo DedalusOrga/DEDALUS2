@@ -34,39 +34,50 @@ export default function ForgotPassword() {
     );
   }
 
-  return (
-    <div className="max-w-md mx-auto mt-16 p-6 bg-white shadow rounded-xl">
-      <h2 className="text-xl font-semibold mb-4 text-center">
-        Passwort zurücksetzen
-      </h2>
+    return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[#EAF7E9] px-4 text-center">
+            <h1 className="text-6xl md:text-5xl text-green-900 font-bold  mb-14 text-center">
+                Willkommen zur DEDALUS 2
+            </h1>
+            <p className="text-2xl  text-black font-bold mb-1 ">
+                PASSWORT ZURÜCKSETZEN.
+            </p>
 
-      <form onSubmit={onSubmit} className="space-y-3">
-        <input
-          type="email"
-          placeholder="E-Mail-Adresse"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border rounded w-full p-2"
-          required
-          autoComplete="email"
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2 bg-blue-600 text-white rounded mt-2"
-        >
-          {loading ? "Bitte warten…" : "Reset-Link senden"}
-        </button>
-      </form>
+            <p className="text-small mb-4 text-black ">
+                Wir schicken Ihnen eine Email mit Anweisung zur wiederherstellung
+            </p>
 
-      {msg && <p className="text-sm text-gray-700 mt-3">{msg}</p>}
+            <form onSubmit={onSubmit} className="space-y-3">
 
-      <button
-        onClick={() => navigate("/login")}
-        className="mt-6 underline text-sm text-gray-600"
-      >
-        Zurück zum Login
-      </button>
-    </div>
-  );
-}
+                <input
+                    type="email"
+                    className="w-full px-4 py-2 rounded-full border-2 focus:outline-none"
+                    style={{ borderColor: "#335F50" }}
+                    placeholder="E-Mail-Adresse"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+
+                    required
+                    autoComplete="email"
+                />
+
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-[#0D3B2E] text-white font-bold px-4 py-3 rounded-full focus:outline-none"
+                >
+                    {loading ? "Bitte warten…" : "Reset-Link senden"}
+                </button>
+            </form>
+
+            {msg && <p className="text-sm text-gray-700 mt-3">{msg}</p>}
+
+            <button
+                onClick={() => navigate("/login")}
+                className="mt-6 underline text-med text-gray-600"
+            >
+                Zurück zum Login
+            </button>
+        </div>
+    );
+};
