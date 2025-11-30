@@ -1,7 +1,45 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/AuthProvider";
+import { supabase } from "../infrastructure/supabase/client";
 
 export default function Home() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function checkAdmin() {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("user_id", user.id)
+        .single();
+
+      if (cancelled) return;
+
+      if (error) {
+        console.warn("Admin-Check Fehler:", error);
+        setIsAdmin(false);
+      } else {
+        setIsAdmin(!!data?.is_admin);
+      }
+    }
+
+    checkAdmin();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -54,15 +92,24 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Button zu Fragen/Antworten */}
-        <div className="px-8 md:px-12 pt-10">
+        {/* Button zu Fragen/Antworten + Admin-Button */}
+        <div className="px-8 md:px-12 pt-10 flex flex-col gap-4 md:flex-row md:items-center md:gap-6">
           <Link
-            to="/fragen" // eigene Seite für Fragen/Antworten
+            to="/fragen"
             className="inline-flex items-center rounded-full border border-emerald-700 px-6 py-3 text-lg font-semibold text-emerald-800 hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-700"
           >
-          Zu den Fragen/Antworten
+            Zu den Fragen/Antworten
           </Link>
 
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => navigate("/admin")}
+              className="inline-flex items-center rounded-full border border-purple-700 px-6 py-3 text-lg font-semibold text-purple-800 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-700"
+            >
+              Adminbereich öffnen
+            </button>
+          )}
         </div>
       </section>
     </div>
