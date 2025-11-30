@@ -18,8 +18,11 @@ export default function Login() {
     const result = await handleLogin(email, password);
     setPassword("");
 
-    if (result.error) setMessage(result.error);
-    else navigate("/home");
+    if (result.error) {
+      setMessage(result.error);
+    } else {
+      navigate("/home");
+    }
 
     setLoading(false);
   }
@@ -38,6 +41,7 @@ export default function Login() {
           required
           autoComplete="email"
         />
+
         <input
           type="password"
           placeholder="Passwort"
@@ -47,6 +51,7 @@ export default function Login() {
           required
           autoComplete="current-password"
         />
+
         <button
           type="submit"
           disabled={loading}
@@ -67,7 +72,6 @@ export default function Login() {
         </Link>
       </div>
 
-      {/* 👇 Neuer Registrierungs-Button */}
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-500 mb-2">Noch kein Konto?</p>
         <Link
