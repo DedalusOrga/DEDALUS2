@@ -9,6 +9,8 @@ import Protected from "./components/Protected";
 import { AuthProvider } from "./hooks/AuthProvider";
 import "./index.css";
 import QuestionsPage from "./pages/QuestionsPage";
+import InformationOverview from "./pages/InformationOverview";
+
 
 
 const router = createBrowserRouter([
@@ -70,6 +72,15 @@ const router = createBrowserRouter([
           </Protected>
   ),
 },
+{
+      path: "/informationen-uebersicht",
+      element: (
+        <Protected>
+          <InformationOverview />
+        </Protected>
+  ),
+},
+
 
       // 🔼🔼🔼 NUR HINZUGEFÜGT 🔼🔼🔼
     ],
