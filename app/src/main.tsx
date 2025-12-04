@@ -10,6 +10,8 @@ import { AuthProvider } from "./hooks/AuthProvider";
 import "./index.css";
 import QuestionsPage from "./pages/QuestionsPage";
 import InformationOverview from "./pages/InformationOverview";
+import KrebsinformationenOverview from "./pages/KrebsinformationenOverview";
+
 
 
 
@@ -80,6 +82,15 @@ const router = createBrowserRouter([
         </Protected>
   ),
 },
+{
+  path: "/informationen/allgemein",
+  element: (
+    <Protected>
+      <KrebsinformationenOverview />
+    </Protected>
+  ),
+}
+
 
 
       // 🔼🔼🔼 NUR HINZUGEFÜGT 🔼🔼🔼

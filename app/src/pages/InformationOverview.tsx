@@ -17,7 +17,7 @@ type InfoCard = {
 };
 
 const cards: InfoCard[] = [
-  { id: "krebs", title: "allgemeine Krebsinformationen", icon: BookIcon, slug: null },
+  { id: "krebs", title: "allgemeine Krebsinformationen", icon: BookIcon, slug: "allgemein" },
   { id: "therapie", title: "Therapieoptionen", icon: HeartIcon, slug: "therapieoptionen" },
   { id: "nebenwirkungen", title: "Nebenwirkungs-management", icon: SideIcon, slug: null },
   { id: "perspektive", title: "Patient*innen-perspektive", icon: PatientIcon, slug: null },
