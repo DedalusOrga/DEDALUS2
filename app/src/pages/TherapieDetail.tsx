@@ -2,6 +2,9 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
+import MicrophoneIcon from "../assets/microphone.svg";
+import TextIcon from "../assets/text.svg";
+
 
 export default function TherapieDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -49,14 +52,14 @@ export default function TherapieDetail() {
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
       <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
-        {/* Zurück */}
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center text-emerald-900 mb-8 hover:text-emerald-700"
-        >
-          <span className="text-2xl mr-2">←</span>
-          Zurück
-        </button>
+        {/* Zurück oben */}
+      <button
+        onClick={() => navigate("/home")}
+        className="flex items-center text-emerald-900 mb-6 hover:text-emerald-700"
+      >
+        <span className="text-2xl mr-2">←</span>
+        Zurück
+      </button>
 
         {/* Titel */}
         <h1 className="text-2xl md:text-3xl font-semibold text-emerald-800 mb-8">
@@ -96,23 +99,26 @@ export default function TherapieDetail() {
 
         {/* Buttons unten */}
         <div className="mt-10 flex flex-col gap-4 md:flex-row md:justify-end">
+  
+          {/* Vorlesen */}
           <button
             type="button"
             className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-6 py-3 
                        text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900 
                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
           >
-            <span className="mr-2 text-lg">🎤</span>
+            <img src={MicrophoneIcon} alt="Vorlesen" className="w-5 h-5 mr-2" />
             Vorlesen
           </button>
 
+          {/* Vereinfachen */}
           <button
             type="button"
             className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-6 py-3 
                        text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900 
                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
           >
-            <span className="mr-2 text-lg">☰</span>
+            <img src={TextIcon} alt="Vereinfachen" className="w-5 h-5 mr-2" />
             Vereinfachen
           </button>
         </div>

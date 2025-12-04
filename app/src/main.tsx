@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import App from "./App";
 import AdminPage from "./pages/AdminPage";
+import Startseite from "./pages/Startseite";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Register from "./pages/Register";
@@ -17,6 +18,7 @@ import TherapieDetail from "./pages/TherapieDetail";
 import QuestionsPage from "./pages/QuestionsPage";
 
 import "./index.css";
+
 
 const router = createBrowserRouter([
   // 🔓 Public Routes (ohne Login)
@@ -44,9 +46,9 @@ const router = createBrowserRouter([
       </Protected>
     ),
     children: [
-      { path: "/", element: <Home /> },
-      { path: "/home", element: <Home /> },
-
+        { path: "/", element: <Startseite /> },
+      { path: "/login", element: <Login /> },
+      { path: "/register", element: <Register /> },
       {
         path: "/entscheidungen",
         element: (
