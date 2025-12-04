@@ -18,87 +18,92 @@ export default function Login() {
     const result = await handleLogin(email, password);
     setPassword("");
 
-    if (result.error) setMessage(result.error);
-    else navigate("/home");
+    if (result.error) {
+      setMessage(result.error);
+    } else {
+      navigate("/home");
+    }
 
     setLoading(false);
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#EAF7E9] px-4 text-center">
-      {/* Titel */}
-      <h1 className="text-6xl md:text-5xl font-bold text-green-900 mb-4">
-        Willkommen zur DEDALUS 2
-      </h1>
+  <div className="min-h-screen flex flex-col items-center justify-center bg-emerald-50 px-4 text-center">
+    {/* Titel */}
+    <h1 className="text-4xl md:text-5xl font-bold text-emerald-900 mb-2">
+      Willkommen zur DEDALUS Webapp
+    </h1>
 
-      {/* Beschreibung */}
-      <p className="text-2xl mb-10 text-black font-bold">
-        Hier können Sie sich sicher anmelden.
-      </p>
+    {/* Beschreibung */}
+    <p className="text-lg md:text-xl mb-8 text-gray-800 font-medium">
+      Hier können Sie sich sicher anmelden.
+    </p>
 
-      {/* Nachricht bei Fehler */}
-      {message && <p className="text-red-600 mb-4">{message}</p>}
+    {/* Nachricht bei Fehler */}
+    {message && <p className="text-red-600 mb-4">{message}</p>}
 
-      {/* Login Formular */}
-      <form className="w-full max-w-sm space-y-6" onSubmit={onSubmit}>
-        {/* E-Mail */}
-        <div className="text-left">
-          <label className="block text-black font-bold mb-1">E-Mail</label>
-          <input
-            type="email"
-            className="w-full px-4 py-2 rounded-full border-2 focus:outline-none"
-            style={{ borderColor: "#335F50" }}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+    {/* Login Formular */}
+    <form className="w-full max-w-sm space-y-4 text-left" onSubmit={onSubmit}>
+      {/* E-Mail */}
+      <div>
+        <label className="block text-gray-900 font-semibold mb-1">
+          E-Mail
+        </label>
+        <input
+          type="email"
+          className="w-full px-4 py-2 rounded-full border-2 border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          autoComplete="email"
+        />
+      </div>
 
-        {/* Passwort */}
-        <div className="text-left">
-          <label className="block text-black font-bold mb-1">Passwort</label>
-          <input
-            type="password"
-            className="w-full px-4 py-2 rounded-full border-2 focus:outline-none"
-            style={{ borderColor: "#335F50" }}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <p className="text-left text-med text-green-700 font-semibold mt-0">
-            <Link to={`/auth/forgot?email=${encodeURIComponent(email)}`}>
-              Haben Sie Ihr Passwort vergessen?
-            </Link>
-          </p>
-        </div>
+      {/* Passwort */}
+      <div>
+        <label className="block text-gray-900 font-semibold mb-1">
+          Passwort
+        </label>
+        <input
+          type="password"
+          className="w-full px-4 py-2 rounded-full border-2 border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          autoComplete="current-password"
+        />
+        <p className="mt-1 text-sm text-emerald-700 font-semibold">
+          <Link to={`/auth/forgot?email=${encodeURIComponent(email)}`}>
+            Passwort vergessen?
+          </Link>
+        </p>
+      </div>
 
-        {/* Passwort vergessen*/}
+      {/* Login Button */}
+      <button
+        type="submit"
+        className="w-full text-white py-3 rounded-full text-lg font-bold bg-emerald-900 hover:bg-emerald-950 transition disabled:opacity-60"
+        disabled={loading}
+      >
+        {loading ? "Bitte warten…" : "Login"}
+      </button>
+    </form>
 
-        {/* Login Button */}
-        <button
-          type="submit"
-          className="w-full text-white py-3 rounded-full text-lg font-bold transition"
-          style={{ backgroundColor: "#133F32" }}
-          disabled={loading}
-        >
-          {loading ? "Bitte warten..." : "Login"}
-        </button>
-      </form>
+    {/* Link zu Registrieren */}
+    <p className="mt-10 text-base md:text-lg text-gray-900 font-medium">
+      Sie haben noch kein Konto?{" "}
+      <Link to="/register" className="text-emerald-700 font-semibold underline">
+        Registrieren
+      </Link>
+    </p>
 
-      {/* Link zu Registrieren */}
-      <p className="mt-14 text-lg text-black font-bold">
-        Sie haben noch kein Konto?{" "}
-        <Link to="/register" className="text-green-700 font-bold underline">
-          Registrieren
-        </Link>
-      </p>
+    {/* Link zurück zur Startseite */}
+    <p className="mt-4">
+      <Link to="/" className="text-emerald-700 underline">
+        Zurück zur Startseite
+      </Link>
+    </p>
+  </div>
+);
 
-      {/* Link zurück zur Startseite */}
-      <p className="mt-4">
-        <Link to="/" className="text-green-700 underline">
-          Zurück zur Startseite
-        </Link>
-      </p>
-    </div>
-  );
 }
