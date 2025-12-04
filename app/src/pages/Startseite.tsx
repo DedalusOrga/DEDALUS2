@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 export default function Startseite() {
     const navigate = useNavigate();
     return (
-        <div className="min-h-screen flex items-center" style={{ backgroundColor: "#EEF8EF" }}>
+        <div className="min-h-screen flex items-center bg-emerald-50">
             <div className="flex flex-col md:flex-row items-center justify-between w-full px-10 md:px-20">
 
                 {/* Linker Bereich (Text) */}

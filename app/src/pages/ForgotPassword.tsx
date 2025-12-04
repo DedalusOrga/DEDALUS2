@@ -34,50 +34,66 @@ export default function ForgotPassword() {
     );
   }
 
-    return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-[#EAF7E9] px-4 text-center">
-            <h1 className="text-6xl md:text-5xl text-green-900 font-bold  mb-14 text-center">
-                Willkommen zur DEDALUS 2
-            </h1>
-            <p className="text-2xl  text-black font-bold mb-1 ">
-                PASSWORT ZURÜCKSETZEN.
-            </p>
+ return (
+    <div className="min-h-screen border border-blue-300 bg-emerald-50 flex items-center justify-center px-4">
+      <div className="w-full max-w-xl px-6 py-12 text-center">
 
-            <p className="text-small mb-4 text-black ">
-                Wir schicken Ihnen eine Email mit Anweisung zur wiederherstellung
-            </p>
+        {/* Überschrift */}
+        <h1 className="text-3xl md:text-4xl font-extrabold text-[#0D3B2E] mb-4">
+          Passwort zurücksetzen
+        </h1>
 
-            <form onSubmit={onSubmit} className="space-y-3">
+        {/* Beschreibung */}
+        <p className="text-lg md:text-xl font-semibold text-[#0D1B2A] mb-8">
+          Bitte geben Sie Ihre E-Mail ein.
+        </p>
 
-                <input
-                    type="email"
-                    className="w-full px-4 py-2 rounded-full border-2 focus:outline-none"
-                    style={{ borderColor: "#335F50" }}
-                    placeholder="E-Mail-Adresse"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+        {/* Fehlermeldung */}
+        {msg && (
+          <p className="text-sm font-medium text-red-600 mb-4">
+            {msg}
+          </p>
+        )}
 
-                    required
-                    autoComplete="email"
-                />
+        {/* Formular */}
+        <form
+          onSubmit={onSubmit}
+          className="w-full max-w-sm mx-auto space-y-4 text-left"
+        >
+          {/* E-Mail */}
+          <div className="flex flex-col w-full">
+            <label className="mb-1 font-semibold text-[#0D1B2A]">E-Mail</label>
+            <input
+              type="email"
+              placeholder="Ihre E-Mail-Adresse"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border-2 border-[#335F50] rounded-full px-4 py-3 bg-white text-[15px] focus:outline-none focus:ring-2 focus:ring-[#335F50]"
+              required
+            />
+          </div>
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-[#0D3B2E] text-white font-bold px-4 py-3 rounded-full focus:outline-none"
-                >
-                    {loading ? "Bitte warten…" : "Reset-Link senden"}
-                </button>
-            </form>
+          {/* Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#0D3B2E] text-white font-semibold py-3 rounded-full mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {loading ? "Bitte warten…" : "Reset-Link senden"}
+          </button>
+        </form>
 
-            {msg && <p className="text-sm text-gray-700 mt-3">{msg}</p>}
-
-            <button
-                onClick={() => navigate("/login")}
-                className="mt-6 underline text-med text-gray-600"
-            >
-                Zurück zum Login
-            </button>
-        </div>
-    );
-};
+        {/* Zurück zum Login */}
+        <p className="mt-8 font-semibold text-[#0D1B2A]">
+          Zurück zum{" "}
+          <button
+            onClick={() => navigate("/login")}
+            className="text-[#1EAD5A] font-semibold underline"
+          >
+            Login
+          </button>
+        </p>
+      </div>
+    </div>
+  );
+}
