@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { handleLogin } from "../infrastructure/api/handleLogin";
 import { supabase } from "../infrastructure/supabase/client";
 
-
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -11,7 +10,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-   async function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
@@ -19,20 +18,13 @@ export default function Login() {
     const result = await handleLogin(email, password);
     setPassword("");
 
-    if (result.error) setMessage(result.error);
-    else navigate("/home");
+    if (result.error) {
+      setMessage(result.error);
+    } else {
+      navigate("/home");
+    }
 
     setLoading(false);
-  }
-
-  async function handleForgotPassword(e: React.MouseEvent) {
-    e.preventDefault();
-    if (!email) return alert("Bitte E-Mail eintragen.");
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset`,
-    });
-    if (error) alert(error.message);
-    else alert("Wenn die E-Mail existiert, wurde ein Reset-Link gesendet.");
   }
 
   return (
@@ -47,8 +39,9 @@ export default function Login() {
           onChange={(e) => setEmail(e.target.value)}
           className="border rounded w-full p-2"
           required
-          autoComplete="email" 
+          autoComplete="email"
         />
+
         <input
           type="password"
           placeholder="Passwort"
@@ -58,6 +51,7 @@ export default function Login() {
           required
           autoComplete="current-password"
         />
+
         <button
           type="submit"
           disabled={loading}
@@ -70,16 +64,14 @@ export default function Login() {
       {message && <p className="text-sm text-gray-600 mt-3">{message}</p>}
 
       <div className="mt-2 text-right">
-        <a
-          href="#"
-          onClick={handleForgotPassword}
+        <Link
+          to={`/auth/forgot?email=${encodeURIComponent(email)}`}
           className="text-sm underline text-gray-600"
         >
           Passwort vergessen?
-        </a>
+        </Link>
       </div>
 
-      {/* 👇 Neuer Registrierungs-Button */}
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-500 mb-2">Noch kein Konto?</p>
         <Link
