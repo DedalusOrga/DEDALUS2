@@ -7,6 +7,7 @@ import AdminPage from "./pages/AdminPage";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Register from "./pages/Register";
+import EntscheidungenOverview from "./pages/EntscheidungenOverview";
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import Protected from "./components/Protected";
@@ -50,12 +51,7 @@ const router = createBrowserRouter([
      
       { path: "/home", element: <Home /> },
 
-      {
-        path: "/entscheidungen",
-        element: (
-          <div className="p-6 text-lg">Entscheidungen (Platzhalter)</div>
-        ),
-      },
+      { path: "/entscheidungen", element: <EntscheidungenOverview /> },
 
       { path: "/informationen", element: <InformationenOverview /> },
 
