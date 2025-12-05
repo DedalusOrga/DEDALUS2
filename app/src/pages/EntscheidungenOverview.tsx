@@ -1,7 +1,31 @@
 import { useNavigate } from "react-router-dom";
+import ChatIcon from "../assets/token_chat.svg";
+import SignpostIcon from "../assets/signpost.svg";
+import ClipboardIcon from "../assets/clipboard.svg";
 
 export default function EntscheidungenOverview() {
   const navigate = useNavigate();
+
+  const cards = [
+    {
+      id: "arzt",
+      title: "Fragen für das Arztgespräch",
+      icon: ChatIcon,
+      path: "/entscheidungen/arztgespraech",
+    },
+    {
+      id: "planung",
+      title: "Planung und Entscheidung",
+      icon: SignpostIcon,
+      path: "/entscheidungen/planung",
+    },
+    {
+      id: "frageboegen",
+      title: "Fragebögen zu Entscheidung",
+      icon: ClipboardIcon,
+      path: "/entscheidungen/frageboegen-entscheidung",
+    },
+  ];
 
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
@@ -16,42 +40,29 @@ export default function EntscheidungenOverview() {
           Zurück
         </button>
 
-
         {/* Karten */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-          {/* Karte 1 */}
-          <button
-            onClick={() => navigate("/entscheidungen/arztgespraech")}
-            className="bg-white rounded-3xl shadow-sm h-56 flex flex-col items-center justify-center
-                       hover:shadow-md hover:-translate-y-0.5 transition-all"
-          >
-            <div className="text-lg font-medium text-emerald-900 text-center">
-              Fragen für das Arztgespräch
-            </div>
-          </button>
+          {cards.map((card) => (
+            <button
+              key={card.id}
+              onClick={() => navigate(card.path)}
+              className="bg-white rounded-3xl shadow-sm h-64 flex flex-col items-center justify-center
+                         hover:shadow-md hover:-translate-y-0.5 transition-all"
+            >
+              {/* Icon */}
+              <img
+                src={card.icon}
+                alt={card.title}
+                className="w-12 h-12 mb-4"
+              />
 
-          {/* Karte 2 */}
-          <button
-            onClick={() => navigate("/entscheidungen/planung")}
-            className="bg-white rounded-3xl shadow-sm h-56 flex flex-col items-center justify-center
-                       hover:shadow-md hover:-translate-y-0.5 transition-all"
-          >
-            <div className="text-lg font-medium text-emerald-900 text-center">
-              Planung und Entscheidung
-            </div>
-          </button>
-
-          {/* Karte 3 */}
-          <button
-            onClick={() => navigate("/entscheidungen/frageboegen-entscheidung")}
-            className="bg-white rounded-3xl shadow-sm h-56 flex flex-col items-center justify-center
-                       hover:shadow-md hover:-translate-y-0.5 transition-all"
-          >
-            <div className="text-lg font-medium text-emerald-900 text-center">
-              Fragebögen zu Entscheidung
-            </div>
-          </button>
+              {/* Titel */}
+              <div className="text-lg font-medium text-emerald-900 text-center px-4">
+                {card.title}
+              </div>
+            </button>
+          ))}
 
         </div>
       </div>
