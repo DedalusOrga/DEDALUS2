@@ -18,12 +18,14 @@ type InfoCard = {
 
 const cards: InfoCard[] = [
   { id: "krebs", title: "allgemeine Krebsinformationen", icon: BookIcon, slug: "allgemein" },
-  { id: "therapie", title: "Therapieoptionen", icon: HeartIcon, slug: "therapieoptionen" },
-  { id: "nebenwirkungen", title: "Nebenwirkungs-management", icon: SideIcon, slug: null },
-  { id: "perspektive", title: "Patient*innen-perspektive", icon: PatientIcon, slug: null },
-  { id: "zusaetzlich", title: "zusätzliche Therapieoptionen", icon: LensIcon, slug: null },
-  { id: "support", title: "Unterstützungs-angebote", icon: HandshakeIcon, slug: null },
-  { id: "weiterfuehrende", title: "weiterführende Informationen", icon: InfoIcon, slug: null },
+  { id: "therapie", title: "Therapieoptionen", icon: HeartIcon, slug: "optionentherapie" },
+  { id: "nebenwirkungen", title: "Nebenwirkungs-management", icon: SideIcon, slug: "nebenwirkungen" },
+  { id: "patienten", title: "Patient*innen-perspektive", icon: PatientIcon, slug: "patientenperspektive"},
+  { id: "zusaetzlich", title: "zusätzliche Therapieoptionen", icon: LensIcon, slug: "zusaetzlich" },
+  { id: "support", title: "Unterstützungs-angebote", icon: HandshakeIcon, slug: "unterstuetzung" },
+  { id: "weiterfuehrende", title: "weiterführende Informationen", icon: InfoIcon, slug: "weiter" },
+  
+
 ];
 
 export default function InformationOverview() {
