@@ -8,7 +8,9 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Register from "./pages/Register";
 import EntscheidungenOverview from "./pages/EntscheidungenOverview";
-import ResetPassword from "./pages/ResetPassword";
+import FrageboegenEntscheidung from "./pages/FrageboegenEntscheidung";
+import FragebogenFrage from "./pages/FragebogenFrage";
+import FragebogenFertig from "./pages/FragebogenFertig";
 import ForgotPassword from "./pages/ForgotPassword";
 import Protected from "./components/Protected";
 import AdminProtected from "./components/AdminProtected";
@@ -52,6 +54,12 @@ const router = createBrowserRouter([
       { path: "/home", element: <Home /> },
 
       { path: "/entscheidungen", element: <EntscheidungenOverview /> },
+
+      { path: "/entscheidungen/frageboegen-entscheidung", element: <FrageboegenEntscheidung /> },
+
+      { path: "/entscheidungen/fragebogen/:id", element: <FragebogenFrage /> },
+
+      { path: "/entscheidungen/fragebogen/:id/fertig", element: <FragebogenFertig /> },
 
       { path: "/informationen", element: <InformationenOverview /> },
 

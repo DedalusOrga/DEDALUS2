@@ -21,7 +21,7 @@ export default function EntscheidungenOverview() {
     },
     {
       id: "frageboegen",
-      title: "Fragebögen zu Entscheidung",
+      title: "Fragebögen zu Entscheidungen",
       icon: ClipboardIcon,
       path: "/entscheidungen/frageboegen-entscheidung",
     },
