@@ -7,7 +7,6 @@ import AdminPage from "./pages/AdminPage";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Register from "./pages/Register";
-import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import Protected from "./components/Protected";
 import AdminProtected from "./components/AdminProtected";
@@ -19,14 +18,12 @@ import QuestionsPage from "./pages/QuestionsPage";
 
 import "./index.css";
 
-
 const router = createBrowserRouter([
   // 🔓 Public Routes (ohne Login)
-   { path: "/", element: <Startseite /> },
+  { path: "/", element: <Startseite /> },
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
   { path: "/auth/forgot", element: <ForgotPassword /> },
-
 
   // Admin ganz oben – nur geschützt, aber NICHT in der App-Navigation
   {
@@ -47,7 +44,6 @@ const router = createBrowserRouter([
       </Protected>
     ),
     children: [
-     
       { path: "/home", element: <Home /> },
 
       {

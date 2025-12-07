@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
+import { useTextToSpeech } from "../hooks/useTextToSpeech";
 
 export default function TherapieDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -53,6 +54,11 @@ export default function TherapieDetail() {
   const videoUrl = module?.data?.video_url ?? null;
   const hasVideo = !!videoUrl;
 
+  const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
+    lang: "de-DE",
+    rate: 1.0,
+  });
+
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
       <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
@@ -100,12 +106,13 @@ export default function TherapieDetail() {
           {/* Vorlesen */}
           <button
             type="button"
+            onClick={toggleSpeak}
             className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-6 py-3 
-                       text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900 
-                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+             text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900 
+             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
           >
             <img src={MicrophoneIcon} alt="Vorlesen" className="w-5 h-5 mr-2" />
-            Vorlesen
+            {isSpeaking ? "Stopp" : "Vorlesen"}
           </button>
 
           <button
