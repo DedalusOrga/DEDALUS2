@@ -1,6 +1,5 @@
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-
 import App from "./App";
 import Startseite from "./pages/Startseite";
 import AdminPage from "./pages/AdminPage";
@@ -15,11 +14,10 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Protected from "./components/Protected";
 import AdminProtected from "./components/AdminProtected";
 import { AuthProvider } from "./hooks/AuthProvider";
-
 import InformationenOverview from "./pages/InformationenOverview";
 import TherapieDetail from "./pages/TherapieDetail";
 import QuestionsPage from "./pages/QuestionsPage";
-
+import ArztgespraechOverview from "./pages/ArztgespraechOverview";
 import "./index.css";
 
 
@@ -55,11 +53,14 @@ const router = createBrowserRouter([
 
       { path: "/entscheidungen", element: <EntscheidungenOverview /> },
 
+      { path: "/entscheidungen/arztgespraech", element: <ArztgespraechOverview /> },
+
       { path: "/entscheidungen/frageboegen-entscheidung", element: <FrageboegenEntscheidung /> },
 
       { path: "/entscheidungen/fragebogen/:id", element: <FragebogenFrage /> },
 
       { path: "/entscheidungen/fragebogen/:id/fertig", element: <FragebogenFertig /> },
+
 
       { path: "/informationen", element: <InformationenOverview /> },
 
