@@ -1,10 +1,11 @@
 import TextModule from "./TextModule";
 import PdfModule from "./PdfModule";
+import VideoModule from "./VideoModule";
 
 type Module = {
   id: string;
   title: string;
-  type: string;
+  type: "text" | "pdf" | "video";
   body_md?: string | null;
   file_url?: string | null;
 };
@@ -16,6 +17,11 @@ export default function ModuleRenderer({ module }: { module: Module }) {
 
     case "pdf":
       return <PdfModule title={module.title} fileUrl={module.file_url ?? ""} />;
+
+    case "video":
+      return (
+        <VideoModule title={module.title} fileUrl={module.file_url ?? ""} />
+      );
 
     default:
       return <div>Unbekannter Modultyp: {module.type}</div>;
