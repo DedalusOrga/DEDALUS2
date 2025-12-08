@@ -21,8 +21,16 @@ type NewModuleFormState = {
   file_url: string;
 };
 
+// Bucket je nach Modultyp auswählen
+function getBucketForType(type: "text" | "pdf" | "video") {
+  if (type === "pdf") return "PDF";
+  if (type === "video") return "videos";
+  // für Text wird kein Storage verwendet – Fallback, falls nötig
+  return "Text";
+}
+
 export default function AdminPage() {
-  const { user, signOut } = useAuth(); // ⬅️ nur noch user + signOut
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const [modules, setModules] = useState<ContentModule[]>([]);
@@ -37,6 +45,9 @@ export default function AdminPage() {
     body_md: "",
     file_url: "",
   });
+
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     loadModules();
@@ -69,13 +80,56 @@ export default function AdminPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  // Datei (PDF/Video) in Supabase Storage hochladen und URL ins Formular schreiben
+  async function handleFileUpload(file: File) {
+    if (form.type === "text") {
+      // Sicherheitsnetz – sollte durch das UI nie passieren
+      setUploadError("Dateiupload ist nur für PDF- und Video-Module möglich.");
+      return;
+    }
+
+    setUploading(true);
+    setUploadError(null);
+
+    try {
+      const ext = file.name.split(".").pop() ?? "bin";
+      const safeSlug = form.slug.trim() || "module";
+      const filePath = `modules/${Date.now()}_${safeSlug}.${ext}`;
+
+      const bucket = getBucketForType(form.type);
+
+      // 1) Upload in Storage
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error(uploadError);
+        setUploadError("Datei konnte nicht hochgeladen werden.");
+        return;
+      }
+
+      // 2) Public URL holen
+      const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+      const publicUrl = data.publicUrl;
+
+      // 3) URL ins Formular übernehmen
+      setForm((prev) => ({ ...prev, file_url: publicUrl }));
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function handleCreateModule(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError(null);
 
     if (!form.title || !form.slug) {
-      setError("Titel und Slug sind Pflichtfelder.");
+      setError("Titel und Kurzname sind Pflichtfelder.");
       setSaving(false);
       return;
     }
@@ -229,8 +283,32 @@ export default function AdminPage() {
           {(form.type === "pdf" || form.type === "video") && (
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">
-                {form.type === "pdf" ? "PDF-URL" : "Video-URL"}
+                {form.type === "pdf"
+                  ? "PDF-Datei oder URL"
+                  : "Video-Datei oder URL"}
               </label>
+
+              {/* Upload in Supabase Storage */}
+              <input
+                type="file"
+                accept={form.type === "pdf" ? "application/pdf" : "video/*"}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    void handleFileUpload(file);
+                  }
+                }}
+                className="border rounded px-2 py-1 w-full"
+              />
+
+              {uploading && (
+                <p className="text-xs text-gray-500">Datei wird hochgeladen…</p>
+              )}
+              {uploadError && (
+                <p className="text-xs text-red-600">{uploadError}</p>
+              )}
+
+              {/* URL anzeigen / manuell überschreiben */}
               <input
                 type="url"
                 value={form.file_url}
@@ -238,8 +316,8 @@ export default function AdminPage() {
                 className="border rounded px-2 py-1 w-full"
                 placeholder={
                   form.type === "pdf"
-                    ? "Direkte URL zur PDF-Datei (z. B. aus Supabase Storage)"
-                    : "Direkte URL zur Videodatei oder zu einem Stream"
+                    ? "Direkte PDF-URL (oder wird nach Upload automatisch gesetzt)"
+                    : "Direkte Video-URL (oder wird nach Upload automatisch gesetzt)"
                 }
               />
             </div>
