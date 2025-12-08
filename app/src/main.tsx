@@ -47,14 +47,12 @@ import WeiterfuehrendeInfoDetail from "./pages/WeiterfuehrendeInfoDetail";
 
 import "./index.css";
 
-
 const router = createBrowserRouter([
   // 🔓 Public Routes (ohne Login)
-   { path: "/", element: <Startseite /> },
+  { path: "/", element: <Startseite /> },
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
   { path: "/auth/forgot", element: <ForgotPassword /> },
-
 
   // Admin ganz oben – nur geschützt, aber NICHT in der App-Navigation
   {
@@ -75,7 +73,6 @@ const router = createBrowserRouter([
       </Protected>
     ),
     children: [
-     
       { path: "/home", element: <Home /> },
 
       { path: "/entscheidungen", element: <EntscheidungenOverview /> },

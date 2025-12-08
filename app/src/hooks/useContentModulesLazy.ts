@@ -1,41 +1,64 @@
-// app/src/hooks/useContentModulesLazy.ts
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { supabase } from "../infrastructure/supabase/client";
 
-type ModuleFilter = {
-  type?: string; // z.B. "pdf" oder "text"
-  slug?: string; // z.B. "leitfaden"
-};
+export function useContentModulesLazy(options: {
+  type?: string;
+  slug?: string;
+}) {
+  const { type, slug } = options;
 
-export function useContentModulesLazy(filter?: ModuleFilter) {
   const [modules, setModules] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadedOnce, setLoadedOnce] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  async function loadModules() {
+  const loadModules = useCallback(async () => {
     setLoading(true);
+    setError(null);
 
     let query = supabase
       .from("content_modules")
-      .select("id, title, type, slug, body_md, file_url, status, data") // ← data dazu
+      .select(`
+        id,
+        title,
+        type,
+        slug,
+        body_md,
+        body_md_simple,
+        file_url,
+        status,
+        data
+      `)
       .eq("status", "published");
 
-    if (filter?.type) {
-      query = query.eq("type", filter.type);
+    if (type) {
+      query = query.eq("type", type);
     }
-    if (filter?.slug) {
-      query = query.eq("slug", filter.slug);
+    if (slug) {
+      query = query.eq("slug", slug);
     }
 
     const { data, error } = await query;
 
-    if (!error && data) {
-      setModules(data);
+    if (error) {
+      console.error("Error loading content_modules:", error);
+      setError(error.message);
+      setModules([]);
+    } else {
+      setModules(data ?? []);
       setLoadedOnce(true);
     }
 
     setLoading(false);
-  }
+  }, [type, slug]);
 
-  return { modules, loading, loadedOnce, loadModules };
+  return {
+    modules,
+    loading,
+    loadedOnce,
+    error,
+    loadModules,
+  };
 }
+
+export default useContentModulesLazy;
