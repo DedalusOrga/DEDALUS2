@@ -7,14 +7,14 @@ type ContentModule = {
   id: string;
   slug: string;
   title: string;
-  type: string;
+  type: "text" | "pdf" | "video";
   body_md?: string | null;
   file_url?: string | null;
   status: string;
 };
 
 type NewModuleFormState = {
-  type: "text" | "pdf";
+  type: "text" | "pdf" | "video";
   title: string;
   slug: string;
   body_md: string;
@@ -92,7 +92,7 @@ export default function AdminPage() {
     if (form.type === "text") {
       insertPayload.body_md = form.body_md || "";
       insertPayload.file_url = null;
-    } else if (form.type === "pdf") {
+    } else if (form.type === "pdf" || form.type === "video") {
       insertPayload.file_url = form.file_url || "";
       insertPayload.body_md = null;
     }
@@ -166,12 +166,16 @@ export default function AdminPage() {
             <select
               value={form.type}
               onChange={(e) =>
-                handleFormChange("type", e.target.value as "text" | "pdf")
+                handleFormChange(
+                  "type",
+                  e.target.value as "text" | "pdf" | "video"
+                )
               }
               className="border rounded px-2 py-1 w-full sm:w-2/3"
             >
               <option value="text">Text</option>
               <option value="pdf">PDF</option>
+              <option value="video">Video</option>
             </select>
           </div>
 
@@ -189,18 +193,24 @@ export default function AdminPage() {
             />
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-4">
             <label className="text-sm font-medium w-full sm:w-1/3">
-              Slug *
+              Kurzname für das Modul *
+              <span className="block text-xs font-normal text-gray-500">
+                Wird nur technisch im System verwendet (z. B. „behandlungsinfo“)
+              </span>
             </label>
-            <input
-              type="text"
-              value={form.slug}
-              onChange={(e) => handleFormChange("slug", e.target.value)}
-              className="border rounded px-2 py-1 w-full sm:w-2/3"
-              placeholder="z. B. behandlungsinfo"
-              required
-            />
+
+            <div className="w-full sm:w-2/3">
+              <input
+                type="text"
+                value={form.slug}
+                onChange={(e) => handleFormChange("slug", e.target.value)}
+                className="border rounded px-2 py-1 w-full"
+                placeholder="z. B. behandlungsinfo"
+                required
+              />
+            </div>
           </div>
 
           {form.type === "text" && (
@@ -216,15 +226,21 @@ export default function AdminPage() {
             </div>
           )}
 
-          {form.type === "pdf" && (
+          {(form.type === "pdf" || form.type === "video") && (
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">PDF-URL</label>
+              <label className="text-sm font-medium">
+                {form.type === "pdf" ? "PDF-URL" : "Video-URL"}
+              </label>
               <input
                 type="url"
                 value={form.file_url}
                 onChange={(e) => handleFormChange("file_url", e.target.value)}
                 className="border rounded px-2 py-1 w-full"
-                placeholder="Direkte URL zur PDF-Datei (z. B. aus Supabase Storage)"
+                placeholder={
+                  form.type === "pdf"
+                    ? "Direkte URL zur PDF-Datei (z. B. aus Supabase Storage)"
+                    : "Direkte URL zur Videodatei oder zu einem Stream"
+                }
               />
             </div>
           )}
