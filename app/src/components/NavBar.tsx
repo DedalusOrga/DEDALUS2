@@ -1,7 +1,11 @@
+// Neue Navigation basierend auf dem Screenshot
+// Tabs: Bedienhilfe, Informationen, Entscheidungen, Einstellungen
+
 import { NavLink } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
 
 export default function NavBar() {
+  // Style für aktive und inaktive Tabs
   const tabClass = ({ isActive }: { isActive: boolean }) =>
     `px-6 py-3 text-base font-semibold border-b-2 transition-colors outline-none 
      focus:ring-2 focus:ring-offset-2 focus:ring-emerald-600 ${
@@ -12,30 +16,25 @@ export default function NavBar() {
 
   return (
     <header className="bg-emerald-50">
+      {/* Weißer Menü-Balken */}
       <div className="mx-auto max-w-6xl px-4 pt-4">
-        {/* kleine Zeile oben links – kannst du auch weglassen, wenn sie dich stört */}
-        <div className="mb-2 text-sm text-slate-400">
-          Startseite
-        </div>
-
-        {/* weiße Menüleiste */}
         <div className="flex items-center justify-between rounded-t-xl bg-white shadow-sm">
           <nav
             className="flex items-center gap-4 md:gap-8 px-6"
             aria-label="Hauptnavigation"
           >
-            <NavLink to="/home" className={tabClass}>
-              Startseite
+            <NavLink to="/informationen-uebersicht" className={tabClass}>
+              Informationen
             </NavLink>
+
             <NavLink to="/entscheidungen" className={tabClass}>
               Entscheidungen
             </NavLink>
-            <NavLink to="/informationen" className={tabClass}>
-              Informationen
+
+            <NavLink to="/bedienhilfe" className={tabClass}>
+              Bedienhilfe
             </NavLink>
-            <NavLink to="/einstellungen" className={tabClass}>
-              Einstellungen
-            </NavLink>
+
           </nav>
 
           <div className="pr-6">
