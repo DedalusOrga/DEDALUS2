@@ -7,22 +7,30 @@ type ContentModule = {
   id: string;
   slug: string;
   title: string;
-  type: string;
+  type: "text" | "pdf" | "video";
   body_md?: string | null;
   file_url?: string | null;
   status: string;
 };
 
 type NewModuleFormState = {
-  type: "text" | "pdf";
+  type: "text" | "pdf" | "video";
   title: string;
   slug: string;
   body_md: string;
   file_url: string;
 };
 
+// Bucket je nach Modultyp auswählen
+function getBucketForType(type: "text" | "pdf" | "video") {
+  if (type === "pdf") return "PDF";
+  if (type === "video") return "videos";
+  // für Text wird kein Storage verwendet – Fallback, falls nötig
+  return "Text";
+}
+
 export default function AdminPage() {
-  const { user, signOut } = useAuth(); // ⬅️ nur noch user + signOut
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const [modules, setModules] = useState<ContentModule[]>([]);
@@ -37,6 +45,9 @@ export default function AdminPage() {
     body_md: "",
     file_url: "",
   });
+
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     loadModules();
@@ -69,13 +80,56 @@ export default function AdminPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  // Datei (PDF/Video) in Supabase Storage hochladen und URL ins Formular schreiben
+  async function handleFileUpload(file: File) {
+    if (form.type === "text") {
+      // Sicherheitsnetz – sollte durch das UI nie passieren
+      setUploadError("Dateiupload ist nur für PDF- und Video-Module möglich.");
+      return;
+    }
+
+    setUploading(true);
+    setUploadError(null);
+
+    try {
+      const ext = file.name.split(".").pop() ?? "bin";
+      const safeSlug = form.slug.trim() || "module";
+      const filePath = `modules/${Date.now()}_${safeSlug}.${ext}`;
+
+      const bucket = getBucketForType(form.type);
+
+      // 1) Upload in Storage
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error(uploadError);
+        setUploadError("Datei konnte nicht hochgeladen werden.");
+        return;
+      }
+
+      // 2) Public URL holen
+      const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+      const publicUrl = data.publicUrl;
+
+      // 3) URL ins Formular übernehmen
+      setForm((prev) => ({ ...prev, file_url: publicUrl }));
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function handleCreateModule(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError(null);
 
     if (!form.title || !form.slug) {
-      setError("Titel und Slug sind Pflichtfelder.");
+      setError("Titel und Kurzname sind Pflichtfelder.");
       setSaving(false);
       return;
     }
@@ -92,7 +146,7 @@ export default function AdminPage() {
     if (form.type === "text") {
       insertPayload.body_md = form.body_md || "";
       insertPayload.file_url = null;
-    } else if (form.type === "pdf") {
+    } else if (form.type === "pdf" || form.type === "video") {
       insertPayload.file_url = form.file_url || "";
       insertPayload.body_md = null;
     }
@@ -166,12 +220,16 @@ export default function AdminPage() {
             <select
               value={form.type}
               onChange={(e) =>
-                handleFormChange("type", e.target.value as "text" | "pdf")
+                handleFormChange(
+                  "type",
+                  e.target.value as "text" | "pdf" | "video"
+                )
               }
               className="border rounded px-2 py-1 w-full sm:w-2/3"
             >
               <option value="text">Text</option>
               <option value="pdf">PDF</option>
+              <option value="video">Video</option>
             </select>
           </div>
 
@@ -189,18 +247,24 @@ export default function AdminPage() {
             />
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-4">
             <label className="text-sm font-medium w-full sm:w-1/3">
-              Slug *
+              Kurzname für das Modul *
+              <span className="block text-xs font-normal text-gray-500">
+                Wird nur technisch im System verwendet (z. B. „behandlungsinfo“)
+              </span>
             </label>
-            <input
-              type="text"
-              value={form.slug}
-              onChange={(e) => handleFormChange("slug", e.target.value)}
-              className="border rounded px-2 py-1 w-full sm:w-2/3"
-              placeholder="z. B. behandlungsinfo"
-              required
-            />
+
+            <div className="w-full sm:w-2/3">
+              <input
+                type="text"
+                value={form.slug}
+                onChange={(e) => handleFormChange("slug", e.target.value)}
+                className="border rounded px-2 py-1 w-full"
+                placeholder="z. B. behandlungsinfo"
+                required
+              />
+            </div>
           </div>
 
           {form.type === "text" && (
@@ -216,15 +280,45 @@ export default function AdminPage() {
             </div>
           )}
 
-          {form.type === "pdf" && (
+          {(form.type === "pdf" || form.type === "video") && (
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">PDF-URL</label>
+              <label className="text-sm font-medium">
+                {form.type === "pdf"
+                  ? "PDF-Datei oder URL"
+                  : "Video-Datei oder URL"}
+              </label>
+
+              {/* Upload in Supabase Storage */}
+              <input
+                type="file"
+                accept={form.type === "pdf" ? "application/pdf" : "video/*"}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    void handleFileUpload(file);
+                  }
+                }}
+                className="border rounded px-2 py-1 w-full"
+              />
+
+              {uploading && (
+                <p className="text-xs text-gray-500">Datei wird hochgeladen…</p>
+              )}
+              {uploadError && (
+                <p className="text-xs text-red-600">{uploadError}</p>
+              )}
+
+              {/* URL anzeigen / manuell überschreiben */}
               <input
                 type="url"
                 value={form.file_url}
                 onChange={(e) => handleFormChange("file_url", e.target.value)}
                 className="border rounded px-2 py-1 w-full"
-                placeholder="Direkte URL zur PDF-Datei (z. B. aus Supabase Storage)"
+                placeholder={
+                  form.type === "pdf"
+                    ? "Direkte PDF-URL (oder wird nach Upload automatisch gesetzt)"
+                    : "Direkte Video-URL (oder wird nach Upload automatisch gesetzt)"
+                }
               />
             </div>
           )}
