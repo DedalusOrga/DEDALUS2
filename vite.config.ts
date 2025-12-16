@@ -5,10 +5,9 @@ import { fileURLToPath, URL } from 'node:url'
 export default defineConfig(({ mode }) => ({
   base: mode === 'production' ? '/DEDALUS2/' : '/',
   plugins: [react()],
-  server: { port: 5173, open: true },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./app/src', import.meta.url))
-    }
-  }
+      '@': fileURLToPath(new URL('./app/src', import.meta.url)),
+    },
+  },
 }))
