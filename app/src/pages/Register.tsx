@@ -3,12 +3,12 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "../infrastructure/supabase/client";
 
 export default function Register() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [password2, setPassword2] = useState("");
-    const [msg, setMsg] = useState<string | null>(null);
-    const [busy, setBusy] = useState(false);
-    const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const navigate = useNavigate();
 
   function validatePassword(pw: string): string | null {
     if (pw.length < 12)
@@ -56,7 +56,7 @@ export default function Register() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-emerald-50 px-4 text-center">
       {/* Überschrift */}
       <h1 className="text-4xl md:text-5xl font-bold text-green-900 mb-2">
-        Willkommen zur DEDALUS Webapp 
+        Willkommen zur DEDALUS Webapp
       </h1>
 
       {/* Unterüberschrift */}
@@ -65,11 +65,7 @@ export default function Register() {
       </p>
 
       {/* Nachricht (Fehler / Erfolg) */}
-      {msg && (
-        <p className="mb-4 text-sm font-semibold text-red-600">
-          {msg}
-        </p>
-      )}
+      {msg && <p className="mb-4 text-sm font-semibold text-red-600">{msg}</p>}
 
       {/* Formular */}
       <form
@@ -87,8 +83,12 @@ export default function Register() {
 
         {/* E-Mail */}
         <div className="flex flex-col w-full">
-          <label className="mb-1 font-bold text-slate-900">E-Mail</label>
+          <label htmlFor="email" className="mb-1 font-bold text-slate-900">
+            E-Mail
+          </label>
           <input
+            id="email"
+            name="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -99,8 +99,12 @@ export default function Register() {
 
         {/* Passwort */}
         <div className="flex flex-col w-full">
-          <label className="mb-1 font-bold text-slate-900">Passwort</label>
+          <label htmlFor="password" className="mb-1 font-bold text-slate-900">
+            Passwort
+          </label>
           <input
+            id="password"
+            name="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -111,10 +115,15 @@ export default function Register() {
 
         {/* Passwort bestätigen */}
         <div className="flex flex-col w-full">
-          <label className="mb-1 font-bold text-slate-900">
+          <label
+            htmlFor="passwordConfirm"
+            className="mb-1 font-bold text-slate-900"
+          >
             Passwort bestätigen
           </label>
           <input
+            id="passwordConfirm"
+            name="passwordConfirm"
             type="password"
             value={password2}
             onChange={(e) => setPassword2(e.target.value)}
