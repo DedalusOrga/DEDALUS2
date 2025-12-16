@@ -300,7 +300,11 @@ const router = createBrowserRouter([
 
     ],
   },
-]);
+],
+  {
+    basename: "/DEDALUS2",
+  }
+);
 
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
