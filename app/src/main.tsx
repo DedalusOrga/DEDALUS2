@@ -38,6 +38,7 @@ import WeiterfuehrendeInfoOverview from "./pages/WeiterfuehrendeInfoOverview";
 import WeiterfuehrendeInfoDetail from "./pages/WeiterfuehrendeInfoDetail";
 import "./index.css";
 
+const basename = import.meta.env.DEV ? "/" : "/DEDALUS2";
 
 const router = createBrowserRouter([
   // 🔓 Public Routes (ohne Login)
@@ -58,50 +59,42 @@ const router = createBrowserRouter([
 
   // 🔐 Alle übrigen Routen nur mit Login erreichbar
   {
-    path: "/",
+    path: "/app",
     element: (
       <Protected>
         <App />
       </Protected>
     ),
     children: [
-      { path: "/home", element: <Home /> },
+      { index: true, element: <Home /> },
 
-      { path: "/entscheidungen", element: <EntscheidungenOverview /> },
+      { path: "entscheidungen", element: <EntscheidungenOverview /> },
 
-      { path: "/entscheidungen/arztgespraech", element: <ArztgespraechOverview /> },
+      { path: "entscheidungen/arztgespraech", element: <ArztgespraechOverview /> },
 
-      { path: "/entscheidungen/frageboegen-entscheidung", element: <FrageboegenEntscheidung /> },
+      { path: "entscheidungen/frageboegen-entscheidung", element: <FrageboegenEntscheidung /> },
 
-      { path: "/entscheidungen/fragebogen/:id", element: <FragebogenFrage /> },
+      { path: "entscheidungen/fragebogen/:id", element: <FragebogenFrage /> },
 
-      { path: "/entscheidungen/fragebogen/:id/fertig", element: <FragebogenFertig /> },
+      { path: "entscheidungen/fragebogen/:id/fertig", element: <FragebogenFertig /> },
 
-
-{
-      path: "/informationen/optionentherapie",
-      element: (
-        <Protected>
-          <OptionenTherapie />
-        </Protected>
-  ),
-},
-
-      { path: "/informationen/:slug", element: <TherapieDetail /> },
 
       {
-        path: "/einstellungen",
+      path: "informationen/optionentherapie",
+      element: <OptionenTherapie />,
+      },
+
+      { path: "informationen/:slug", element: <TherapieDetail /> },
+
+      {
+        path: "einstellungen",
         element: <div className="p-6 text-lg">Einstellungen (Platzhalter)</div>,
       },
       
       {
-       path: "/fragen",
-       element: (
-          <Protected>
-            <QuestionsPage />
-          </Protected>
-  ),
-},
+       path: "fragen",
+       element: <QuestionsPage />,
+      },
 // -------------------------------------------
 // 📌 INFORMATIONEN → ÜBERSICHTSSEITE
 // (7 Kacheln: allgemeine Krebsinformationen,
@@ -110,24 +103,16 @@ const router = createBrowserRouter([
 //  Unterstützungsangebote, weiterführende Infos)
 // -------------------------------------------
   {
-      path: "/informationen-uebersicht",
-      element: (
-        <Protected>
-          <InformationOverview />
-        </Protected>
-  ),
+      path: "informationen-uebersicht",
+      element: <InformationOverview />,
 },
   // -------------------------------------------
   // 📌 KREBS-INFORMATIONEN -> ZWISCHENÜBERSICHT
   // (2 Kacheln: Stadienübersicht + Stadium III vs. IV)
   // -------------------------------------------
 {
-  path: "/informationen/allgemein",
-  element: (
-    <Protected>
-      <KrebsinformationenOverview />
-    </Protected>
-  ),
+  path: "informationen/allgemein",
+  element: <KrebsinformationenOverview />,
 },
 // -------------------------------------------
     // 📌 KREBS-INFORMATIONEN -> DETAILSEITEN
@@ -135,118 +120,78 @@ const router = createBrowserRouter([
     // /informationen/allgemein/stadium-vergleich
     // -------------------------------------------
 {
-  path: "/informationen/allgemein/:slug",
-  element: (
-    <Protected>
-      <KrebsinformationenDetail />
-    </Protected>
-  ),
+  path: "informationen/allgemein/:slug",
+  element: <KrebsinformationenDetail />,
 },
 // -------------------------------------------
 // 📌 INFORMATIONEN → NEBENWIRKUNGSMANAGEMENT (Übersicht)
 // Zeigt die 2 Kacheln: Nebenwirkungen / Umgang mit Nebenwirkungen
 // -------------------------------------------
 {
-  path: "/informationen/nebenwirkungen",
-  element: (
-    <Protected>
-      <NebenwirkungenOverview />
-    </Protected>
-  ),
+  path: "informationen/nebenwirkungen",
+  element: <NebenwirkungenOverview />,
 },
 
 // -------------------------------------------
 // 📌 INFORMATIONEN → NEBENWIRKUNGEN DETAIL
 // -------------------------------------------
 {
-  path: "/informationen/nebenwirkungen/nebenwirkungen-detail",
-  element: (
-    <Protected>
-      <NebenwirkungenDetail />
-    </Protected>
-  ),
+  path: "informationen/nebenwirkungen/nebenwirkungen-detail",
+  element: <NebenwirkungenDetail />,
 },
 
 // -------------------------------------------
 // 📌 INFORMATIONEN → UMGANG MIT NEBENWIRKUNGEN DETAIL
 // -------------------------------------------
 {
-  path: "/informationen/nebenwirkungen/umgang-nebenwirkungen",
-  element: (
-    <Protected>
-      <UmgangNebenwirkungenDetail />
-    </Protected>
-  ),
+  path: "informationen/nebenwirkungen/umgang-nebenwirkungen",
+  element: <UmgangNebenwirkungenDetail />,
 },
 // -------------------------------------------
 // 📌 INFORMATIONEN → PATIENT*INNEN-PERSPEKTIVE (Übersicht)
 // 2 Kacheln: Videos/Audios & neue Inhalte (Platzhalter)
 // -------------------------------------------
 {
-  path: "/informationen/patientenperspektive",
-  element: (
-    <Protected>
-      <PatientenPerspektiveOverview />
-    </Protected>
-  ),
+  path: "informationen/patientenperspektive",
+  element: <PatientenPerspektiveOverview />,
 },
 
 // -------------------------------------------
 // 📌 PATIENT*INNEN-PERSPEKTIVE → Videos/Audios
 // -------------------------------------------
 {
-  path: "/informationen/patientenperspektive/videos-audios",
-  element: (
-    <Protected>
-      <PatientenVideosDetail />
-    </Protected>
-  ),
+  path: "informationen/patientenperspektive/videos-audios",
+  element: <PatientenVideosDetail />,
 },
 
 // -------------------------------------------
 // 📌 PATIENT*INNEN-PERSPEKTIVE → neue Inhalte (Platzhalter)
 // -------------------------------------------
 {
-  path: "/informationen/patientenperspektive/neue-inhalte",
-  element: (
-    <Protected>
-      <PatientenNeueInhalteDetail />
-    </Protected>
-  ),
+  path: "informationen/patientenperspektive/neue-inhalte",
+  element: <PatientenNeueInhalteDetail />,
 },
 // -------------------------------------------
 // 📌 INFORMATIONEN → ZUSÄTZLICHE THERAPIEOPTIONEN (Übersicht)
 // -------------------------------------------
 {
-  path: "/informationen/zusaetzlich",
-  element: (
-    <Protected>
-      <ZusatzoptionenOverview />
-    </Protected>
-  ),
+  path: "informationen/zusaetzlich",
+  element: <ZusatzoptionenOverview />,
 },
 
 // -------------------------------------------
 // 📌 INFORMATIONEN → ZUSÄTZLICHE THERAPIEOPTIONEN (Details)
 // -------------------------------------------
 {
-  path: "/informationen/zusaetzlich/:slug",
-  element: (
-    <Protected>
-      <ZusatzoptionenDetail />
-    </Protected>
-  ),
+  path: "informationen/zusaetzlich/:slug",
+  element: <ZusatzoptionenDetail />,
 },
 // -------------------------------------------
 // 📌 INFORMATIONEN → UNTERSTÜTZUNGSANGEBOTE (Übersicht)
 // -------------------------------------------
 {
-  path: "/informationen/unterstuetzung",
-  element: (
-    <Protected>
-      <UnterstuetzungsangeboteOverview />
-    </Protected>
-  ),
+  path: "informationen/unterstuetzung",
+  element: <UnterstuetzungsangeboteOverview />,
 },
 
 // -------------------------------------------
@@ -256,35 +201,23 @@ const router = createBrowserRouter([
 // /informationen/unterstuetzung/selbsthilfegruppen
 // -------------------------------------------
 {
-  path: "/informationen/unterstuetzung/:slug",
-  element: (
-    <Protected>
-      <UnterstuetzungsangeboteDetail />
-    </Protected>
-  ),
+  path: "informationen/unterstuetzung/:slug",
+  element: <UnterstuetzungsangeboteDetail />,
 },
 // -------------------------------------------
 // 📌 INFORMATIONEN → WEITERFÜHRENDE INFORMATIONEN (Übersicht)
 // -------------------------------------------
 {
-  path: "/informationen/weiter",
-  element: (
-    <Protected>
-      <WeiterfuehrendeInfoOverview />
-    </Protected>
-  ),
+  path: "informationen/weiter",
+  element: <WeiterfuehrendeInfoOverview />,
 },
 
 // -------------------------------------------
 // 📌 INFORMATIONEN → WEITERFÜHRENDE INFORMATIONEN (Details)
 // -------------------------------------------
 {
-  path: "/informationen/weiter/:slug",
-  element: (
-    <Protected>
-      <WeiterfuehrendeInfoDetail />
-    </Protected>
-  ),
+  path: "informationen/weiter/:slug",
+  element: <WeiterfuehrendeInfoDetail />,
 },
 
 
@@ -294,7 +227,7 @@ const router = createBrowserRouter([
   },
 ],
   {
-    basename: "/DEDALUS2",
+    basename,
   }
 );
 
