@@ -6,6 +6,9 @@ import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeSanitize from "rehype-sanitize";
 
 export default function TherapieDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -90,8 +93,13 @@ export default function TherapieDetail() {
           }
         >
           {/* Textbereich */}
-          <div className="text-sm md:text-base leading-relaxed text-emerald-950 whitespace-pre-line">
-            {text}
+          <div className="prose prose-emerald max-w-none prose-p:my-2 prose-h2:mt-6 prose-h2:mb-2 prose-hr:my-4">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeSanitize]}
+            >
+              {text}
+            </ReactMarkdown>
           </div>
 
           {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}

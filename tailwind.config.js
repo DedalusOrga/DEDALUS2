@@ -5,5 +5,5 @@ export default {
     "./app/src/**/*.{ts,tsx,js,jsx,html}"
   ],
   theme: { extend: {} },
-  plugins: []
+plugins: [require("@tailwindcss/typography")],
 }
