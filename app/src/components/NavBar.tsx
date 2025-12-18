@@ -23,11 +23,11 @@ export default function NavBar() {
             className="flex items-center gap-4 md:gap-8 px-6"
             aria-label="Hauptnavigation"
           >
-            <NavLink to="/informationen-uebersicht" className={tabClass}>
+            <NavLink to="/home/informationen-uebersicht" className={tabClass}>
               Informationen
             </NavLink>
 
-            <NavLink to="/entscheidungen" className={tabClass}>
+            <NavLink to="/home/entscheidungen" className={tabClass}>
               Entscheidungen
             </NavLink>
 

@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 import StageIcon from "../assets/icons/book.svg";     // später austauschen
 import CompareIcon from "../assets/icons/book.svg"; // später austauschen
 
 export default function KrebsinformationenOverview() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const cards = [
     {
@@ -30,7 +30,7 @@ export default function KrebsinformationenOverview() {
         {cards.map((card) => (
           <button
             key={card.id}
-            onClick={() => navigate(`/informationen/allgemein/${card.slug}`)}
+            onClick={() => navigate(`informationen/allgemein/${card.slug}`)}
             className="flex flex-col items-start rounded-2xl bg-white p-6 shadow-sm
                        hover:bg-emerald-50 hover:shadow-md transition"
           >

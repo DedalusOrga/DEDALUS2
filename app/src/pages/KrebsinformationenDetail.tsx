@@ -1,8 +1,10 @@
 import { useNavigate, useParams } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 
 export default function KrebsinformationenDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
+  const routerNavigate = useNavigate();
 
   // Titel basierend auf slug
   const title =
@@ -42,7 +44,7 @@ luctus mauris id, interdum augue.`
       <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
         {/* Zurück */}
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => routerNavigate(-1)}
           className="flex items-center text-emerald-900 mb-8 hover:text-emerald-700"
         >
           <span className="text-2xl mr-2">←</span>

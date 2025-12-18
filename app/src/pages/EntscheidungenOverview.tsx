@@ -1,29 +1,29 @@
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 import ChatIcon from "../assets/token_chat.svg";
 import SignpostIcon from "../assets/signpost.svg";
 import ClipboardIcon from "../assets/clipboard.svg";
 
 export default function EntscheidungenOverview() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const cards = [
     {
       id: "arzt",
       title: "Fragen für das Arztgespräch",
       icon: ChatIcon,
-      path: "/entscheidungen/arztgespraech",
+      path: "entscheidungen/arztgespraech",
     },
     {
       id: "planung",
       title: "Planung und Entscheidung",
       icon: SignpostIcon,
-      path: "/entscheidungen/planung",
+      path: "entscheidungen/planung",
     },
     {
       id: "frageboegen",
       title: "Fragebögen zu Entscheidungen",
       icon: ClipboardIcon,
-      path: "/entscheidungen/frageboegen-entscheidung",
+      path: "entscheidungen/frageboegen-entscheidung",
     },
   ];
 

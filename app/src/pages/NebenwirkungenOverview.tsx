@@ -1,7 +1,7 @@
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 
 export default function NebenwirkungenOverview() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const cards = [
     {
@@ -26,7 +26,7 @@ export default function NebenwirkungenOverview() {
         {cards.map((c) => (
           <button
             key={c.id}
-            onClick={() => navigate(`/informationen/nebenwirkungen/${c.slug}`)}
+            onClick={() => navigate(`informationen/nebenwirkungen/${c.slug}`)}
             className="rounded-2xl p-8 shadow-sm bg-white hover:shadow-md hover:bg-emerald-50 transition"
           >
             <div className="text-lg font-semibold text-slate-900">

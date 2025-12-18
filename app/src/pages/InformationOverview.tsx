@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 
 // Deine Figma SVGs (GENAU wie du sie genannt hast)
 import BookIcon from "../assets/icons/book.svg";
@@ -29,7 +29,7 @@ const cards: InfoCard[] = [
 ];
 
 export default function InformationOverview() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 md:px-8 md:py-10">
@@ -49,7 +49,7 @@ export default function InformationOverview() {
           <button
             key={card.id}
             type="button"
-            onClick={() => card.slug && navigate(`/informationen/${card.slug}`)}
+            onClick={() => card.slug && navigate(`informationen/${card.slug}`)}
             disabled={!card.slug}
             className={`
               flex h-full w-full flex-col items-start rounded-2xl bg-white p-5 text-left shadow-sm

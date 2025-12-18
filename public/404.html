@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Redirecting...</title>
+    <script>
+      const pathname = location.pathname;
+      const newUrl =
+        pathname.startsWith('/DEDALUS2')
+          ? '/DEDALUS2/'
+          : '/DEDALUS2/';
+      location.replace(newUrl);
+    </script>
+  </head>
+  <body></body>
+</html>

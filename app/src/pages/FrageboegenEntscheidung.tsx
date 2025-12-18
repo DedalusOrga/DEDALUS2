@@ -39,7 +39,7 @@ export default function FrageboegenEntscheidung() {
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
       <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
         <button
-          onClick={() => navigate("/entscheidungen")}
+          onClick={() => navigate("entscheidungen")}
           className="flex items-center text-emerald-900 mb-6 hover:text-emerald-700"
         >
           <span className="text-2xl mr-2">←</span>

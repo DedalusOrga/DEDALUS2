@@ -1,9 +1,10 @@
-import { useNavigate } from "react-router-dom";
-import { useParams } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
+import { useParams, useNavigate } from "react-router-dom";
 import VectorIcon from "../assets/vector.svg";
 
 export default function FragebogenFertig() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
+  const routerNavigate = useNavigate();
   const { id } = useParams();
 
   return (
@@ -11,7 +12,7 @@ export default function FragebogenFertig() {
 
       {/* Zurück */}
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => routerNavigate(-1)}
         className="flex items-center text-emerald-900 mb-10"
       >
         <span className="text-2xl mr-2">←</span> Zurück
@@ -38,7 +39,7 @@ export default function FragebogenFertig() {
         <div className="flex justify-center gap-6">
           {/* Zur Übersicht */}
           <button
-            onClick={() => navigate("/entscheidungen/frageboegen-entscheidung")}
+            onClick={() => navigate("entscheidungen/frageboegen-entscheidung")}
             className="bg-emerald-100 text-emerald-900 px-6 py-3 rounded-full font-semibold hover:bg-emerald-200"
           >
             Zur Übersicht
@@ -46,7 +47,7 @@ export default function FragebogenFertig() {
 
           {/* Ergebnisse */}
           <button
-            onClick={() => navigate(`/entscheidungen/fragebogen/${id}/ergebnis`)}
+            onClick={() => navigate(`entscheidungen/fragebogen/${id}/ergebnis`)}
             className="bg-emerald-900 text-white px-6 py-3 rounded-full font-semibold hover:bg-emerald-800"
           >
             Ergebnisse ansehen
