@@ -1,7 +1,7 @@
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 
 export default function PatientenPerspektiveOverview() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const cards = [
     {
@@ -28,7 +28,7 @@ export default function PatientenPerspektiveOverview() {
             key={card.id}
             type="button"
             onClick={() =>
-              navigate(`/informationen/patientenperspektive/${card.slug}`)
+              navigate(`informationen/patientenperspektive/${card.slug}`)
             }
             className="flex h-full w-full flex-col items-start rounded-2xl bg-white p-8 text-left
                        shadow-sm transition hover:bg-emerald-50 hover:shadow-md focus:outline-none

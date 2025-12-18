@@ -1,8 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 
 export default function ZusatzoptionenDetail() {
   const { slug } = useParams();
-  const navigate = useNavigate();
+  const routerNavigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const titleMap: Record<string, string> = {
     komplementaermedizin: "Komplementärmedizin",
@@ -18,7 +20,7 @@ export default function ZusatzoptionenDetail() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => routerNavigate(-1)}
         className="mb-6 text-emerald-900 hover:text-emerald-700"
       >
         ← Zurück

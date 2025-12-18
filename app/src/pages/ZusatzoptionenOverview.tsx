@@ -1,7 +1,7 @@
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 
 export default function UnterstuetzungsangeboteOverview() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const items = [
     { slug: "thoraxklinik", title: "Angebote an der Thoraxklinik" },
@@ -30,7 +30,7 @@ export default function UnterstuetzungsangeboteOverview() {
           <button
             key={item.slug}
             onClick={() =>
-              navigate(`/informationen/unterstuetzung/${item.slug}`)
+              navigate(`informationen/unterstuetzung/${item.slug}`)
             }
             className="
               rounded-2xl bg-white p-6 shadow-sm

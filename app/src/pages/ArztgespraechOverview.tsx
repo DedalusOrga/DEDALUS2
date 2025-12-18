@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 
 export default function ArztgespraechOverview() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
+  const routerNavigate = useNavigate();
 
   const arztgespraech = [
     { id: "checkliste", title: "Checkliste für das Arztgespräch" },
@@ -15,7 +17,7 @@ export default function ArztgespraechOverview() {
       
       {/* Zurück */}
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => routerNavigate(-1)}
         className="flex items-center text-emerald-900 mb-8 hover:text-emerald-700"
       >
         <span className="text-2xl mr-2">←</span> Zurück

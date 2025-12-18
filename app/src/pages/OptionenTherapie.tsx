@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 import SunIcon from "../assets/sun.svg";
 import SyringeIcon from "../assets/syringe.svg";
 import HospitalIcon from "../assets/hospital.svg";
@@ -32,12 +32,12 @@ const page2: Therapy[] = [
 
 export default function InformationenOverview() {
   const [page, setPage] = useState<0 | 1>(0); // 0 = erste 3, 1 = zweite 3
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const therapies = page === 0 ? page1 : page2;
 
   const handleCardClick = (slug: string) => {
-    navigate(`/informationen/${slug}`);
+    navigate(`informationen/${slug}`);
   };
 
   const togglePage = () => {

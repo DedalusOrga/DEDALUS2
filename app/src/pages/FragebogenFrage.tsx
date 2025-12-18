@@ -1,4 +1,5 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 import { useState } from "react";
 
 // Mapping: technische ID → sichtbarer Fragebogen-Titel
@@ -48,7 +49,7 @@ export default function FragebogenFrage() {
   const { id } = useParams();
   const meta = questionnaireMeta[id!] ?? { number: "Fragebogen", title: "" };
 
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const [current, setCurrent] = useState(0);
 
@@ -59,7 +60,7 @@ export default function FragebogenFrage() {
 
   const next = () => {
     if (lastQuestion) {
-      navigate(`/entscheidungen/fragebogen/${id}/fertig`);
+      navigate(`entscheidungen/fragebogen/${id}/fertig`);
     } else {
       setCurrent((c) => c + 1);
     }
@@ -67,7 +68,7 @@ export default function FragebogenFrage() {
 
   const back = () => {
     if (current === 0) {
-      navigate("/entscheidungen/frageboegen-entscheidung");
+      navigate("entscheidungen/frageboegen-entscheidung");
     } else {
       setCurrent((c) => c - 1);
     }

@@ -1,8 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 
 export default function WeiterfuehrendeInfoDetail() {
   const { slug } = useParams();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
+  const routerNavigate = useNavigate();
 
 const titleMap: Record<string, string> = {
   "buecher-zeitschriften": "Bücher/Fachzeitschriften",
@@ -18,7 +20,7 @@ const titleMap: Record<string, string> = {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => routerNavigate(-1)}
         className="mb-6 text-emerald-900 hover:text-emerald-700"
       >
         ← Zurück

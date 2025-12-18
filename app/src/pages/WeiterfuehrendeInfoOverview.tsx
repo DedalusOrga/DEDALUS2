@@ -1,7 +1,7 @@
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 
 export default function WeiterfuehrendeInfoOverview() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const items = [
     { slug: "buecher-zeitschriften", title: "Bücher/Fachzeitschriften" },
@@ -27,7 +27,7 @@ export default function WeiterfuehrendeInfoOverview() {
         {items.map((item) => (
           <button
             key={item.slug}
-            onClick={() => navigate(`/informationen/weiter/${item.slug}`)}
+            onClick={() => navigate(`informationen/weiter/${item.slug}`)}
             className="
               rounded-2xl bg-white p-6 shadow-sm
               hover:bg-emerald-50 hover:shadow-md transition

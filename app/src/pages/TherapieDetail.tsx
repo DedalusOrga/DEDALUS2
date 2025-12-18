@@ -1,6 +1,7 @@
 // app/src/pages/TherapieDetail.tsx
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
@@ -10,7 +11,7 @@ export default function TherapieDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [useSimple, setUseSimple] = useState(false);
 
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const { modules, loading, loadedOnce, loadModules } = useContentModulesLazy({
     type: "text",
@@ -64,7 +65,7 @@ export default function TherapieDetail() {
       <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
         {/* Zurück oben */}
         <button
-          onClick={() => navigate("/home")}
+          onClick={() => navigate("informationen-uebersicht")}
           className="flex items-center text-emerald-900 mb-6 hover:text-emerald-700"
         >
           <span className="text-2xl mr-2">←</span>
