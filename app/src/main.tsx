@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, createHashRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import Startseite from "./pages/Startseite";
 import AdminPage from "./pages/AdminPage";
@@ -36,18 +36,15 @@ import UnterstuetzungsangeboteOverview from "./pages/UnterstuetzungsangeboteOver
 import UnterstuetzungsangeboteDetail from "./pages/UnterstuetzungsangeboteDetail";
 import WeiterfuehrendeInfoOverview from "./pages/WeiterfuehrendeInfoOverview";
 import WeiterfuehrendeInfoDetail from "./pages/WeiterfuehrendeInfoDetail";
-
-
-
-
-
-
-
-
-
 import "./index.css";
 
-const router = createBrowserRouter([
+const isGithubPages = import.meta.env.BASE_URL === "/DEDALUS2/";
+
+const createRouter = isGithubPages
+  ? createHashRouter
+  : createBrowserRouter;
+
+const router = createRouter([
   // 🔓 Public Routes (ohne Login)
   { path: "/", element: <Startseite /> },
   { path: "/login", element: <Login /> },
@@ -302,7 +299,7 @@ const router = createBrowserRouter([
   },
 ],
   {
-    basename: "/DEDALUS2",
+    basename: isGithubPages ? "/DEDALUS2" : "/",
   }
 );
 
