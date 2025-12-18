@@ -1,7 +1,7 @@
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from "../hooks/useAppNavigate";
 
 export default function FrageboegenEntscheidung() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   // Aktive Fragebögen
   const frageboegen = [
@@ -9,31 +9,31 @@ export default function FrageboegenEntscheidung() {
       id: "fb1",
       title: "Fragebogen 1",
       description: "Was möchte ich mit der Behandlung erreichen?",
-      path: "/entscheidungen/fragebogen/1",
+      path: "entscheidungen/fragebogen/1",
     },
     {
       id: "fb2",
       title: "Fragebogen 2",
       description: "Wie möchte ich bei Entscheidungen mitwirken?",
-      path: "/entscheidungen/fragebogen/2",
+      path: "entscheidungen/fragebogen/2",
     },
     {
       id: "fb3",
       title: "Fragebogen 3",
       description: "Was beeinflusst meine Entscheidungen?",
-      path: "/entscheidungen/fragebogen/3",
+      path: "entscheidungen/fragebogen/3",
     },
     {
       id: "fb4",
       title: "Fragebogen 4",
       description: "Wie werden Entscheidungen bei Krankheiten getroffen?",
-      path: "/entscheidungen/fragebogen/4",
+      path: "entscheidungen/fragebogen/4",
     },
     {
       id: "fb5",
       title: "Fragebogen 5",
       description: "Was ist mir während der Behandlungsphase wichtig?",
-      path: "/entscheidungen/fragebogen/5",
+      path: "entscheidungen/fragebogen/5",
     },
   ];
 
@@ -46,7 +46,7 @@ export default function FrageboegenEntscheidung() {
 
         {/* Zurück */}
         <button
-          onClick={() => navigate("/entscheidungen")}
+          onClick={() => navigate("entscheidungen")}
           className="flex items-center text-emerald-900 mb-6 hover:text-emerald-700"
         >
           <span className="text-2xl mr-2">←</span>
@@ -64,7 +64,7 @@ export default function FrageboegenEntscheidung() {
           {frageboegen.map((fb) => (
             <button
               key={fb.id}
-              onClick={() => navigate(`/entscheidungen/fragebogen/${fb.id}`)}
+              onClick={() => navigate(`entscheidungen/fragebogen/${fb.id}`)}
               className="bg-white rounded-3xl shadow-sm h-64 w-full sm:w-80 
                          flex flex-col items-center justify-center
                          hover:shadow-md hover:-translate-y-0.5 transition-all text-center"

@@ -59,14 +59,14 @@ const router = createBrowserRouter([
 
   // 🔐 Alle übrigen Routen nur mit Login erreichbar
   {
-    path: "/app",
+    path: "/home",
     element: (
       <Protected>
         <App />
       </Protected>
     ),
     children: [
-      { index: true, element: <Home /> },
+      { index: true, element: <Home /> }, 
 
       { path: "entscheidungen", element: <EntscheidungenOverview /> },
 
