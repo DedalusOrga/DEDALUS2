@@ -33,7 +33,7 @@ const mockOrder = jest.fn();
 const mockSelect = jest.fn(() => ({ order: mockOrder }));
 const mockInsert = jest.fn();
 
-const mockFrom = jest.fn((table: string) => ({
+const mockFrom = jest.fn((_table: string) => ({
   select: mockSelect,
   insert: mockInsert,
 }));
@@ -42,16 +42,16 @@ const mockFrom = jest.fn((table: string) => ({
 const mockStorageUpload = jest.fn();
 const mockGetPublicUrl = jest.fn();
 
-const mockStorageFrom = jest.fn((bucket: string) => ({
+const mockStorageFrom = jest.fn((_bucket: string) => ({
   upload: mockStorageUpload,
   getPublicUrl: mockGetPublicUrl,
 }));
 
 jest.mock("../src/infrastructure/supabase/client", () => ({
   supabase: {
-    from: (table: string) => mockFrom(table),
+    from: (_table: string) => mockFrom(_table),
     storage: {
-      from: (bucket: string) => mockStorageFrom(bucket),
+      from: (_bucket: string) => mockStorageFrom(_bucket),
     },
   },
 }));

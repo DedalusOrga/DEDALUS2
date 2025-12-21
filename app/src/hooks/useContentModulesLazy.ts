@@ -7,7 +7,7 @@ export function useContentModulesLazy(options: {
 }) {
   const { type, slug } = options;
 
-  const [modules, setModules] = useState<any[]>([]);
+  const [modules, setModules] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadedOnce, setLoadedOnce] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +18,8 @@ export function useContentModulesLazy(options: {
 
     let query = supabase
       .from("content_modules")
-      .select(`
+      .select(
+        `
         id,
         title,
         type,
@@ -28,7 +29,8 @@ export function useContentModulesLazy(options: {
         file_url,
         status,
         data
-      `)
+      `
+      )
       .eq("status", "published");
 
     if (type) {

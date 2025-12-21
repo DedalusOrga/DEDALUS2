@@ -2,20 +2,20 @@ import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import reactPlugin from "eslint-plugin-react";
+// WICHTIG: Dieser Import muss vorhanden sein!
+import reactHooks from "eslint-plugin-react-hooks";
 
 export default tseslint.config(
-  // 1. Dateien ignorieren
   {
     ignores: ["node_modules/", ".next/", "dist/", "build/"],
   },
-  // 2. Basis-Konfigurationen laden
   js.configs.recommended,
   ...tseslint.configs.recommended,
-  // 3. Deine spezifischen Regeln
   {
     files: ["**/*.{ts,tsx,js,jsx}"],
     plugins: {
       react: reactPlugin,
+      "react-hooks": reactHooks, // Hier wird es definiert
     },
     languageOptions: {
       globals: {
@@ -31,7 +31,22 @@ export default tseslint.config(
     },
     rules: {
       ...reactPlugin.configs.recommended.rules,
-      "react/react-in-jsx-scope": "off", // Bei Next.js/Modern React wichtig
+      // Manuelle Aktivierung der Hooks-Regeln
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
+      "react/react-in-jsx-scope": "off",
+      // Optional: Schaltet die "any"-Warnung für Tests leiser, falls gewünscht:
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-vars": "off",
+    },
+  },
+  // Spezielle Regel für .cjs Dateien (wie deine jest.config.cjs)
+  {
+    files: ["**/*.cjs"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
     },
   }
 );
