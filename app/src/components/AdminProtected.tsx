@@ -28,7 +28,7 @@ export default function AdminProtected({ children }: { children: ReactNode }) {
       const { data, error } = await supabase
         .from("profiles")
         .select("is_admin")
-        .eq("user_id", user.id)
+        .eq("user_id", user?.id)
         .single();
 
       if (cancelled) return;
