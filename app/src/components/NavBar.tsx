@@ -4,7 +4,11 @@
 import { NavLink } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
 
+import { useIsAdmin } from "../hooks/useIsAdmin";
+import AdminContentPicker from "../components/AdminContentPicker";
+
 export default function NavBar() {
+  const { isAdmin, loading } = useIsAdmin();
   // Style für aktive und inaktive Tabs
   const tabClass = ({ isActive }: { isActive: boolean }) =>
     `px-6 py-3 text-base font-semibold border-b-2 transition-colors outline-none 
@@ -34,10 +38,10 @@ export default function NavBar() {
             <NavLink to="/bedienhilfe" className={tabClass}>
               Bedienhilfe
             </NavLink>
-
           </nav>
 
           <div className="pr-6">
+            {!loading && isAdmin && <AdminContentPicker expectedType="text" />}
             <LogoutButton />
           </div>
         </div>
