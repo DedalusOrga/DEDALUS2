@@ -1,10 +1,12 @@
 // app/src/pages/TherapieDetail.tsx
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
+import { useBoundContent } from "../hooks/useBoundContent";
+import { makePageKey } from "../utils/pageKey";
 
 export default function TherapieDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -12,18 +14,37 @@ export default function TherapieDetail() {
 
   const navigate = useNavigate();
 
-  const { modules, loading, loadedOnce, loadModules } = useContentModulesLazy({
+  const location = useLocation();
+  const pageKey = useMemo(
+    () => makePageKey(location.pathname),
+    [location.pathname]
+  );
+
+  const {
+    module: boundModule,
+    loading: boundLoading,
+    error: boundError,
+  } = useBoundContent(pageKey);
+
+  const {
+    modules,
+    module: fallbackModule,
+    loading: fallbackLoading,
+    loadedOnce: fallbackLoadedOnce,
+    error: fallbackError,
+    loadModules,
+  } = useContentModulesLazy({
     type: "text",
     slug,
   });
 
   useEffect(() => {
-    if (slug) {
+    if (!boundLoading && !boundModule && slug) {
       loadModules();
     }
-  }, [slug, loadModules]);
+  }, [slug, boundModule, loadModules]);
 
-  const module = modules[0];
+  const module = boundModule ?? fallbackModule;
 
   // Fallback-Titel auf Basis des Slugs, falls in der DB noch nichts steht
   const title =
@@ -76,9 +97,14 @@ export default function TherapieDetail() {
           {title}
         </h1>
 
-        {/* Ladezustand */}
-        {loading && !loadedOnce && (
+        {(boundLoading || (fallbackLoading && !boundModule)) && (
           <div className="mb-4 text-emerald-900">Inhalt wird geladen …</div>
+        )}
+
+        {(boundError || fallbackError) && (
+          <div className="mb-4 text-red-700">
+            Fehler beim Laden: {boundError ?? fallbackError}
+          </div>
         )}
 
         {/* Weißer Content-Block: Text + optional Video */}

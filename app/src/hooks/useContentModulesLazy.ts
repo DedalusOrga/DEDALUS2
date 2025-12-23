@@ -2,10 +2,11 @@ import { useCallback, useState } from "react";
 import { supabase } from "../infrastructure/supabase/client";
 
 export function useContentModulesLazy(options: {
+  id?: string;
   type?: string;
   slug?: string;
 }) {
-  const { type, slug } = options;
+  const { id, type, slug } = options;
 
   const [modules, setModules] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -18,7 +19,8 @@ export function useContentModulesLazy(options: {
 
     let query = supabase
       .from("content_modules")
-      .select(`
+      .select(
+        `
         id,
         title,
         type,
@@ -28,8 +30,13 @@ export function useContentModulesLazy(options: {
         file_url,
         status,
         data
-      `)
+      `
+      )
       .eq("status", "published");
+
+    if (id) {
+      query = query.eq("id", id);
+    }
 
     if (type) {
       query = query.eq("type", type);
@@ -50,10 +57,13 @@ export function useContentModulesLazy(options: {
     }
 
     setLoading(false);
-  }, [type, slug]);
+  }, [id, type, slug]);
+
+  const module = modules[0] ?? null;
 
   return {
     modules,
+    module,
     loading,
     loadedOnce,
     error,
