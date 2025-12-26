@@ -1,28 +1,22 @@
 import { useNavigate } from "react-router-dom";
 
-export default function UnterstuetzungsangeboteOverview() {
+export default function ZusatzoptionenOverview() {
   const navigate = useNavigate();
 
   const items = [
-    { slug: "thoraxklinik", title: "Angebote an der Thoraxklinik" },
-    { slug: "begleitung", title: "Psych. + seelsorgerische Begleitung" },
-    { slug: "sozialdienst", title: "Sozialdienst" },
-    { slug: "staatliche-hilfen", title: "Staatliche Hilfen" },
-    { slug: "beratungsstellen", title: "Beratungsstellen" },
-    {
-      slug: "pharmazeutische-dienstleistungen",
-      title: "Pharmazeutische Dienstleistungen",
-    },
-    {
-      slug: "pflegeleistungen",
-      title: "Pflegeleistungen + ambulante Versorgung",
-    },
+    { slug: "komplementaermedizin", title: "Komplementärmedizin (Naturheilkunde)" },
+    { slug: "ernaehrungsberatung", title: "Ernährungsberatung" },
+    { slug: "entspannung", title: "Entspannungs- u. Achtsamkeitsverfahren" },
+    { slug: "schmerztherapie", title: "Schmerztherapie" },
+    { slug: "raucherentwoehnung", title: "Raucherentwöhnung" },
+    { slug: "bewegungstherapie", title: "Bewegungstherapie", },
+    { slug: "pphysiotherapie", title: "Physiotherapie", },
   ];
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
       <h1 className="mb-8 text-3xl font-extrabold text-emerald-900">
-        Unterstützungsangebote
+        zusätzliche Therapieoptionen
       </h1>
 
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -30,7 +24,7 @@ export default function UnterstuetzungsangeboteOverview() {
           <button
             key={item.slug}
             onClick={() =>
-              navigate(`/informationen/unterstuetzung/${item.slug}`)
+              navigate(`/informationen/zusaetzlich/${item.slug}`)
             }
             className="
               rounded-2xl bg-white p-6 shadow-sm

@@ -1,35 +1,77 @@
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 
-export default function WeiterfuehrendeInfoDetail() {
-  const { slug } = useParams();
+export default function UnterstuetzungsangeboteDetail() {
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const [useSimple, setUseSimple] = useState(false);
 
-const titleMap: Record<string, string> = {
-  "buecher-zeitschriften": "Bücher/Fachzeitschriften",
-  internetseiten: "Internetseiten/Anlaufstellen",
-  selbsthilfegruppen: "Selbsthilfegruppen",
-  "wohnortnahe-versorgung": "Wohnortnahe Versorgung",
-  "deutsche-krebshilfe": "Deutsche Krebshilfe + -gesellschaft",
-};
+  const { modules, loading, loadedOnce, loadModules } =
+    useContentModulesLazy({
+      type: "text",
+      slug,
+    });
 
+  useEffect(() => {
+    if (slug) {
+      loadModules();
+    }
+  }, [slug, loadModules]);
 
-  const title = titleMap[slug ?? ""] ?? "Weiterführende Informationen";
+  const module = modules[0];
+
+  const title =
+  module?.title ??
+  (slug === "buecher-zeitschriften"
+    ? "Bücher/Fachzeitschriften"
+    : slug === "internetseiten"
+    ? "Internetseiten/Anlaufstellen"
+    : slug === "selbsthilfegruppen"
+    ? "Selbsthilfegruppen"
+    : slug === "wohnortnahe-versorgung"
+    ? "Wohnortnahe Versorgung"
+    : slug === "krebshilfe-gesellschaft"
+    ? "Deutsche Krebshilfe + -gesellschaft"
+    : "weiterführende Informationen");
+
+  const text = useSimple
+    ? module?.body_md_simple ??
+      module?.body_md ??
+      "Für diese weiterführende Informationen sind noch keine Inhalte hinterlegt."
+    : module?.body_md ??
+      "Für diese weiterführende Informationen sind noch keine Inhalte hinterlegt.";
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10">
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-6 text-emerald-900 hover:text-emerald-700"
-      >
-        ← Zurück
-      </button>
+    <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
+      <div className="w-full max-w-6xl mx-auto px-6 py-10">
+        {/* Zurück */}
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-6 text-emerald-900 hover:text-emerald-700"
+        >
+          ← Zurück
+        </button>
 
-      <h1 className="mb-6 text-3xl font-bold text-emerald-900">{title}</h1>
+        {/* Titel */}
+        <h1 className="mb-8 text-3xl font-semibold text-emerald-800">
+          {title}
+        </h1>
 
-      <div className="rounded-2xl bg-white p-8 shadow-sm leading-relaxed">
-        Lorem ipsum – hier kommen später Inhalte für{" "}
-        <strong>{title}</strong>.
+        {/* Ladezustand */}
+        {loading && !loadedOnce && (
+          <div className="mb-4 text-emerald-900">
+            Inhalt wird geladen …
+          </div>
+        )}
+
+        {/* Inhalt mit Markdown */}
+        <div className="rounded-3xl bg-white p-8 shadow-sm prose prose-emerald max-w-none">
+          <ReactMarkdown>{text}</ReactMarkdown>
+        </div>
       </div>
     </div>
   );
 }
+
