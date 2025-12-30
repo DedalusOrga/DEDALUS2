@@ -1,6 +1,7 @@
 // app/src/pages/TherapieDetail.tsx
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import type { ContentModule } from "../types/ContentModule";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
@@ -12,10 +13,11 @@ export default function TherapieDetail() {
 
   const navigate = useNavigate();
 
-  const { modules, loading, loadedOnce, loadModules } = useContentModulesLazy({
-    type: "text",
-    slug,
-  });
+  const { modules, loading, loadedOnce, loadModules } =
+    useContentModulesLazy<ContentModule>({
+      type: "text",
+      slug,
+    });
 
   useEffect(() => {
     if (slug) {
@@ -51,7 +53,7 @@ export default function TherapieDetail() {
       "Für diese Therapie sind noch keine Inhalte hinterlegt.";
 
   // Video-URL aus data.video_url
-  const videoUrl = module?.data?.video_url ?? null;
+  const videoUrl = module?.data?.video_url;
   const hasVideo = !!videoUrl;
 
   const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {

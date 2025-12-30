@@ -1,13 +1,13 @@
 import { useCallback, useState } from "react";
 import { supabase } from "../infrastructure/supabase/client";
 
-export function useContentModulesLazy(options: {
+export function useContentModulesLazy<T = unknown>(options: {
   type?: string;
   slug?: string;
 }) {
   const { type, slug } = options;
 
-  const [modules, setModules] = useState<unknown[]>([]);
+  const [modules, setModules] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadedOnce, setLoadedOnce] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +47,7 @@ export function useContentModulesLazy(options: {
       setError(error.message);
       setModules([]);
     } else {
-      setModules(data ?? []);
+      setModules((data ?? []) as T[]);
       setLoadedOnce(true);
     }
 
