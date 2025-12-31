@@ -1,3 +1,24 @@
+jest.mock("../src/infrastructure/supabase/client", () => ({
+  supabase: {
+    auth: {
+      getSession: jest.fn().mockResolvedValue({
+        data: { session: null },
+        error: null,
+      }),
+    },
+    from: jest.fn(() => ({
+      select: jest.fn(() => ({
+        eq: jest.fn(() => ({
+          single: jest.fn().mockResolvedValue({
+            data: null,
+            error: null,
+          }),
+        })),
+      })),
+    })),
+  },
+}));
+
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import NavBar from "../src/components/NavBar"; // ggf. anpassen
