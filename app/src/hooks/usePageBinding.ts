@@ -18,7 +18,7 @@ export function usePageBinding(pageKey: string) {
         .maybeSingle();
 
       if (!cancelled) {
-        setModuleId(error ? null : data?.module_id ?? null);
+        setModuleId(error ? null : (data?.module_id ?? null));
         setLoading(false);
       }
     })();

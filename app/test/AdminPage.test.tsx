@@ -63,7 +63,7 @@ function renderAdmin() {
   return render(
     <BrowserRouter>
       <AdminPage />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
 }
 
@@ -141,7 +141,7 @@ describe("AdminPage", () => {
 
     fireEvent.change(
       screen.getByPlaceholderText("z. B. Behandlungsinformation"),
-      { target: { value: "Mein Text" } }
+      { target: { value: "Mein Text" } },
     );
 
     fireEvent.change(screen.getByPlaceholderText("z. B. behandlungsinfo"), {
@@ -150,9 +150,9 @@ describe("AdminPage", () => {
 
     fireEvent.change(
       screen.getByPlaceholderText(
-        "Text, der im Frontend angezeigt werden soll…"
+        "Text, der im Frontend angezeigt werden soll…",
       ),
-      { target: { value: "Inhalt" } }
+      { target: { value: "Inhalt" } },
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Modul anlegen" }));
@@ -169,7 +169,7 @@ describe("AdminPage", () => {
         status: "published",
         body_md: "Inhalt",
         file_url: null,
-      })
+      }),
     );
   });
 
@@ -195,7 +195,7 @@ describe("AdminPage", () => {
     });
 
     const fileInput = document.querySelector(
-      'input[type="file"]'
+      'input[type="file"]',
     ) as HTMLInputElement;
 
     const file = new File(["dummy"], "test.pdf", {
@@ -213,7 +213,7 @@ describe("AdminPage", () => {
     });
 
     const urlInput = screen.getByPlaceholderText(
-      "Direkte PDF-URL (oder wird nach Upload automatisch gesetzt)"
+      "Direkte PDF-URL (oder wird nach Upload automatisch gesetzt)",
     ) as HTMLInputElement;
 
     expect(urlInput.value).toContain("test.pdf");

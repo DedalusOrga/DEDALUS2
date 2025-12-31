@@ -74,7 +74,7 @@ export default function AdminPage() {
 
   function handleFormChange<K extends keyof NewModuleFormState>(
     key: K,
-    value: NewModuleFormState[K]
+    value: NewModuleFormState[K],
   ) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
@@ -221,7 +221,7 @@ export default function AdminPage() {
               onChange={(e) =>
                 handleFormChange(
                   "type",
-                  e.target.value as "text" | "pdf" | "video"
+                  e.target.value as "text" | "pdf" | "video",
                 )
               }
               className="border rounded px-2 py-1 w-full sm:w-2/3"

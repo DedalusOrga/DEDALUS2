@@ -18,7 +18,7 @@ export default function TherapieDetail() {
   const location = useLocation();
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
-    [location.pathname]
+    [location.pathname],
   );
 
   const {
@@ -53,24 +53,24 @@ export default function TherapieDetail() {
     (slug === "strahlentherapie"
       ? "Strahlentherapie"
       : slug === "chemotherapie"
-      ? "Chemotherapie"
-      : slug === "operationen"
-      ? "Operationen"
-      : slug === "immuntherapie"
-      ? "Immuntherapie"
-      : slug === "zielgerichtete-therapie"
-      ? "Zielgerichtete Therapie"
-      : slug === "palliativmedizin"
-      ? "Palliativmedizin"
-      : "Therapie");
+        ? "Chemotherapie"
+        : slug === "operationen"
+          ? "Operationen"
+          : slug === "immuntherapie"
+            ? "Immuntherapie"
+            : slug === "zielgerichtete-therapie"
+              ? "Zielgerichtete Therapie"
+              : slug === "palliativmedizin"
+                ? "Palliativmedizin"
+                : "Therapie");
 
   // Text aus body_md, sonst Fallback
   const text = useSimple
-    ? module?.body_md_simple ??
+    ? (module?.body_md_simple ??
       module?.body_md ??
-      "Für diese Therapie sind noch keine Inhalte hinterlegt."
-    : module?.body_md ??
-      "Für diese Therapie sind noch keine Inhalte hinterlegt.";
+      "Für diese Therapie sind noch keine Inhalte hinterlegt.")
+    : (module?.body_md ??
+      "Für diese Therapie sind noch keine Inhalte hinterlegt.");
 
   // Video-URL aus data.video_url
   const videoUrl = module?.data?.video_url;

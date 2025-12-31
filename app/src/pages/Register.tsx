@@ -41,7 +41,7 @@ export default function Register() {
     if (error) {
       console.log("Supabase Signup Error:", error);
       setMsg(
-        "Registrierung nicht möglich. Bitte prüfen Sie Ihre Zugangsberechtigung oder wenden Sie sich an den Studienleiter."
+        "Registrierung nicht möglich. Bitte prüfen Sie Ihre Zugangsberechtigung oder wenden Sie sich an den Studienleiter.",
       );
       setBusy(false);
       return;

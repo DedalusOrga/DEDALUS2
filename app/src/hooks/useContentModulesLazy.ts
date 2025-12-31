@@ -30,7 +30,7 @@ export function useContentModulesLazy<T = unknown>(options: {
         file_url,
         status,
         data
-      `
+      `,
       )
       .eq("status", "published");
 

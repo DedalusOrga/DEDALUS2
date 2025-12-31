@@ -20,7 +20,7 @@ function renderLogin() {
   return render(
     <BrowserRouter>
       <Login />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
 }
 
@@ -33,7 +33,7 @@ describe("Login Component", () => {
     renderLogin();
 
     expect(
-      screen.getByText("Willkommen zur DEDALUS Webapp")
+      screen.getByText("Willkommen zur DEDALUS Webapp"),
     ).toBeInTheDocument();
 
     expect(screen.getByLabelText("E-Mail")).toBeInTheDocument();
@@ -81,7 +81,7 @@ describe("Login Component", () => {
     fireEvent.click(screen.getByRole("button", { name: /login/i }));
 
     expect(
-      await screen.findByText("Ungültige Zugangsdaten")
+      await screen.findByText("Ungültige Zugangsdaten"),
     ).toBeInTheDocument();
 
     expect(mockNavigate).not.toHaveBeenCalled();

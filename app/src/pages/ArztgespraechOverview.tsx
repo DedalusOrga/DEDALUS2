@@ -12,7 +12,6 @@ export default function ArztgespraechOverview() {
 
   return (
     <div className="min-h-screen bg-emerald-50 px-4 md:px-10 py-10">
-      
       {/* Zurück */}
       <button
         onClick={() => navigate(-1)}
@@ -28,8 +27,8 @@ export default function ArztgespraechOverview() {
 
       <p className="text-emerald-800 mb-10 max-w-3xl">
         Hier finden Sie verschiedene Bereiche mit Beispiel-Fragen, die Sie bei
-        Ihrem Arztgespräch unterstützen können. Wählen Sie einen Bereich aus,
-        um die dazugehörigen Fragen zu sehen.
+        Ihrem Arztgespräch unterstützen können. Wählen Sie einen Bereich aus, um
+        die dazugehörigen Fragen zu sehen.
       </p>
 
       {/* Karten */}

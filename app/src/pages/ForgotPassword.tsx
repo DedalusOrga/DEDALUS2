@@ -30,14 +30,13 @@ export default function ForgotPassword() {
     if (error) return setMsg(error.message);
     // freundliche Erfolgsmeldung + Option zurück zum Login
     setMsg(
-      "Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet."
+      "Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet.",
     );
   }
 
- return (
+  return (
     <div className="min-h-screen border border-blue-300 bg-emerald-50 flex items-center justify-center px-4">
       <div className="w-full max-w-xl px-6 py-12 text-center">
-
         {/* Überschrift */}
         <h1 className="text-3xl md:text-4xl font-extrabold text-[#0D3B2E] mb-4">
           Passwort zurücksetzen
@@ -49,11 +48,7 @@ export default function ForgotPassword() {
         </p>
 
         {/* Fehlermeldung */}
-        {msg && (
-          <p className="text-sm font-medium text-red-600 mb-4">
-            {msg}
-          </p>
-        )}
+        {msg && <p className="text-sm font-medium text-red-600 mb-4">{msg}</p>}
 
         {/* Formular */}
         <form

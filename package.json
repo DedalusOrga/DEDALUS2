@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "format:check": "prettier . --check"
+    "format": "npx prettier . --write",
+    "format:check": "npx prettier . --check"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.78.0",

@@ -24,7 +24,7 @@ function renderRegister() {
   return render(
     <BrowserRouter>
       <Register />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
 }
 
@@ -37,10 +37,10 @@ describe("Register Component", () => {
     renderRegister();
 
     expect(
-      screen.getByText("Willkommen zur DEDALUS Webapp")
+      screen.getByText("Willkommen zur DEDALUS Webapp"),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Erstellen Sie ein Konto, um fortzufahren.")
+      screen.getByText("Erstellen Sie ein Konto, um fortzufahren."),
     ).toBeInTheDocument();
 
     expect(screen.getByLabelText("E-Mail")).toBeInTheDocument();
@@ -48,7 +48,7 @@ describe("Register Component", () => {
     expect(screen.getByLabelText("Passwort bestätigen")).toBeInTheDocument();
 
     expect(
-      screen.getByRole("button", { name: /registrieren/i })
+      screen.getByRole("button", { name: /registrieren/i }),
     ).toBeInTheDocument();
   });
 
@@ -72,8 +72,8 @@ describe("Register Component", () => {
 
     expect(
       await screen.findByText(
-        "Das Passwort muss mindestens 12 Zeichen lang sein."
-      )
+        "Das Passwort muss mindestens 12 Zeichen lang sein.",
+      ),
     ).toBeInTheDocument();
 
     expect(signUpMock).not.toHaveBeenCalled();
@@ -102,8 +102,8 @@ describe("Register Component", () => {
 
     expect(
       await screen.findByText(
-        "Registrierung nicht möglich. Bitte prüfen Sie Ihre Zugangsberechtigung oder wenden Sie sich an den Studienleiter."
-      )
+        "Registrierung nicht möglich. Bitte prüfen Sie Ihre Zugangsberechtigung oder wenden Sie sich an den Studienleiter.",
+      ),
     ).toBeInTheDocument();
 
     expect(signUpMock).toHaveBeenCalledWith({
@@ -142,7 +142,7 @@ describe("Register Component", () => {
     });
 
     expect(
-      await screen.findByText("Konto erstellt! Bitte jetzt einloggen …")
+      await screen.findByText("Konto erstellt! Bitte jetzt einloggen …"),
     ).toBeInTheDocument();
 
     // Timeout ausführen

@@ -9,8 +9,8 @@ export default function KrebsinformationenDetail() {
     slug === "stadienuebersicht"
       ? "Stadienübersicht + Erklärung"
       : slug === "stadium-vergleich"
-      ? "Stadium III vs. IV"
-      : "Allgemeine Krebsinformationen";
+        ? "Stadium III vs. IV"
+        : "Allgemeine Krebsinformationen";
 
   // Lorem-Ipsum-Texte für beide Inhalte
   const text =
@@ -25,7 +25,7 @@ eget lobortis nulla lorem sed elit. Morbi luctus justo at velit gravida, in semp
 accumsan. Pellentesque vel lectus non ipsum feugiat congue sit amet id odio. Donec id neque 
 efficitur, pulvinar risus non, pretium justo.`
       : slug === "stadium-vergleich"
-      ? `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi euismod sapien
+        ? `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi euismod sapien
 eget nisl cursus, eget faucibus ligula laoreet. Integer pretium, mi id dictum finibus, 
 massa ante aliquet nibh, in maximus ligula lorem ut odio. 
 
@@ -35,7 +35,7 @@ facilisi. Quisque id viverra sem. Aliquam erat volutpat.
 
 Cras pretium dapibus urna, vel porttitor nisi tempor vitae. Fusce eu urna commodo, 
 luctus mauris id, interdum augue.`
-      : "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+        : "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
 
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">

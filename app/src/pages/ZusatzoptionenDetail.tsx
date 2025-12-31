@@ -24,9 +24,7 @@ export default function ZusatzoptionenDetail() {
         ← Zurück
       </button>
 
-      <h1 className="mb-6 text-3xl font-bold text-emerald-900">
-        {title}
-      </h1>
+      <h1 className="mb-6 text-3xl font-bold text-emerald-900">{title}</h1>
 
       <div className="rounded-2xl bg-white p-8 shadow-sm leading-relaxed">
         Lorem ipsum – hier kommen später die Inhalte für{" "}

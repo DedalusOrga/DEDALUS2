@@ -12,7 +12,7 @@ function renderNav(initialPath = "/informationen-uebersicht") {
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
       <NavBar />
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -25,13 +25,13 @@ describe("NavBar", () => {
 
     // Tabs vorhanden
     expect(
-      screen.getByRole("link", { name: "Informationen" })
+      screen.getByRole("link", { name: "Informationen" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "Entscheidungen" })
+      screen.getByRole("link", { name: "Entscheidungen" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "Bedienhilfe" })
+      screen.getByRole("link", { name: "Bedienhilfe" }),
     ).toBeInTheDocument();
 
     // LogoutButton mock vorhanden
@@ -76,14 +76,14 @@ describe("NavBar", () => {
 
     expect(screen.getByRole("link", { name: "Informationen" })).toHaveAttribute(
       "href",
-      "/informationen-uebersicht"
+      "/informationen-uebersicht",
     );
     expect(
-      screen.getByRole("link", { name: "Entscheidungen" })
+      screen.getByRole("link", { name: "Entscheidungen" }),
     ).toHaveAttribute("href", "/entscheidungen");
     expect(screen.getByRole("link", { name: "Bedienhilfe" })).toHaveAttribute(
       "href",
-      "/bedienhilfe"
+      "/bedienhilfe",
     );
   });
 });

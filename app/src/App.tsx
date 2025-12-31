@@ -12,7 +12,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-emerald-50 text-slate-900 flex flex-col">
-
       {/* Navigation nur anzeigen, wenn man NICHT auf Login/Register ist */}
       {!hideNav && <NavBar />}
 
