@@ -8,6 +8,9 @@ type ModuleOption = {
   title: string | null;
   slug: string | null;
   type: string | null;
+  // Optional für später:
+  // updated_at?: string | null;
+  // created_at?: string | null;
 };
 
 export default function AdminContentPicker({
@@ -26,7 +29,10 @@ export default function AdminContentPicker({
   const [selected, setSelected] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
-  // aktuelles Binding laden (damit Dropdown vorausgewählt ist)
+  // Suche/Sortierung
+  const [query, setQuery] = useState("");
+
+  // aktuelles Binding laden (damit Auswahl vorausgewählt ist)
   useEffect(() => {
     let cancelled = false;
 
@@ -45,9 +51,9 @@ export default function AdminContentPicker({
     };
   }, [pageKey]);
 
-  // Module-Liste erst laden, wenn Admin-Menü geöffnet wird
+  // Module-Liste laden, wenn Admin-Menü geöffnet wird
   useEffect(() => {
-    if (!open || modules.length > 0) return;
+    if (!open) return;
 
     let cancelled = false;
 
@@ -57,6 +63,8 @@ export default function AdminContentPicker({
       let q = supabase
         .from("content_modules")
         .select("id,title,slug,type")
+        // Für "Aktuell" später z. B.:
+        // .select("id,title,slug,type,updated_at")
         .eq("status", "published")
         .order("title", { ascending: true });
 
@@ -74,7 +82,23 @@ export default function AdminContentPicker({
     return () => {
       cancelled = true;
     };
-  }, [open, expectedType, modules.length]);
+  }, [open, expectedType]);
+
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (q.length < 2) return [];
+
+    const list = modules
+      .filter((m) => {
+        const title = (m.title ?? "").toLowerCase();
+        const slug = (m.slug ?? "").toLowerCase();
+        return title.includes(q) || slug.includes(q);
+      })
+      .sort((a, b) => (a.title ?? "").localeCompare(b.title ?? "", "de"))
+      .slice(0, 15);
+
+    return list;
+  }, [modules, query]);
 
   async function save(moduleId: string) {
     setSelected(moduleId);
@@ -89,8 +113,15 @@ export default function AdminContentPicker({
 
     if (error) {
       console.warn("upsert binding error", error);
-      // optional: UI-Toast
+      return;
     }
+
+    // UX: Panel schließen & Suche leeren
+    setOpen(false);
+    setQuery("");
+
+    // Gewünscht: komplette Seite neu laden
+    window.location.reload();
   }
 
   return (
@@ -108,18 +139,47 @@ export default function AdminContentPicker({
           {loading ? (
             <span className="text-sm text-slate-600">Lade…</span>
           ) : (
-            <select
-              className="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm"
-              value={selected}
-              onChange={(e) => save(e.target.value)}
-            >
-              <option value="">– Modul wählen –</option>
-              {modules.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.title ?? "(ohne Titel)"} {m.slug ? `(${m.slug})` : ""}
-                </option>
-              ))}
-            </select>
+            <div className="rounded-md border border-slate-300 bg-white p-2 shadow-sm">
+              <div className="flex items-center gap-2">
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Titel eingeben"
+                  className="w-56 rounded-md border border-slate-300 px-2 py-1 text-sm"
+                />
+              </div>
+
+              <div className="mt-2 text-xs text-slate-500">
+                {query.trim().length < 2
+                  ? "Mind. 2 Zeichen eingeben"
+                  : results.length === 0
+                    ? "Keine Treffer"
+                    : `${results.length} Treffer`}
+              </div>
+
+              {query.trim().length >= 2 && results.length > 0 && (
+                <ul className="mt-2 space-y-1">
+                  {results.map((m) => (
+                    <li key={m.id}>
+                      <button
+                        type="button"
+                        className={`w-full rounded-md px-2 py-1 text-left text-sm hover:bg-emerald-50 ${
+                          selected === m.id ? "bg-emerald-100" : ""
+                        }`}
+                        onClick={() => save(m.id)}
+                      >
+                        <div className="font-medium">
+                          {m.title ?? "(ohne Titel)"}
+                        </div>
+                        {m.slug && (
+                          <div className="text-xs text-slate-500">{m.slug}</div>
+                        )}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           )}
         </>
       )}
