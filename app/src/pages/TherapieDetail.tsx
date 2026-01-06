@@ -86,7 +86,7 @@ export default function TherapieDetail() {
       <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
         {/* Zurück oben */}
         <button
-          onClick={() => navigate("/home")}
+          onClick={() => navigate(-1)}
           className="flex items-center text-emerald-900 mb-6 hover:text-emerald-700"
         >
           <span className="text-2xl mr-2">←</span>

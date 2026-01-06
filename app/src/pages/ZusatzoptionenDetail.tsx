@@ -1,35 +1,82 @@
+// app/src/pages/ZusatzoptionenDetail.tsx
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 
 export default function ZusatzoptionenDetail() {
-  const { slug } = useParams();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const [useSimple, setUseSimple] = useState(false);
 
-  const titleMap: Record<string, string> = {
-    komplementaermedizin: "Komplementärmedizin",
-    ernaehrungsberatung: "Ernährungsberatung",
-    entspannung: "Entspannungs- & Achtsamkeitsverfahren",
-    schmerztherapie: "Schmerztherapie",
-    bewegungstherapie: "Bewegungstherapie",
-    physiotherapie: "Physiotherapie",
-  };
+  const { modules, loading, loadedOnce, loadModules } =
+    useContentModulesLazy({
+      type: "text",
+      slug,
+    });
 
-  const title = titleMap[slug ?? ""] ?? "Zusätzliche Therapieoptionen";
+  useEffect(() => {
+    if (slug) {
+      loadModules();
+    }
+  }, [slug, loadModules]);
+
+  const module = modules[0];
+
+  const title =
+    module?.title ??
+    (slug === "komplementaermedizin"
+      ? "Komplementärmedizin (Naturheilkunde)"
+      : slug === "ernaehrungsberatung"
+      ? "Ernährungsberatung"
+      : slug === "entspannung"
+      ? "Entspannungs- & Achtsamkeitsverfahren"
+      : slug === "schmerztherapie"
+      ? "Schmerztherapie"
+      : slug === "raucherentwoehnung"
+      ? "Raucherentwöhnung"
+      : slug === "bewegungstherapie"
+      ? "Bewegungstherapie"
+      : slug === "physiotherapie"
+      ? "Physiotherapie"
+      : "Zusätzliche Therapieoptionen");
+
+  const text = useSimple
+    ? module?.body_md_simple ??
+      module?.body_md ??
+      "Für diese zusätzlichen Therapieoptionen sind noch keine Inhalte hinterlegt."
+    : module?.body_md ??
+      "Für diese zusätzlichen Therapieoptionen sind noch keine Inhalte hinterlegt.";
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10">
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-6 text-emerald-900 hover:text-emerald-700"
-      >
-        ← Zurück
-      </button>
+    <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
+      <div className="w-full max-w-6xl mx-auto px-6 py-10">
+        {/* Zurück */}
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-6 text-emerald-900 hover:text-emerald-700"
+        >
+          ← Zurück
+        </button>
 
-      <h1 className="mb-6 text-3xl font-bold text-emerald-900">{title}</h1>
+        {/* Titel */}
+        <h1 className="mb-8 text-3xl font-semibold text-emerald-800">
+          {title}
+        </h1>
 
-      <div className="rounded-2xl bg-white p-8 shadow-sm leading-relaxed">
-        Lorem ipsum – hier kommen später die Inhalte für{" "}
-        <strong>{title}</strong>.
+        {/* Ladezustand */}
+        {loading && !loadedOnce && (
+          <div className="mb-4 text-emerald-900">
+            Inhalt wird geladen …
+          </div>
+        )}
+
+        {/* Inhalt mit Markdown */}
+        <div className="rounded-3xl bg-white p-8 shadow-sm prose prose-emerald max-w-none">
+          <ReactMarkdown>{text}</ReactMarkdown>
+        </div>
       </div>
     </div>
   );
 }
+

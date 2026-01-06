@@ -4,9 +4,9 @@ export default function WeiterfuehrendeInfoOverview() {
   const navigate = useNavigate();
 
   const items = [
-    { slug: "buecher-zeitschriften", title: "Bücher/Fachzeitschriften" },
+    { slug: "buecher-zeitschriften", title: "Bücher/Fachzeitschriften", },
     {
-      slug: "internetseiten-anlaufstellen",
+      slug: "internetseiten",
       title: "Internetseiten/Anlaufstellen",
     },
     { slug: "selbsthilfegruppen", title: "Selbsthilfegruppen" },
