@@ -8,7 +8,6 @@ export default function UnterstuetzungsangeboteOverview() {
     { slug: "begleitung", title: "Psych. + seelsorgerische Begleitung" },
     { slug: "sozialdienst", title: "Sozialdienst" },
     { slug: "staatliche-hilfen", title: "Staatliche Hilfen" },
-    { slug: "beratungsstellen", title: "Beratungsstellen" },
     {
       slug: "pharmazeutische-dienstleistungen",
       title: "Pharmazeutische Dienstleistungen",
