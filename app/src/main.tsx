@@ -73,7 +73,7 @@ const router = createHashRouter([
       },
 
       {
-        path: "/entscheidungen/frageboegen-entscheidung",
+        path: "/entscheidungen/frageboegen",
         element: <FrageboegenEntscheidung />,
       },
 
