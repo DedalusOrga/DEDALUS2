@@ -21,6 +21,15 @@ type NewModuleFormState = {
   file_url: string;
 };
 
+type ContentModulePayload = {
+  title: string;
+  slug: string;
+  type: "text" | "pdf" | "video";
+  status: string;
+  body_md: string | null;
+  file_url: string | null;
+};
+
 // Bucket je nach Modultyp auswählen
 function getBucketForType(type: "text" | "pdf" | "video") {
   if (type === "pdf") return "PDF";
@@ -192,40 +201,40 @@ export default function AdminPage() {
 
     const normalizedSlug = form.slug.trim().toLowerCase().replace(/\s+/g, "-");
 
-    const payload: any = {
+    const payload: ContentModulePayload = {
       title: form.title,
       slug: normalizedSlug,
       type: form.type,
       status: "published",
+      body_md: null,
+      file_url: null,
     };
 
     if (form.type === "text") {
       payload.body_md = form.body_md || "";
-      payload.file_url = null;
     } else {
       payload.file_url = form.file_url || "";
-      payload.body_md = null;
     }
 
     if (editingId) {
-      const { error: updError } = await supabase
+      const { error } = await supabase
         .from("content_modules")
         .update(payload)
         .eq("id", editingId);
 
-      if (updError) {
-        console.error(updError);
+      if (error) {
+        console.error(error);
         setError("Modul konnte nicht aktualisiert werden.");
         setSaving(false);
         return;
       }
     } else {
-      const { error: insError } = await supabase
+      const { error } = await supabase
         .from("content_modules")
         .insert([payload]);
 
-      if (insError) {
-        console.error(insError);
+      if (error) {
+        console.error(error);
         setError("Neues Modul konnte nicht gespeichert werden.");
         setSaving(false);
         return;
