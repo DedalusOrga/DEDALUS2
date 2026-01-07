@@ -35,7 +35,7 @@ export default function FragebogenFrage() {
   const [error, setError] = useState<string | null>(null);
 
   const [questionnaire, setQuestionnaire] = useState<Questionnaire | null>(
-    null
+    null,
   );
   const [questions, setQuestions] = useState<Question[]>([]);
   const [options, setOptions] = useState<Option[]>([]);
@@ -204,7 +204,7 @@ export default function FragebogenFrage() {
         option_id: optionId,
         answered_at: new Date().toISOString(),
       },
-      { onConflict: "session_id,question_id" }
+      { onConflict: "session_id,question_id" },
     );
 
     if (error) setError(error.message);

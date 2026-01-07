@@ -46,7 +46,7 @@ function getBucketForType(type: "text" | "pdf" | "video") {
  * Gibt null zurück bei externen URLs.
  */
 function parseSupabaseStorageObject(
-  fileUrl: string
+  fileUrl: string,
 ): { bucket: string; path: string } | null {
   try {
     const u = new URL(fileUrl);
@@ -139,7 +139,7 @@ export default function AdminPage() {
 
   function handleFormChange<K extends keyof NewModuleFormState>(
     key: K,
-    value: NewModuleFormState[K]
+    value: NewModuleFormState[K],
   ) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
@@ -174,7 +174,7 @@ export default function AdminPage() {
       if (uploadErr) {
         console.error("UPLOAD ERROR:", uploadErr);
         setUploadError(
-          uploadErr.message ?? "Datei konnte nicht hochgeladen werden."
+          uploadErr.message ?? "Datei konnte nicht hochgeladen werden.",
         );
         return;
       }
@@ -276,7 +276,7 @@ export default function AdminPage() {
           // Jetzt NICHT nur warnen, sondern anzeigen:
           console.error("Storage delete failed:", storageError);
           setError(
-            `Datei konnte nicht aus Storage gelöscht werden: ${storageError.message ?? "unknown error"}`
+            `Datei konnte nicht aus Storage gelöscht werden: ${storageError.message ?? "unknown error"}`,
           );
           // Wir versuchen trotzdem, den DB-Eintrag zu löschen
         }
@@ -292,7 +292,7 @@ export default function AdminPage() {
     if (delError) {
       console.error("DB delete failed:", delError);
       setError(
-        `DB-Eintrag konnte nicht gelöscht werden: ${delError.message ?? "unknown error"}`
+        `DB-Eintrag konnte nicht gelöscht werden: ${delError.message ?? "unknown error"}`,
       );
       setSaving(false);
       return;
@@ -367,7 +367,7 @@ export default function AdminPage() {
               onChange={(e) =>
                 handleFormChange(
                   "type",
-                  e.target.value as "text" | "pdf" | "video"
+                  e.target.value as "text" | "pdf" | "video",
                 )
               }
               className="border rounded px-2 py-1 w-full sm:w-2/3"
@@ -551,7 +551,7 @@ export default function AdminPage() {
                               "[UI] Delete button clicked",
                               m.id,
                               m.type,
-                              m.file_url
+                              m.file_url,
                             );
                             void handleDeleteModule(m);
                           }}
