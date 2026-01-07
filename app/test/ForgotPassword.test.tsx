@@ -9,7 +9,7 @@ const resetPasswordForEmailMock = jest.fn();
 jest.mock("../src/infrastructure/supabase/client", () => ({
   supabase: {
     auth: {
-      resetPasswordForEmail: (...args: any[]) =>
+      resetPasswordForEmail: (...args: unknown[]) =>
         resetPasswordForEmailMock(...args),
     },
   },
@@ -22,7 +22,7 @@ function renderWithRouter(initialEntry = "/auth/forgot") {
         <Route path="/auth/forgot" element={<ForgotPassword />} />
         <Route path="/login" element={<div>LOGIN_PAGE</div>} />
       </Routes>
-    </MemoryRouter>,
+    </MemoryRouter>
   );
 }
 
@@ -35,7 +35,7 @@ describe("ForgotPassword", () => {
     renderWithRouter("/auth/forgot?email=test@example.com");
 
     const emailInput = screen.getByPlaceholderText(
-      "Ihre E-Mail-Adresse",
+      "Ihre E-Mail-Adresse"
     ) as HTMLInputElement;
 
     await waitFor(() => {
@@ -67,8 +67,8 @@ describe("ForgotPassword", () => {
     // Erfolgsmeldung sichtbar
     expect(
       await screen.findByText(
-        "Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet.",
-      ),
+        "Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet."
+      )
     ).toBeInTheDocument();
   });
 
