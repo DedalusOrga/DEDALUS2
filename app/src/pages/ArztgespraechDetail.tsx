@@ -2,17 +2,17 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
+import type { Module } from "../components/ModuleRenderer";
 
 export default function ZusatzoptionenDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [useSimple, setUseSimple] = useState(false);
 
-  const { modules, loading, loadedOnce, loadModules } =
-    useContentModulesLazy({
-      type: "text",
-      slug,
-    });
+  const { modules, loading, loadedOnce, loadModules } = useContentModulesLazy({
+    type: "text",
+    slug,
+  });
 
   useEffect(() => {
     if (slug) {
@@ -20,26 +20,26 @@ export default function ZusatzoptionenDetail() {
     }
   }, [slug, loadModules]);
 
-  const module = modules[0];
+  const module = modules[0] as Module | undefined;
 
   const title =
     module?.title ??
     (slug === "checkliste"
       ? "Checkliste für das Arztgespräch"
       : slug === "diagnose"
-      ? "Fragen zur Diagnose"
-      : slug === "behandlung"
-      ? "Fragen zur Behandlung"
-      : slug === "nebenwirkungen"
-      ? "Fragen zu Nebenwirkungen"
-      : "Fragen für das Artzgespräch");
+        ? "Fragen zur Diagnose"
+        : slug === "behandlung"
+          ? "Fragen zur Behandlung"
+          : slug === "nebenwirkungen"
+            ? "Fragen zu Nebenwirkungen"
+            : "Fragen für das Artzgespräch");
 
   const text = useSimple
-    ? module?.body_md_simple ??
+    ? (module?.body_md_simple ??
       module?.body_md ??
-      "Für diese Fragen zu Artzgespräche sind noch keine Inhalte hinterlegt."
-    : module?.body_md ??
-      "Für diese Fragen zu Artzgespräche sind noch keine Inhalte hinterlegt.";
+      "Für diese Fragen zu Artzgespräche sind noch keine Inhalte hinterlegt.")
+    : (module?.body_md ??
+      "Für diese Fragen zu Artzgespräche sind noch keine Inhalte hinterlegt.");
 
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
@@ -59,9 +59,7 @@ export default function ZusatzoptionenDetail() {
 
         {/* Ladezustand */}
         {loading && !loadedOnce && (
-          <div className="mb-4 text-emerald-900">
-            Inhalt wird geladen …
-          </div>
+          <div className="mb-4 text-emerald-900">Inhalt wird geladen …</div>
         )}
 
         {/* Inhalt mit Markdown */}
@@ -72,4 +70,3 @@ export default function ZusatzoptionenDetail() {
     </div>
   );
 }
-
