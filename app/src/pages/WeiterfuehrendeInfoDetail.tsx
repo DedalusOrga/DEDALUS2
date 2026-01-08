@@ -2,17 +2,17 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
+import type { Module } from "../components/ModuleRenderer";
 
 export default function UnterstuetzungsangeboteDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [useSimple, setUseSimple] = useState(false);
 
-  const { modules, loading, loadedOnce, loadModules } =
-    useContentModulesLazy({
-      type: "text",
-      slug,
-    });
+  const { modules, loading, loadedOnce, loadModules } = useContentModulesLazy({
+    type: "text",
+    slug,
+  });
 
   useEffect(() => {
     if (slug) {
@@ -20,28 +20,28 @@ export default function UnterstuetzungsangeboteDetail() {
     }
   }, [slug, loadModules]);
 
-  const module = modules[0];
+  const module = modules[0] as Module | undefined;
 
   const title =
-  module?.title ??
-  (slug === "buecher-zeitschriften"
-    ? "Bücher/Fachzeitschriften"
-    : slug === "internetseiten"
-    ? "Internetseiten/Anlaufstellen"
-    : slug === "selbsthilfegruppen"
-    ? "Selbsthilfegruppen"
-    : slug === "wohnortnahe-versorgung"
-    ? "Wohnortnahe Versorgung"
-    : slug === "krebshilfe-gesellschaft"
-    ? "Deutsche Krebshilfe + -gesellschaft"
-    : "weiterführende Informationen");
+    module?.title ??
+    (slug === "buecher-zeitschriften"
+      ? "Bücher/Fachzeitschriften"
+      : slug === "internetseiten"
+        ? "Internetseiten/Anlaufstellen"
+        : slug === "selbsthilfegruppen"
+          ? "Selbsthilfegruppen"
+          : slug === "wohnortnahe-versorgung"
+            ? "Wohnortnahe Versorgung"
+            : slug === "krebshilfe-gesellschaft"
+              ? "Deutsche Krebshilfe + -gesellschaft"
+              : "weiterführende Informationen");
 
   const text = useSimple
-    ? module?.body_md_simple ??
+    ? (module?.body_md_simple ??
       module?.body_md ??
-      "Für diese weiterführende Informationen sind noch keine Inhalte hinterlegt."
-    : module?.body_md ??
-      "Für diese weiterführende Informationen sind noch keine Inhalte hinterlegt.";
+      "Für diese weiterführende Informationen sind noch keine Inhalte hinterlegt.")
+    : (module?.body_md ??
+      "Für diese weiterführende Informationen sind noch keine Inhalte hinterlegt.");
 
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
@@ -61,9 +61,7 @@ export default function UnterstuetzungsangeboteDetail() {
 
         {/* Ladezustand */}
         {loading && !loadedOnce && (
-          <div className="mb-4 text-emerald-900">
-            Inhalt wird geladen …
-          </div>
+          <div className="mb-4 text-emerald-900">Inhalt wird geladen …</div>
         )}
 
         {/* Inhalt mit Markdown */}
@@ -74,4 +72,3 @@ export default function UnterstuetzungsangeboteDetail() {
     </div>
   );
 }
-

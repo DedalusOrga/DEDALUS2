@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "../infrastructure/supabase/client";
 import { useAuth } from "../hooks/AuthProvider";
 import { useNavigate } from "react-router-dom";
@@ -21,12 +21,47 @@ type NewModuleFormState = {
   file_url: string;
 };
 
+type ContentModulePayload = {
+  title: string;
+  slug: string;
+  type: "text" | "pdf" | "video";
+  status: string;
+  body_md: string | null;
+  file_url: string | null;
+};
+
 // Bucket je nach Modultyp auswählen
 function getBucketForType(type: "text" | "pdf" | "video") {
   if (type === "pdf") return "PDF";
   if (type === "video") return "videos";
   // für Text wird kein Storage verwendet – Fallback, falls nötig
   return "Text";
+}
+
+/**
+ * Extrahiert bucket + path aus Supabase Storage URLs.
+ * Unterstützt:
+ *  - /storage/v1/object/public/<bucket>/<path>
+ *  - /storage/v1/object/sign/<bucket>/<path>
+ * Gibt null zurück bei externen URLs.
+ */
+function parseSupabaseStorageObject(
+  fileUrl: string,
+): { bucket: string; path: string } | null {
+  try {
+    const u = new URL(fileUrl);
+    const markers = ["/storage/v1/object/public/", "/storage/v1/object/sign/"];
+    const marker = markers.find((m) => u.pathname.includes(m));
+    if (!marker) return null;
+
+    const rest = u.pathname.split(marker)[1]; // "<bucket>/<path...>"
+    const [bucket, ...pathParts] = rest.split("/").filter(Boolean);
+    if (!bucket || pathParts.length === 0) return null;
+
+    return { bucket, path: pathParts.join("/") };
+  } catch {
+    return null;
+  }
 }
 
 export default function AdminPage() {
@@ -49,8 +84,11 @@ export default function AdminPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
+  // Edit-Mode
+  const [editingId, setEditingId] = useState<string | null>(null);
+
   useEffect(() => {
-    loadModules();
+    void loadModules();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -73,9 +111,35 @@ export default function AdminPage() {
     setLoading(false);
   }
 
+  function resetForm() {
+    setEditingId(null);
+    setUploadError(null);
+    setForm({
+      type: "text",
+      title: "",
+      slug: "",
+      body_md: "",
+      file_url: "",
+    });
+  }
+
+  function startEdit(m: ContentModule) {
+    setEditingId(m.id);
+    setError(null);
+    setUploadError(null);
+
+    setForm({
+      type: m.type,
+      title: m.title,
+      slug: m.slug,
+      body_md: m.body_md ?? "",
+      file_url: m.file_url ?? "",
+    });
+  }
+
   function handleFormChange<K extends keyof NewModuleFormState>(
     key: K,
-    value: NewModuleFormState[K]
+    value: NewModuleFormState[K],
   ) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
@@ -83,7 +147,6 @@ export default function AdminPage() {
   // Datei (PDF/Video) in Supabase Storage hochladen und URL ins Formular schreiben
   async function handleFileUpload(file: File) {
     if (form.type === "text") {
-      // Sicherheitsnetz – sollte durch das UI nie passieren
       setUploadError("Dateiupload ist nur für PDF- und Video-Module möglich.");
       return;
     }
@@ -93,37 +156,39 @@ export default function AdminPage() {
 
     try {
       const ext = file.name.split(".").pop() ?? "bin";
-      const safeSlug = form.slug.trim() || "module";
-      const filePath = `modules/${Date.now()}_${safeSlug}.${ext}`;
+      const safeSlug = (form.slug.trim() || "module")
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-_]/g, "");
 
+      const filePath = `modules/${Date.now()}_${safeSlug}.${ext}`;
       const bucket = getBucketForType(form.type);
 
-      // 1) Upload in Storage
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadErr } = await supabase.storage
         .from(bucket)
         .upload(filePath, file, {
           cacheControl: "3600",
           upsert: false,
         });
 
-      if (uploadError) {
-        console.error(uploadError);
-        setUploadError("Datei konnte nicht hochgeladen werden.");
+      if (uploadErr) {
+        console.error("UPLOAD ERROR:", uploadErr);
+        setUploadError(
+          uploadErr.message ?? "Datei konnte nicht hochgeladen werden.",
+        );
         return;
       }
 
-      // 2) Public URL holen
+      // Public URL holen (Bucket muss public sein, sonst brauchst du signed URLs zur Laufzeit)
       const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-      const publicUrl = data.publicUrl;
-
-      // 3) URL ins Formular übernehmen
-      setForm((prev) => ({ ...prev, file_url: publicUrl }));
+      setForm((prev) => ({ ...prev, file_url: data.publicUrl }));
     } finally {
       setUploading(false);
     }
   }
 
-  async function handleCreateModule(e: React.FormEvent) {
+  // Create oder Update
+  async function handleSaveModule(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError(null);
@@ -136,39 +201,105 @@ export default function AdminPage() {
 
     const normalizedSlug = form.slug.trim().toLowerCase().replace(/\s+/g, "-");
 
-    const insertPayload: any = {
+    const payload: ContentModulePayload = {
       title: form.title,
       slug: normalizedSlug,
       type: form.type,
       status: "published",
+      body_md: null,
+      file_url: null,
     };
 
     if (form.type === "text") {
-      insertPayload.body_md = form.body_md || "";
-      insertPayload.file_url = null;
-    } else if (form.type === "pdf" || form.type === "video") {
-      insertPayload.file_url = form.file_url || "";
-      insertPayload.body_md = null;
-    }
-
-    const { error: insertError } = await supabase
-      .from("content_modules")
-      .insert([insertPayload]);
-
-    if (insertError) {
-      console.error(insertError);
-      setError("Neues Modul konnte nicht gespeichert werden.");
+      payload.body_md = form.body_md || "";
     } else {
-      setForm({
-        type: "text",
-        title: "",
-        slug: "",
-        body_md: "",
-        file_url: "",
-      });
-      await loadModules();
+      payload.file_url = form.file_url || "";
     }
 
+    if (editingId) {
+      const { error } = await supabase
+        .from("content_modules")
+        .update(payload)
+        .eq("id", editingId);
+
+      if (error) {
+        console.error(error);
+        setError("Modul konnte nicht aktualisiert werden.");
+        setSaving(false);
+        return;
+      }
+    } else {
+      const { error } = await supabase
+        .from("content_modules")
+        .insert([payload]);
+
+      if (error) {
+        console.error(error);
+        setError("Neues Modul konnte nicht gespeichert werden.");
+        setSaving(false);
+        return;
+      }
+    }
+
+    resetForm();
+    await loadModules();
+    setSaving(false);
+  }
+
+  // ✅ Löschen für Text/PDF/Video:
+  // - Text: nur DB
+  // - PDF/Video: best effort Storage entfernen (wenn file_url Supabase-Storage URL), dann DB
+  async function handleDeleteModule(m: ContentModule) {
+    const label =
+      m.type === "text"
+        ? "Text-Modul"
+        : m.type === "pdf"
+          ? "PDF-Modul"
+          : "Video-Modul";
+
+    const ok = window.confirm(`${label} „${m.title}“ wirklich löschen?`);
+    if (!ok) return;
+
+    setSaving(true);
+    setError(null);
+
+    // 1) Storage-Datei löschen (nur bei pdf/video + Supabase URL)
+    if ((m.type === "pdf" || m.type === "video") && m.file_url) {
+      const parsed = parseSupabaseStorageObject(m.file_url);
+
+      if (parsed) {
+        const { error: storageError } = await supabase.storage
+          .from(parsed.bucket)
+          .remove([parsed.path]);
+
+        if (storageError) {
+          // Jetzt NICHT nur warnen, sondern anzeigen:
+          console.error("Storage delete failed:", storageError);
+          setError(
+            `Datei konnte nicht aus Storage gelöscht werden: ${storageError.message ?? "unknown error"}`,
+          );
+          // Wir versuchen trotzdem, den DB-Eintrag zu löschen
+        }
+      }
+    }
+
+    // 2) DB-Row löschen
+    const { error: delError } = await supabase
+      .from("content_modules")
+      .delete()
+      .eq("id", m.id);
+
+    if (delError) {
+      console.error("DB delete failed:", delError);
+      setError(
+        `DB-Eintrag konnte nicht gelöscht werden: ${delError.message ?? "unknown error"}`,
+      );
+      setSaving(false);
+      return;
+    }
+
+    if (editingId === m.id) resetForm();
+    await loadModules();
     setSaving(false);
   }
 
@@ -210,11 +341,25 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Neues Modul anlegen */}
+      {/* Neues Modul anlegen / Bearbeiten */}
       <section className="p-4 border rounded-xl bg-white shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold">Neues Modul anlegen</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold">
+            {editingId ? "Modul bearbeiten" : "Neues Modul anlegen"}
+          </h2>
 
-        <form onSubmit={handleCreateModule} className="space-y-3">
+          {editingId && (
+            <button
+              type="button"
+              onClick={resetForm}
+              className="text-sm underline text-gray-600"
+            >
+              Bearbeiten abbrechen
+            </button>
+          )}
+        </div>
+
+        <form onSubmit={handleSaveModule} className="space-y-3">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
             <label className="text-sm font-medium w-full sm:w-1/3">Typ</label>
             <select
@@ -222,7 +367,7 @@ export default function AdminPage() {
               onChange={(e) =>
                 handleFormChange(
                   "type",
-                  e.target.value as "text" | "pdf" | "video"
+                  e.target.value as "text" | "pdf" | "video",
                 )
               }
               className="border rounded px-2 py-1 w-full sm:w-2/3"
@@ -232,7 +377,6 @@ export default function AdminPage() {
               <option value="video">Video</option>
             </select>
           </div>
-
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
             <label className="text-sm font-medium w-full sm:w-1/3">
               Titel *
@@ -246,7 +390,6 @@ export default function AdminPage() {
               required
             />
           </div>
-
           <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-4">
             <label className="text-sm font-medium w-full sm:w-1/3">
               Kurzname für das Modul *
@@ -266,7 +409,6 @@ export default function AdminPage() {
               />
             </div>
           </div>
-
           {form.type === "text" && (
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">Textinhalt</label>
@@ -279,7 +421,6 @@ export default function AdminPage() {
               />
             </div>
           )}
-
           {(form.type === "pdf" || form.type === "video") && (
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">
@@ -323,14 +464,28 @@ export default function AdminPage() {
             </div>
           )}
 
-          <div className="pt-2">
+          <div className="pt-2 flex items-center gap-3">
             <button
               type="submit"
               disabled={saving}
               className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-60"
             >
-              {saving ? "Speichere…" : "Modul anlegen"}
+              {saving
+                ? "Speichere…"
+                : editingId
+                  ? "Änderungen speichern"
+                  : "Modul anlegen"}
             </button>
+
+            {!editingId && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="text-sm underline text-gray-600"
+              >
+                Formular leeren
+              </button>
+            )}
           </div>
         </form>
       </section>
@@ -340,7 +495,7 @@ export default function AdminPage() {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Bestehende Module</h2>
           <button
-            onClick={loadModules}
+            onClick={() => void loadModules()}
             className="text-sm underline text-gray-600"
           >
             Aktualisieren
@@ -362,6 +517,7 @@ export default function AdminPage() {
                   <th className="text-left px-3 py-2">Slug</th>
                   <th className="text-left px-3 py-2">Typ</th>
                   <th className="text-left px-3 py-2">Status</th>
+                  <th className="text-left px-3 py-2">Aktionen</th>
                 </tr>
               </thead>
               <tbody>
@@ -375,6 +531,37 @@ export default function AdminPage() {
                       </span>
                     </td>
                     <td className="px-3 py-2 text-gray-600">{m.status}</td>
+
+                    <td className="px-3 py-2">
+                      <div className="flex items-center gap-3">
+                        {m.type === "text" && (
+                          <button
+                            type="button"
+                            onClick={() => startEdit(m)}
+                            className="text-sm underline text-blue-700"
+                            disabled={saving}
+                          >
+                            Bearbeiten
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            console.log(
+                              "[UI] Delete button clicked",
+                              m.id,
+                              m.type,
+                              m.file_url,
+                            );
+                            void handleDeleteModule(m);
+                          }}
+                          className="text-sm underline text-red-600"
+                          disabled={saving}
+                        >
+                          Löschen
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>

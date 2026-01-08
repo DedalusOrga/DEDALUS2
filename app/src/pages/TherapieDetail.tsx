@@ -1,6 +1,7 @@
 // app/src/pages/TherapieDetail.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import type { ContentModule } from "../types/ContentModule";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
@@ -17,7 +18,7 @@ export default function TherapieDetail() {
   const location = useLocation();
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
-    [location.pathname]
+    [location.pathname],
   );
 
   const {
@@ -33,7 +34,7 @@ export default function TherapieDetail() {
     loadedOnce: fallbackLoadedOnce,
     error: fallbackError,
     loadModules,
-  } = useContentModulesLazy({
+  } = useContentModulesLazy<ContentModule>({
     type: "text",
     slug,
   });
@@ -42,7 +43,7 @@ export default function TherapieDetail() {
     if (!boundLoading && !boundModule && slug) {
       loadModules();
     }
-  }, [slug, boundModule, loadModules]);
+  }, [slug, boundModule, boundLoading, loadModules]);
 
   const module = boundModule ?? fallbackModule;
 
@@ -52,27 +53,27 @@ export default function TherapieDetail() {
     (slug === "strahlentherapie"
       ? "Strahlentherapie"
       : slug === "chemotherapie"
-      ? "Chemotherapie"
-      : slug === "operationen"
-      ? "Operationen"
-      : slug === "immuntherapie"
-      ? "Immuntherapie"
-      : slug === "zielgerichtete-therapie"
-      ? "Zielgerichtete Therapie"
-      : slug === "palliativmedizin"
-      ? "Palliativmedizin"
-      : "Therapie");
+        ? "Chemotherapie"
+        : slug === "operationen"
+          ? "Operationen"
+          : slug === "immuntherapie"
+            ? "Immuntherapie"
+            : slug === "zielgerichtete-therapie"
+              ? "Zielgerichtete Therapie"
+              : slug === "palliativmedizin"
+                ? "Palliativmedizin"
+                : "Therapie");
 
   // Text aus body_md, sonst Fallback
   const text = useSimple
-    ? module?.body_md_simple ??
+    ? (module?.body_md_simple ??
       module?.body_md ??
-      "Für diese Therapie sind noch keine Inhalte hinterlegt."
-    : module?.body_md ??
-      "Für diese Therapie sind noch keine Inhalte hinterlegt.";
+      "Für diese Therapie sind noch keine Inhalte hinterlegt.")
+    : (module?.body_md ??
+      "Für diese Therapie sind noch keine Inhalte hinterlegt.");
 
   // Video-URL aus data.video_url
-  const videoUrl = module?.data?.video_url ?? null;
+  const videoUrl = module?.data?.video_url;
   const hasVideo = !!videoUrl;
 
   const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
