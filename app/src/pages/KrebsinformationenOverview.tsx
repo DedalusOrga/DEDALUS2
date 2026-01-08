@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import StageIcon from "../assets/icons/book.svg";     // später austauschen
+import StageIcon from "../assets/icons/book.svg"; // später austauschen
 import CompareIcon from "../assets/icons/book.svg"; // später austauschen
 
 export default function KrebsinformationenOverview() {

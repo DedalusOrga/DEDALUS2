@@ -1,6 +1,6 @@
 /**
  * Fragen & Antworten – FAQ Seite
- * 
+ *
  * Hinweis:
  * - Inhalte sind aktuell statisch (hard-coded)
  * - Das Team möchte später evtl. dynamische FAQs (z. B. aus Supabase oder JSON)
@@ -15,8 +15,8 @@ export default function QuestionsPage() {
       </h1>
 
       <p className="text-base text-slate-800">
-        Hier finden Sie Antworten auf häufige Fragen zur Nutzung der WebApp.
-        Die Inhalte sind noch im Aufbau.
+        Hier finden Sie Antworten auf häufige Fragen zur Nutzung der WebApp. Die
+        Inhalte sind noch im Aufbau.
       </p>
 
       <div className="space-y-4">

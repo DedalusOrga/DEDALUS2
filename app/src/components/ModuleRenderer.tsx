@@ -2,11 +2,12 @@ import TextModule from "./TextModule";
 import PdfModule from "./PdfModule";
 import VideoModule from "./VideoModule";
 
-type Module = {
+export type Module = {
   id: string;
   title: string;
   type: "text" | "pdf" | "video";
   body_md?: string | null;
+  body_md_simple?: string | null;
   file_url?: string | null;
 };
 
