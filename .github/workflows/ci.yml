@@ -3,9 +3,9 @@ name: CI
 on:
   workflow_dispatch:
   push:
-    branches: ["main", "develop", "feature/*", "Feature/*"]
+    branches: ["main", "develop", "develop1.1", "feature/*", "Feature/*"]
   pull_request:
-    branches: ["main", "develop", "feature/*", "Feature/*"]
+    branches: ["main", "develop", "develop1.1", "feature/*", "Feature/*"]
 
 jobs:
   test:
