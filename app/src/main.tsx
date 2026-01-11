@@ -36,6 +36,8 @@ import WeiterfuehrendeInfoOverview from "./pages/WeiterfuehrendeInfoOverview";
 import WeiterfuehrendeInfoDetail from "./pages/WeiterfuehrendeInfoDetail";
 
 import "./index.css";
+import PlanungOverview from "./pages/PlanungOverview";
+import PlanungDetail from "./pages/PlanungDetail";
 
 const router = createHashRouter([
   // 🔓 Public Routes (ohne Login)
@@ -73,7 +75,7 @@ const router = createHashRouter([
       },
 
       {
-        path: "/entscheidungen/frageboegen-entscheidung",
+        path: "/entscheidungen/frageboegen",
         element: <FrageboegenEntscheidung />,
       },
 
@@ -82,6 +84,16 @@ const router = createHashRouter([
       {
         path: "/entscheidungen/fragebogen/:id/fertig",
         element: <FragebogenFertig />,
+      },
+
+      {
+        path: "/entscheidungen/planung",
+        element: <PlanungOverview />,
+      },
+
+      {
+        path: "/entscheidungen/planung/:slug",
+        element: <PlanungDetail />,
       },
 
       {
