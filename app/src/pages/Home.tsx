@@ -14,6 +14,7 @@ export default function Home() {
       setIsAdmin(false);
       return;
     }
+    const userId = user.id;
 
     let cancelled = false;
 
@@ -21,7 +22,7 @@ export default function Home() {
       const { data, error } = await supabase
         .from("profiles")
         .select("is_admin")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .single();
 
       if (cancelled) return;

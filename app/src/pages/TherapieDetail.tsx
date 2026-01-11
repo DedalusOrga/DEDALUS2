@@ -5,6 +5,7 @@ import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
+import { GlossaryText } from "../glossary/GlossaryText";
 
 export default function TherapieDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -90,7 +91,7 @@ export default function TherapieDetail() {
         >
           {/* Textbereich */}
           <div className="text-sm md:text-base leading-relaxed text-emerald-950 whitespace-pre-line">
-            {text}
+            <GlossaryText text={text} />
           </div>
 
           {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}

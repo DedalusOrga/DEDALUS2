@@ -5,6 +5,7 @@ import Startseite from "./pages/Startseite";
 import AdminPage from "./pages/AdminPage";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
+import { GlossaryProvider } from "./glossary/GlossaryProvider";
 import Register from "./pages/Register";
 import EntscheidungenOverview from "./pages/EntscheidungenOverview";
 import FrageboegenEntscheidung from "./pages/FrageboegenEntscheidung";
@@ -59,7 +60,9 @@ const router = createHashRouter([
     path: "/",
     element: (
       <Protected>
-        <App />
+        <GlossaryProvider>
+          <App />
+        </GlossaryProvider>
       </Protected>
     ),
     children: [
