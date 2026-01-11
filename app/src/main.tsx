@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Register from "./pages/Register";
 import EntscheidungenOverview from "./pages/EntscheidungenOverview";
 import FrageboegenEntscheidung from "./pages/FrageboegenEntscheidung";
+import FragebogenErgebnis from "./pages/FragebogenErgebnis";
 import FragebogenFrage from "./pages/FragebogenFrage";
 import FragebogenFertig from "./pages/FragebogenFertig";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -82,6 +83,10 @@ const router = createHashRouter([
       {
         path: "/entscheidungen/fragebogen/:id/fertig",
         element: <FragebogenFertig />,
+      },
+      {
+        path: "/entscheidungen/fragebogen/:id/ergebnis",
+        element: <FragebogenErgebnis />,
       },
 
       {
@@ -299,5 +304,5 @@ const router = createHashRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <AuthProvider>
     <RouterProvider router={router} />
-  </AuthProvider>,
+  </AuthProvider>
 );
