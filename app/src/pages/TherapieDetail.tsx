@@ -6,9 +6,12 @@ import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
-import { GlossaryText } from "../glossary/GlossaryText";
 import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
+import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeSanitize from "rehype-sanitize";
 
 export default function TherapieDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -19,7 +22,7 @@ export default function TherapieDetail() {
   const location = useLocation();
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
-    [location.pathname],
+    [location.pathname]
   );
 
   const {
@@ -117,8 +120,8 @@ export default function TherapieDetail() {
           }
         >
           {/* Textbereich */}
-          <div className="text-sm md:text-base leading-relaxed text-emerald-950 whitespace-pre-line">
-            <GlossaryText text={text} />
+          <div className="text-sm md:text-base leading-relaxed text-emerald-950 ">
+            <MarkdownWithGlossary text={text} />
           </div>
 
           {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
