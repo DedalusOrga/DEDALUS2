@@ -76,7 +76,7 @@ const router = createHashRouter([
       },
 
       {
-        path: "/entscheidungen/frageboegen-entscheidung",
+        path: "/entscheidungen/frageboegen",
         element: <FrageboegenEntscheidung />,
       },
 
@@ -302,5 +302,5 @@ const router = createHashRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <AuthProvider>
     <RouterProvider router={router} />
-  </AuthProvider>
+  </AuthProvider>,
 );

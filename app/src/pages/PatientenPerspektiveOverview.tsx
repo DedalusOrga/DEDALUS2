@@ -5,8 +5,8 @@ export default function PatientenPerspektiveOverview() {
 
   const cards = [
     {
-      id: "videos",
-      title: "Videos/Audios von Patient*innen",
+      id: "pp-sideeffects-1",
+      title: "Patientenperspektive I zu Nebenwirkungen",
       slug: "videos-audios",
     },
     {

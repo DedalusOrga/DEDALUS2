@@ -8,7 +8,6 @@ export default function FragebogenFertig() {
 
   return (
     <div className="min-h-screen bg-emerald-50 px-4 md:px-10 py-10">
-
       {/* Zurück */}
       <button
         onClick={() => navigate(-1)}
@@ -19,7 +18,6 @@ export default function FragebogenFertig() {
 
       {/* Danke-Card */}
       <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-md p-10 text-center">
-
         <img
           src={VectorIcon}
           alt="Success Icon"
@@ -46,7 +44,9 @@ export default function FragebogenFertig() {
 
           {/* Ergebnisse */}
           <button
-            onClick={() => navigate(`/entscheidungen/fragebogen/${id}/ergebnis`)}
+            onClick={() =>
+              navigate(`/entscheidungen/fragebogen/${id}/ergebnis`)
+            }
             className="bg-emerald-900 text-white px-6 py-3 rounded-full font-semibold hover:bg-emerald-800"
           >
             Ergebnisse ansehen

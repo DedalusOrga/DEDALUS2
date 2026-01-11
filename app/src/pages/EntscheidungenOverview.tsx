@@ -23,14 +23,13 @@ export default function EntscheidungenOverview() {
       id: "frageboegen",
       title: "Fragebögen zu Entscheidungen",
       icon: ClipboardIcon,
-      path: "/entscheidungen/frageboegen-entscheidung",
+      path: "/entscheidungen/frageboegen",
     },
   ];
 
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
       <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
-
         {/* Zurück */}
         <button
           onClick={() => navigate("/home")}
@@ -42,7 +41,6 @@ export default function EntscheidungenOverview() {
 
         {/* Karten */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
           {cards.map((card) => (
             <button
               key={card.id}
@@ -63,7 +61,6 @@ export default function EntscheidungenOverview() {
               </div>
             </button>
           ))}
-
         </div>
       </div>
     </div>

@@ -4,12 +4,14 @@
     "lib": ["DOM", "ES2022"],
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "esModuleInterop": true,
 
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
     "jsx": "react-jsx",
     "strict": true,
     "skipLibCheck": true,
-
-    "types": ["vite/client"],          
+    "types": ["vite/client", "@testing-library/jest-dom"],
     "noUncheckedSideEffectImports": false,
 
     "verbatimModuleSyntax": true,
@@ -17,5 +19,5 @@
     "noEmit": true,
     "sourceMap": true
   },
-  "include": ["app/src", "app/src/**/*.d.ts"]  // <-- dein Code + Deklarationen
+  "include": ["app/src", "app/test", "app/src/**/*.d.ts"] // <-- dein Code + Deklarationen
 }

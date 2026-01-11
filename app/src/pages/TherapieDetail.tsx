@@ -1,11 +1,14 @@
 // app/src/pages/TherapieDetail.tsx
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import type { ContentModule } from "../types/ContentModule";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import { GlossaryText } from "../glossary/GlossaryText";
+import { useBoundContent } from "../hooks/useBoundContent";
+import { makePageKey } from "../utils/pageKey";
 
 export default function TherapieDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -13,18 +16,37 @@ export default function TherapieDetail() {
 
   const navigate = useNavigate();
 
-  const { modules, loading, loadedOnce, loadModules } = useContentModulesLazy({
+  const location = useLocation();
+  const pageKey = useMemo(
+    () => makePageKey(location.pathname),
+    [location.pathname],
+  );
+
+  const {
+    module: boundModule,
+    loading: boundLoading,
+    error: boundError,
+  } = useBoundContent(pageKey);
+
+  const {
+    modules,
+    module: fallbackModule,
+    loading: fallbackLoading,
+    loadedOnce: fallbackLoadedOnce,
+    error: fallbackError,
+    loadModules,
+  } = useContentModulesLazy<ContentModule>({
     type: "text",
     slug,
   });
 
   useEffect(() => {
-    if (slug) {
+    if (!boundLoading && !boundModule && slug) {
       loadModules();
     }
-  }, [slug, loadModules]);
+  }, [slug, boundModule, boundLoading, loadModules]);
 
-  const module = modules[0];
+  const module = boundModule ?? fallbackModule;
 
   // Fallback-Titel auf Basis des Slugs, falls in der DB noch nichts steht
   const title =
@@ -32,27 +54,27 @@ export default function TherapieDetail() {
     (slug === "strahlentherapie"
       ? "Strahlentherapie"
       : slug === "chemotherapie"
-      ? "Chemotherapie"
-      : slug === "operationen"
-      ? "Operationen"
-      : slug === "immuntherapie"
-      ? "Immuntherapie"
-      : slug === "zielgerichtete-therapie"
-      ? "Zielgerichtete Therapie"
-      : slug === "palliativmedizin"
-      ? "Palliativmedizin"
-      : "Therapie");
+        ? "Chemotherapie"
+        : slug === "operationen"
+          ? "Operationen"
+          : slug === "immuntherapie"
+            ? "Immuntherapie"
+            : slug === "zielgerichtete-therapie"
+              ? "Zielgerichtete Therapie"
+              : slug === "palliativmedizin"
+                ? "Palliativmedizin"
+                : "Therapie");
 
   // Text aus body_md, sonst Fallback
   const text = useSimple
-    ? module?.body_md_simple ??
+    ? (module?.body_md_simple ??
       module?.body_md ??
-      "Für diese Therapie sind noch keine Inhalte hinterlegt."
-    : module?.body_md ??
-      "Für diese Therapie sind noch keine Inhalte hinterlegt.";
+      "Für diese Therapie sind noch keine Inhalte hinterlegt.")
+    : (module?.body_md ??
+      "Für diese Therapie sind noch keine Inhalte hinterlegt.");
 
   // Video-URL aus data.video_url
-  const videoUrl = module?.data?.video_url ?? null;
+  const videoUrl = module?.data?.video_url;
   const hasVideo = !!videoUrl;
 
   const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
@@ -65,7 +87,7 @@ export default function TherapieDetail() {
       <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
         {/* Zurück oben */}
         <button
-          onClick={() => navigate("/home")}
+          onClick={() => navigate(-1)}
           className="flex items-center text-emerald-900 mb-6 hover:text-emerald-700"
         >
           <span className="text-2xl mr-2">←</span>
@@ -77,9 +99,14 @@ export default function TherapieDetail() {
           {title}
         </h1>
 
-        {/* Ladezustand */}
-        {loading && !loadedOnce && (
+        {(boundLoading || (fallbackLoading && !boundModule)) && (
           <div className="mb-4 text-emerald-900">Inhalt wird geladen …</div>
+        )}
+
+        {(boundError || fallbackError) && (
+          <div className="mb-4 text-red-700">
+            Fehler beim Laden: {boundError ?? fallbackError}
+          </div>
         )}
 
         {/* Weißer Content-Block: Text + optional Video */}
