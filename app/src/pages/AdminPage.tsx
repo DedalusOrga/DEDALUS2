@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../infrastructure/supabase/client";
 import { useAuth } from "../hooks/AuthProvider";
-import { useNavigate } from "react-router-dom";
 
 type ContentModule = {
   id: string;
@@ -21,22 +21,25 @@ type NewModuleFormState = {
   file_url: string;
 };
 
-// Bucket je nach Modultyp auswählen
 function getBucketForType(type: "text" | "pdf" | "video") {
   if (type === "pdf") return "PDF";
   if (type === "video") return "videos";
-  // für Text wird kein Storage verwendet – Fallback, falls nötig
   return "Text";
 }
 
 export default function AdminPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isQuestions = location.pathname.startsWith("/admin/questions");
 
   const [modules, setModules] = useState<ContentModule[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [loadingModules, setLoadingModules] = useState(true);
+  const [savingModule, setSavingModule] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
 
   const [form, setForm] = useState<NewModuleFormState>({
     type: "text",
@@ -49,14 +52,16 @@ export default function AdminPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
+  const busy = savingModule || uploading;
+
   useEffect(() => {
-    loadModules();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    void loadModules();
   }, []);
 
   async function loadModules() {
-    setLoading(true);
+    setLoadingModules(true);
     setError(null);
+    setInfo(null);
 
     const { data, error } = await supabase
       .from("content_modules")
@@ -66,110 +71,103 @@ export default function AdminPage() {
     if (error) {
       console.error(error);
       setError("Inhalte konnten nicht geladen werden.");
-    } else if (data) {
-      setModules(data as ContentModule[]);
+    } else {
+      setModules((data ?? []) as ContentModule[]);
     }
 
-    setLoading(false);
+    setLoadingModules(false);
   }
 
-  function handleFormChange<K extends keyof NewModuleFormState>(
+  function setField<K extends keyof NewModuleFormState>(
     key: K,
     value: NewModuleFormState[K]
   ) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  // Datei (PDF/Video) in Supabase Storage hochladen und URL ins Formular schreiben
   async function handleFileUpload(file: File) {
     if (form.type === "text") {
-      // Sicherheitsnetz – sollte durch das UI nie passieren
-      setUploadError("Dateiupload ist nur für PDF- und Video-Module möglich.");
+      setUploadError("Upload ist nur für PDF- und Video-Module möglich.");
       return;
     }
 
     setUploading(true);
     setUploadError(null);
+    setError(null);
+    setInfo(null);
 
     try {
       const ext = file.name.split(".").pop() ?? "bin";
       const safeSlug = form.slug.trim() || "module";
       const filePath = `modules/${Date.now()}_${safeSlug}.${ext}`;
-
       const bucket = getBucketForType(form.type);
 
-      // 1) Upload in Storage
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadErr } = await supabase.storage
         .from(bucket)
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
+        .upload(filePath, file, { cacheControl: "3600", upsert: false });
 
-      if (uploadError) {
-        console.error(uploadError);
+      if (uploadErr) {
+        console.error(uploadErr);
         setUploadError("Datei konnte nicht hochgeladen werden.");
         return;
       }
 
-      // 2) Public URL holen
       const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-      const publicUrl = data.publicUrl;
-
-      // 3) URL ins Formular übernehmen
-      setForm((prev) => ({ ...prev, file_url: publicUrl }));
+      setForm((prev) => ({ ...prev, file_url: data.publicUrl }));
+      setInfo("Datei hochgeladen.");
     } finally {
       setUploading(false);
     }
   }
 
-  async function handleCreateModule(e: React.FormEvent) {
+  async function createModule(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
+    setSavingModule(true);
     setError(null);
+    setInfo(null);
 
-    if (!form.title || !form.slug) {
+    const title = form.title.trim();
+    const slug = form.slug.trim();
+
+    if (!title || !slug) {
       setError("Titel und Kurzname sind Pflichtfelder.");
-      setSaving(false);
+      setSavingModule(false);
       return;
     }
 
-    const normalizedSlug = form.slug.trim().toLowerCase().replace(/\s+/g, "-");
+    const normalizedSlug = slug.toLowerCase().replace(/\s+/g, "-");
 
-    const insertPayload: any = {
-      title: form.title,
+    const payload: any = {
+      title,
       slug: normalizedSlug,
       type: form.type,
       status: "published",
     };
 
     if (form.type === "text") {
-      insertPayload.body_md = form.body_md || "";
-      insertPayload.file_url = null;
-    } else if (form.type === "pdf" || form.type === "video") {
-      insertPayload.file_url = form.file_url || "";
-      insertPayload.body_md = null;
+      payload.body_md = form.body_md || "";
+      payload.file_url = null;
+    } else {
+      payload.file_url = form.file_url || "";
+      payload.body_md = null;
     }
 
     const { error: insertError } = await supabase
       .from("content_modules")
-      .insert([insertPayload]);
+      .insert([payload]);
 
     if (insertError) {
       console.error(insertError);
       setError("Neues Modul konnte nicht gespeichert werden.");
-    } else {
-      setForm({
-        type: "text",
-        title: "",
-        slug: "",
-        body_md: "",
-        file_url: "",
-      });
-      await loadModules();
+      setSavingModule(false);
+      return;
     }
 
-    setSaving(false);
+    setForm({ type: "text", title: "", slug: "", body_md: "", file_url: "" });
+    setInfo("Modul angelegt.");
+    await loadModules();
+
+    setSavingModule(false);
   }
 
   async function handleLogout() {
@@ -178,210 +176,257 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      {/* Header: Zurück + Titel + Logout */}
-      <header className="flex items-center justify-between mb-2">
-        <button
-          onClick={() => navigate("/home")}
-          className="text-sm underline text-gray-700"
-        >
-          Zurück
-        </button>
-
-        <div className="text-center flex-1">
-          <h1 className="text-xl font-semibold">Adminbereich – Inhalte</h1>
-          <p className="text-xs text-gray-500">
-            Angemeldet als {user?.email ?? "Unbekannt"}
-          </p>
-        </div>
-
-        <button
-          onClick={handleLogout}
-          className="text-sm underline text-red-600"
-        >
-          Logout
-        </button>
-      </header>
-
-      {/* Fehlermeldung */}
-      {error && (
-        <div className="border border-red-300 bg-red-50 text-red-700 px-3 py-2 rounded">
-          {error}
-        </div>
-      )}
-
-      {/* Neues Modul anlegen */}
-      <section className="p-4 border rounded-xl bg-white shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold">Neues Modul anlegen</h2>
-
-        <form onSubmit={handleCreateModule} className="space-y-3">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-            <label className="text-sm font-medium w-full sm:w-1/3">Typ</label>
-            <select
-              value={form.type}
-              onChange={(e) =>
-                handleFormChange(
-                  "type",
-                  e.target.value as "text" | "pdf" | "video"
-                )
-              }
-              className="border rounded px-2 py-1 w-full sm:w-2/3"
-            >
-              <option value="text">Text</option>
-              <option value="pdf">PDF</option>
-              <option value="video">Video</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-            <label className="text-sm font-medium w-full sm:w-1/3">
-              Titel *
-            </label>
-            <input
-              type="text"
-              value={form.title}
-              onChange={(e) => handleFormChange("title", e.target.value)}
-              className="border rounded px-2 py-1 w-full sm:w-2/3"
-              placeholder="z. B. Behandlungsinformation"
-              required
-            />
-          </div>
-
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-4">
-            <label className="text-sm font-medium w-full sm:w-1/3">
-              Kurzname für das Modul *
-              <span className="block text-xs font-normal text-gray-500">
-                Wird nur technisch im System verwendet (z. B. „behandlungsinfo“)
-              </span>
-            </label>
-
-            <div className="w-full sm:w-2/3">
-              <input
-                type="text"
-                value={form.slug}
-                onChange={(e) => handleFormChange("slug", e.target.value)}
-                className="border rounded px-2 py-1 w-full"
-                placeholder="z. B. behandlungsinfo"
-                required
-              />
-            </div>
-          </div>
-
-          {form.type === "text" && (
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Textinhalt</label>
-              <textarea
-                value={form.body_md}
-                onChange={(e) => handleFormChange("body_md", e.target.value)}
-                className="border rounded px-2 py-1 w-full"
-                rows={4}
-                placeholder="Text, der im Frontend angezeigt werden soll…"
-              />
-            </div>
-          )}
-
-          {(form.type === "pdf" || form.type === "video") && (
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">
-                {form.type === "pdf"
-                  ? "PDF-Datei oder URL"
-                  : "Video-Datei oder URL"}
-              </label>
-
-              {/* Upload in Supabase Storage */}
-              <input
-                type="file"
-                accept={form.type === "pdf" ? "application/pdf" : "video/*"}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    void handleFileUpload(file);
-                  }
-                }}
-                className="border rounded px-2 py-1 w-full"
-              />
-
-              {uploading && (
-                <p className="text-xs text-gray-500">Datei wird hochgeladen…</p>
-              )}
-              {uploadError && (
-                <p className="text-xs text-red-600">{uploadError}</p>
-              )}
-
-              {/* URL anzeigen / manuell überschreiben */}
-              <input
-                type="url"
-                value={form.file_url}
-                onChange={(e) => handleFormChange("file_url", e.target.value)}
-                className="border rounded px-2 py-1 w-full"
-                placeholder={
-                  form.type === "pdf"
-                    ? "Direkte PDF-URL (oder wird nach Upload automatisch gesetzt)"
-                    : "Direkte Video-URL (oder wird nach Upload automatisch gesetzt)"
-                }
-              />
-            </div>
-          )}
-
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={saving}
-              className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-60"
-            >
-              {saving ? "Speichere…" : "Modul anlegen"}
-            </button>
-          </div>
-        </form>
-      </section>
-
-      {/* Modul-Übersicht */}
-      <section className="p-4 border rounded-xl bg-white shadow-sm space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Bestehende Module</h2>
+    <div className="min-h-screen bg-emerald-50 px-4 md:px-10 py-10">
+      <div className="max-w-6xl mx-auto">
+        {/* Top bar */}
+        <div className="flex items-center justify-between mb-6">
           <button
-            onClick={loadModules}
-            className="text-sm underline text-gray-600"
+            onClick={() => navigate("/home")}
+            className="flex items-center text-emerald-900 hover:text-emerald-700"
           >
-            Aktualisieren
+            <span className="text-2xl mr-2">←</span> Zurück
+          </button>
+
+          <div className="text-right">
+            <div className="text-emerald-950 font-semibold">Admin</div>
+            <div className="text-xs text-emerald-800">
+              {user?.email ?? "Unbekannt"}
+            </div>
+          </div>
+          <button onClick={handleLogout} className="text-emerald-900 underline">
+            Logout
           </button>
         </div>
 
-        {loading ? (
-          <div>Inhalte werden geladen…</div>
-        ) : modules.length === 0 ? (
-          <div className="text-sm text-gray-600">
-            Es sind noch keine Module vorhanden.
+        {/* Title + “Tabs” (Navigation) */}
+        <div className="mb-6">
+          <h1 className="text-2xl md:text-3xl font-semibold text-emerald-950 mb-4">
+            Admin – Verwaltung
+          </h1>
+
+          <div className="inline-flex bg-white rounded-full shadow-sm p-1 border border-slate-100">
+            <button
+              onClick={() => navigate("/admin")}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
+                !isQuestions
+                  ? "bg-emerald-900 text-white"
+                  : "text-emerald-900 hover:bg-emerald-50"
+              }`}
+            >
+              Inhalte
+            </button>
+            <button
+              onClick={() => navigate("/admin/questions")}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
+                isQuestions
+                  ? "bg-emerald-900 text-white"
+                  : "text-emerald-900 hover:bg-emerald-50"
+              }`}
+            >
+              Fragen
+            </button>
           </div>
-        ) : (
-          <div className="border rounded overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-100 border-b">
-                <tr>
-                  <th className="text-left px-3 py-2">Titel</th>
-                  <th className="text-left px-3 py-2">Slug</th>
-                  <th className="text-left px-3 py-2">Typ</th>
-                  <th className="text-left px-3 py-2">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {modules.map((m) => (
-                  <tr key={m.id} className="border-t">
-                    <td className="px-3 py-2">{m.title}</td>
-                    <td className="px-3 py-2 text-gray-600">{m.slug}</td>
-                    <td className="px-3 py-2">
-                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs">
-                        {m.type}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 text-gray-600">{m.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        </div>
+
+        {(error || info) && (
+          <div className="mb-6">
+            {error && (
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-800">
+                {error}
+              </div>
+            )}
+            {info && (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900 mt-3">
+                {info}
+              </div>
+            )}
           </div>
         )}
-      </section>
+
+        {/* Create module */}
+        <div className="bg-white rounded-3xl shadow-sm p-6 mb-6">
+          <h2 className="text-xl font-semibold text-emerald-950 mb-4">
+            Neues Modul
+          </h2>
+
+          <form onSubmit={createModule} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-center">
+              <label className="text-emerald-900 font-semibold">Typ</label>
+              <div className="md:col-span-2">
+                <select
+                  value={form.type}
+                  onChange={(e) => setField("type", e.target.value as any)}
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2"
+                  disabled={busy}
+                >
+                  <option value="text">Text</option>
+                  <option value="pdf">PDF</option>
+                  <option value="video">Video</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-center">
+              <label className="text-emerald-900 font-semibold">Titel *</label>
+              <div className="md:col-span-2">
+                <input
+                  value={form.title}
+                  onChange={(e) => setField("title", e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2"
+                  disabled={busy}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-start">
+              <label className="text-emerald-900 font-semibold">
+                Kurzname *
+                <span className="block text-xs font-normal text-emerald-700">
+                  z. B. „behandlungsinfo“
+                </span>
+              </label>
+              <div className="md:col-span-2">
+                <input
+                  value={form.slug}
+                  onChange={(e) => setField("slug", e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2"
+                  disabled={busy}
+                  required
+                />
+              </div>
+            </div>
+
+            {form.type === "text" && (
+              <div className="grid grid-cols-1 gap-3">
+                <label className="text-emerald-900 font-semibold">
+                  Textinhalt
+                </label>
+                <textarea
+                  value={form.body_md}
+                  onChange={(e) => setField("body_md", e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 px-3 py-2"
+                  rows={5}
+                  disabled={busy}
+                />
+              </div>
+            )}
+
+            {(form.type === "pdf" || form.type === "video") && (
+              <div className="grid grid-cols-1 gap-3">
+                <label className="text-emerald-900 font-semibold">
+                  {form.type === "pdf" ? "PDF" : "Video"} (Upload oder URL)
+                </label>
+
+                <input
+                  type="file"
+                  accept={form.type === "pdf" ? "application/pdf" : "video/*"}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void handleFileUpload(f);
+                  }}
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+                  disabled={busy}
+                />
+
+                {uploading && (
+                  <div className="text-sm text-emerald-800">Upload läuft…</div>
+                )}
+                {uploadError && (
+                  <div className="text-sm text-rose-800 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                    {uploadError}
+                  </div>
+                )}
+
+                <input
+                  type="url"
+                  value={form.file_url}
+                  onChange={(e) => setField("file_url", e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2"
+                  placeholder="oder URL einfügen…"
+                  disabled={busy}
+                />
+              </div>
+            )}
+
+            <div className="pt-2 flex items-center gap-3">
+              <button
+                type="submit"
+                disabled={busy}
+                className="bg-emerald-900 hover:bg-emerald-800 text-white px-6 py-3 rounded-full text-base font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {savingModule ? "Speichere…" : "Modul anlegen"}
+              </button>
+
+              <button
+                type="button"
+                onClick={loadModules}
+                className="text-emerald-900 underline"
+                disabled={busy}
+              >
+                Aktualisieren
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* List modules */}
+        <div className="bg-white rounded-3xl shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-emerald-950">
+              Bestehende Module
+            </h2>
+            <button
+              onClick={loadModules}
+              className="text-emerald-900 underline"
+              disabled={busy}
+            >
+              Aktualisieren
+            </button>
+          </div>
+
+          {loadingModules ? (
+            <div className="text-emerald-900">Lade…</div>
+          ) : modules.length === 0 ? (
+            <div className="text-emerald-900">Noch keine Module vorhanden.</div>
+          ) : (
+            <div className="border border-slate-100 rounded-2xl overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-emerald-50 border-b border-slate-100">
+                  <tr>
+                    <th className="text-left px-4 py-3 text-emerald-950">
+                      Titel
+                    </th>
+                    <th className="text-left px-4 py-3 text-emerald-950">
+                      Slug
+                    </th>
+                    <th className="text-left px-4 py-3 text-emerald-950">
+                      Typ
+                    </th>
+                    <th className="text-left px-4 py-3 text-emerald-950">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {modules.map((m) => (
+                    <tr key={m.id} className="border-t border-slate-100">
+                      <td className="px-4 py-3 text-emerald-950">{m.title}</td>
+                      <td className="px-4 py-3 text-emerald-800">{m.slug}</td>
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1 text-xs text-emerald-900">
+                          {m.type}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-emerald-800">{m.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
