@@ -34,6 +34,8 @@ import UnterstuetzungsangeboteOverview from "./pages/UnterstuetzungsangeboteOver
 import UnterstuetzungsangeboteDetail from "./pages/UnterstuetzungsangeboteDetail";
 import WeiterfuehrendeInfoOverview from "./pages/WeiterfuehrendeInfoOverview";
 import WeiterfuehrendeInfoDetail from "./pages/WeiterfuehrendeInfoDetail";
+import AdminDecisionTrees from "./pages/admin/AdminDecisionTrees";
+import AdminQuestionsPage from "./pages/admin/AdminQuestionsPage";
 
 import "./index.css";
 
@@ -50,6 +52,23 @@ const router = createHashRouter([
     element: (
       <AdminProtected>
         <AdminPage />
+      </AdminProtected>
+    ),
+  },
+
+  {
+    path: "/admin/entscheidungsbaeume",
+    element: (
+      <AdminProtected>
+        <AdminDecisionTrees />
+      </AdminProtected>
+    ),
+  },
+  {
+    path: "/admin/questions",
+    element: (
+      <AdminProtected>
+        <AdminQuestionsPage />
       </AdminProtected>
     ),
   },
