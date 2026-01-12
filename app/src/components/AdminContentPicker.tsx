@@ -21,7 +21,7 @@ export default function AdminContentPicker({
   const location = useLocation();
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
-    [location.pathname]
+    [location.pathname],
   );
 
   const [open, setOpen] = useState(false);
@@ -108,7 +108,7 @@ export default function AdminContentPicker({
         page_key: pageKey,
         module_id: moduleId,
       },
-      { onConflict: "page_key" }
+      { onConflict: "page_key" },
     );
 
     if (error) {

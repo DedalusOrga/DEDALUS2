@@ -39,7 +39,7 @@ export default function NavBar() {
     }`;
 
   return (
-    <header className="bg-emerald-50">
+    <header className="sticky top-0 z-50 bg-emerald-50">
       <div className="mx-auto max-w-6xl px-4 pt-4">
         <div className="rounded-xl bg-white shadow-sm">
           <div className="flex items-center justify-between px-4 py-2">

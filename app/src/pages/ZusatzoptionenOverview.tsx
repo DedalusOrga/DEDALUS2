@@ -4,13 +4,16 @@ export default function ZusatzoptionenOverview() {
   const navigate = useNavigate();
 
   const items = [
-    { slug: "komplementaermedizin", title: "Komplementärmedizin (Naturheilkunde)" },
+    {
+      slug: "komplementaermedizin",
+      title: "Komplementärmedizin (Naturheilkunde)",
+    },
     { slug: "ernaehrungsberatung", title: "Ernährungsberatung" },
     { slug: "entspannung", title: "Entspannungs- u. Achtsamkeitsverfahren" },
     { slug: "schmerztherapie", title: "Schmerztherapie" },
     { slug: "raucherentwoehnung", title: "Raucherentwöhnung" },
-    { slug: "bewegungstherapie", title: "Bewegungstherapie", },
-    { slug: "pphysiotherapie", title: "Physiotherapie", },
+    { slug: "bewegungstherapie", title: "Bewegungstherapie" },
+    { slug: "pphysiotherapie", title: "Physiotherapie" },
   ];
 
   return (
@@ -23,9 +26,7 @@ export default function ZusatzoptionenOverview() {
         {items.map((item) => (
           <button
             key={item.slug}
-            onClick={() =>
-              navigate(`/informationen/zusaetzlich/${item.slug}`)
-            }
+            onClick={() => navigate(`/informationen/zusaetzlich/${item.slug}`)}
             className="
               rounded-2xl bg-white p-6 shadow-sm
               hover:bg-emerald-50 hover:shadow-md
