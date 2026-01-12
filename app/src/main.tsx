@@ -38,6 +38,7 @@ import WeiterfuehrendeInfoDetail from "./pages/WeiterfuehrendeInfoDetail";
 import "./index.css";
 import PlanungOverview from "./pages/PlanungOverview";
 import PlanungDetail from "./pages/PlanungDetail";
+import ArztgespraechDetail from "./pages/ArztgespraechDetail";
 
 const router = createHashRouter([
   // 🔓 Public Routes (ohne Login)
@@ -70,11 +71,6 @@ const router = createHashRouter([
       { path: "/entscheidungen", element: <EntscheidungenOverview /> },
 
       {
-        path: "/entscheidungen/arztgespraech",
-        element: <ArztgespraechOverview />,
-      },
-
-      {
         path: "/entscheidungen/frageboegen",
         element: <FrageboegenEntscheidung />,
       },
@@ -94,6 +90,16 @@ const router = createHashRouter([
       {
         path: "/entscheidungen/planung/:slug",
         element: <PlanungDetail />,
+      },
+
+      {
+        path: "/entscheidungen/arzt",
+        element: <ArztgespraechOverview />,
+      },
+
+      {
+        path: "/entscheidungen/arzt/:slug",
+        element: <ArztgespraechDetail />,
       },
 
       {

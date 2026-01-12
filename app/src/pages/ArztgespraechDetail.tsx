@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 
-export default function ZusatzoptionenDetail() {
+export default function ArztgespraechDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [useSimple, setUseSimple] = useState(false);
@@ -64,9 +63,11 @@ export default function ZusatzoptionenDetail() {
           </div>
         )}
 
-        {/* Inhalt mit Markdown */}
-        <div className="rounded-3xl bg-white p-8 shadow-sm prose prose-emerald max-w-none">
-          <ReactMarkdown>{text}</ReactMarkdown>
+        {/* Text */}
+        <div className="rounded-3xl bg-white p-8 shadow-sm">
+          <div className="text-emerald-950 text-base leading-relaxed whitespace-pre-line">
+            {text}
+          </div>
         </div>
       </div>
     </div>

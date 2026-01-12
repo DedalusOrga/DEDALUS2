@@ -31,7 +31,7 @@ export default function ArztgespraechOverview() {
         {items.map((item) => (
           <button
             key={item.slug}
-            onClick={() => navigate(`/arztgespraech/${item.slug}`)}
+            onClick={() => navigate(`/entscheidungen/arzt/${item.slug}`)}
             className="rounded-2xl p-8 shadow-sm bg-white hover:shadow-md hover:bg-emerald-50 transition"
           >
             <div className="text-xl font-semibold text-emerald-900 mb-3">

@@ -71,9 +71,11 @@ export default function ZusatzoptionenDetail() {
           </div>
         )}
 
-        {/* Inhalt mit Markdown */}
-        <div className="rounded-3xl bg-white p-8 shadow-sm prose prose-emerald max-w-none">
-          <ReactMarkdown>{text}</ReactMarkdown>
+        {/* Text */}
+        <div className="rounded-3xl bg-white p-8 shadow-sm">
+          <div className="text-emerald-950 text-base leading-relaxed whitespace-pre-line">
+            {text}
+          </div>
         </div>
       </div>
     </div>

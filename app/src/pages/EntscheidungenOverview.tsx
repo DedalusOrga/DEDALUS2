@@ -11,7 +11,7 @@ export default function EntscheidungenOverview() {
       id: "arzt",
       title: "Fragen für das Arztgespräch",
       icon: ChatIcon,
-      path: "/entscheidungen/arztgespraech",
+      path: "/entscheidungen/arzt",
     },
     {
       id: "planung",

@@ -22,14 +22,14 @@ export default function UmgangNebenwirkungenDetail() {
     [location.pathname]
   );
 
-  // 1️⃣ Erst: gebundene Inhalte (page_content_bindings)
+  //  Erst: gebundene Inhalte (page_content_bindings)
   const {
     module: boundModule,
     loading: boundLoading,
     error: boundError,
   } = useBoundContent(pageKey);
 
-  // 2️⃣ Fallback: direkt über slug aus content_modules
+  //  Fallback: direkt über slug aus content_modules
   const {
     module: fallbackModule,
     loading: fallbackLoading,
