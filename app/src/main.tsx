@@ -57,7 +57,7 @@ const router = createHashRouter([
   },
 
   {
-    path: "/admin/entscheidungsbaeume",
+    path: "/admin/decision-trees",
     element: (
       <AdminProtected>
         <AdminDecisionTrees />
