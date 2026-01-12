@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../infrastructure/supabase/client";
 import { useAuth } from "../hooks/AuthProvider";
+import AdminLayout from "../components/AdminLayout";
 
 type ContentModule = {
   id: string;
@@ -32,7 +33,10 @@ export default function AdminPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Tabs aktiv erkennen
   const isQuestions = location.pathname.startsWith("/admin/questions");
+  const isRouting = location.pathname.startsWith("/admin/decision-trees");
+  const isContent = !isQuestions && !isRouting; // default: /admin
 
   const [modules, setModules] = useState<ContentModule[]>([]);
   const [loadingModules, setLoadingModules] = useState(true);
@@ -176,207 +180,138 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-emerald-50 px-4 md:px-10 py-10">
-      <div className="max-w-6xl mx-auto">
-        {/* Top bar */}
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() => navigate("/home")}
-            className="flex items-center text-emerald-900 hover:text-emerald-700"
-          >
-            <span className="text-2xl mr-2">←</span> Zurück
-          </button>
-
-          <div className="text-right">
-            <div className="text-emerald-950 font-semibold">Admin</div>
-            <div className="text-xs text-emerald-800">
-              {user?.email ?? "Unbekannt"}
-            </div>
-          </div>
-          <button onClick={handleLogout} className="text-emerald-900 underline">
-            Logout
-          </button>
-        </div>
-
-        {/* Title + “Tabs” (Navigation) */}
+    <AdminLayout title="Admin – Verwaltung">
+      {(error || info) && (
         <div className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-semibold text-emerald-950 mb-4">
-            Admin – Verwaltung
-          </h1>
-
-          <div className="inline-flex bg-white rounded-full shadow-sm p-1 border border-slate-100">
-            <button
-              onClick={() => navigate("/admin")}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
-                !isQuestions
-                  ? "bg-emerald-900 text-white"
-                  : "text-emerald-900 hover:bg-emerald-50"
-              }`}
-            >
-              Inhalte
-            </button>
-            <button
-              onClick={() => navigate("/admin/questions")}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
-                isQuestions
-                  ? "bg-emerald-900 text-white"
-                  : "text-emerald-900 hover:bg-emerald-50"
-              }`}
-            >
-              Fragen
-            </button>
-          </div>
+          {error && (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-800">
+              {error}
+            </div>
+          )}
+          {info && (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900 mt-3">
+              {info}
+            </div>
+          )}
         </div>
+      )}
+      {/* Create module */}
+      <div className="bg-white rounded-3xl shadow-sm p-6 mb-6">
+        <h2 className="text-xl font-semibold text-emerald-950 mb-4">
+          Neues Modul
+        </h2>
 
-        {(error || info) && (
-          <div className="mb-6">
-            {error && (
-              <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-800">
-                {error}
-              </div>
-            )}
-            {info && (
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900 mt-3">
-                {info}
-              </div>
-            )}
+        <form onSubmit={createModule} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-center">
+            <label className="text-emerald-900 font-semibold">Typ</label>
+            <div className="md:col-span-2">
+              <select
+                value={form.type}
+                onChange={(e) => setField("type", e.target.value as any)}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2"
+                disabled={busy}
+              >
+                <option value="text">Text</option>
+                <option value="pdf">PDF</option>
+                <option value="video">Video</option>
+              </select>
+            </div>
           </div>
-        )}
 
-        {/* Create module */}
-        <div className="bg-white rounded-3xl shadow-sm p-6 mb-6">
-          <h2 className="text-xl font-semibold text-emerald-950 mb-4">
-            Neues Modul
-          </h2>
-
-          <form onSubmit={createModule} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-center">
-              <label className="text-emerald-900 font-semibold">Typ</label>
-              <div className="md:col-span-2">
-                <select
-                  value={form.type}
-                  onChange={(e) => setField("type", e.target.value as any)}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2"
-                  disabled={busy}
-                >
-                  <option value="text">Text</option>
-                  <option value="pdf">PDF</option>
-                  <option value="video">Video</option>
-                </select>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-center">
+            <label className="text-emerald-900 font-semibold">Titel *</label>
+            <div className="md:col-span-2">
+              <input
+                value={form.title}
+                onChange={(e) => setField("title", e.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2"
+                disabled={busy}
+                required
+              />
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-center">
-              <label className="text-emerald-900 font-semibold">Titel *</label>
-              <div className="md:col-span-2">
-                <input
-                  value={form.title}
-                  onChange={(e) => setField("title", e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2"
-                  disabled={busy}
-                  required
-                />
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-start">
+            <label className="text-emerald-900 font-semibold">
+              Kurzname *
+              <span className="block text-xs font-normal text-emerald-700">
+                z. B. „behandlungsinfo“
+              </span>
+            </label>
+            <div className="md:col-span-2">
+              <input
+                value={form.slug}
+                onChange={(e) => setField("slug", e.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2"
+                disabled={busy}
+                required
+              />
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-start">
+          {form.type === "text" && (
+            <div className="grid grid-cols-1 gap-3">
               <label className="text-emerald-900 font-semibold">
-                Kurzname *
-                <span className="block text-xs font-normal text-emerald-700">
-                  z. B. „behandlungsinfo“
-                </span>
+                Textinhalt
               </label>
-              <div className="md:col-span-2">
-                <input
-                  value={form.slug}
-                  onChange={(e) => setField("slug", e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2"
-                  disabled={busy}
-                  required
-                />
-              </div>
-            </div>
-
-            {form.type === "text" && (
-              <div className="grid grid-cols-1 gap-3">
-                <label className="text-emerald-900 font-semibold">
-                  Textinhalt
-                </label>
-                <textarea
-                  value={form.body_md}
-                  onChange={(e) => setField("body_md", e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 px-3 py-2"
-                  rows={5}
-                  disabled={busy}
-                />
-              </div>
-            )}
-
-            {(form.type === "pdf" || form.type === "video") && (
-              <div className="grid grid-cols-1 gap-3">
-                <label className="text-emerald-900 font-semibold">
-                  {form.type === "pdf" ? "PDF" : "Video"} (Upload oder URL)
-                </label>
-
-                <input
-                  type="file"
-                  accept={form.type === "pdf" ? "application/pdf" : "video/*"}
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) void handleFileUpload(f);
-                  }}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
-                  disabled={busy}
-                />
-
-                {uploading && (
-                  <div className="text-sm text-emerald-800">Upload läuft…</div>
-                )}
-                {uploadError && (
-                  <div className="text-sm text-rose-800 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
-                    {uploadError}
-                  </div>
-                )}
-
-                <input
-                  type="url"
-                  value={form.file_url}
-                  onChange={(e) => setField("file_url", e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2"
-                  placeholder="oder URL einfügen…"
-                  disabled={busy}
-                />
-              </div>
-            )}
-
-            <div className="pt-2 flex items-center gap-3">
-              <button
-                type="submit"
+              <textarea
+                value={form.body_md}
+                onChange={(e) => setField("body_md", e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 px-3 py-2"
+                rows={5}
                 disabled={busy}
-                className="bg-emerald-900 hover:bg-emerald-800 text-white px-6 py-3 rounded-full text-base font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {savingModule ? "Speichere…" : "Modul anlegen"}
-              </button>
-
-              <button
-                type="button"
-                onClick={loadModules}
-                className="text-emerald-900 underline"
-                disabled={busy}
-              >
-                Aktualisieren
-              </button>
+              />
             </div>
-          </form>
-        </div>
+          )}
 
-        {/* List modules */}
-        <div className="bg-white rounded-3xl shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-emerald-950">
-              Bestehende Module
-            </h2>
+          {(form.type === "pdf" || form.type === "video") && (
+            <div className="grid grid-cols-1 gap-3">
+              <label className="text-emerald-900 font-semibold">
+                {form.type === "pdf" ? "PDF" : "Video"} (Upload oder URL)
+              </label>
+
+              <input
+                type="file"
+                accept={form.type === "pdf" ? "application/pdf" : "video/*"}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void handleFileUpload(f);
+                }}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+                disabled={busy}
+              />
+
+              {uploading && (
+                <div className="text-sm text-emerald-800">Upload läuft…</div>
+              )}
+              {uploadError && (
+                <div className="text-sm text-rose-800 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                  {uploadError}
+                </div>
+              )}
+
+              <input
+                type="url"
+                value={form.file_url}
+                onChange={(e) => setField("file_url", e.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2"
+                placeholder="oder URL einfügen…"
+                disabled={busy}
+              />
+            </div>
+          )}
+
+          <div className="pt-2 flex items-center gap-3">
             <button
+              type="submit"
+              disabled={busy}
+              className="bg-emerald-900 hover:bg-emerald-800 text-white px-6 py-3 rounded-full text-base font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {savingModule ? "Speichere…" : "Modul anlegen"}
+            </button>
+
+            <button
+              type="button"
               onClick={loadModules}
               className="text-emerald-900 underline"
               disabled={busy}
@@ -384,49 +319,61 @@ export default function AdminPage() {
               Aktualisieren
             </button>
           </div>
-
-          {loadingModules ? (
-            <div className="text-emerald-900">Lade…</div>
-          ) : modules.length === 0 ? (
-            <div className="text-emerald-900">Noch keine Module vorhanden.</div>
-          ) : (
-            <div className="border border-slate-100 rounded-2xl overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-emerald-50 border-b border-slate-100">
-                  <tr>
-                    <th className="text-left px-4 py-3 text-emerald-950">
-                      Titel
-                    </th>
-                    <th className="text-left px-4 py-3 text-emerald-950">
-                      Slug
-                    </th>
-                    <th className="text-left px-4 py-3 text-emerald-950">
-                      Typ
-                    </th>
-                    <th className="text-left px-4 py-3 text-emerald-950">
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {modules.map((m) => (
-                    <tr key={m.id} className="border-t border-slate-100">
-                      <td className="px-4 py-3 text-emerald-950">{m.title}</td>
-                      <td className="px-4 py-3 text-emerald-800">{m.slug}</td>
-                      <td className="px-4 py-3">
-                        <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1 text-xs text-emerald-900">
-                          {m.type}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-emerald-800">{m.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+        </form>
       </div>
-    </div>
+
+      {/* List modules */}
+      <div className="bg-white rounded-3xl shadow-sm p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-emerald-950">
+            Bestehende Module
+          </h2>
+          <button
+            onClick={loadModules}
+            className="text-emerald-900 underline"
+            disabled={busy}
+          >
+            Aktualisieren
+          </button>
+        </div>
+
+        {loadingModules ? (
+          <div className="text-emerald-900">Lade…</div>
+        ) : modules.length === 0 ? (
+          <div className="text-emerald-900">Noch keine Module vorhanden.</div>
+        ) : (
+          <div className="border border-slate-100 rounded-2xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-emerald-50 border-b border-slate-100">
+                <tr>
+                  <th className="text-left px-4 py-3 text-emerald-950">
+                    Titel
+                  </th>
+                  <th className="text-left px-4 py-3 text-emerald-950">Slug</th>
+                  <th className="text-left px-4 py-3 text-emerald-950">Typ</th>
+                  <th className="text-left px-4 py-3 text-emerald-950">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {modules.map((m) => (
+                  <tr key={m.id} className="border-t border-slate-100">
+                    <td className="px-4 py-3 text-emerald-950">{m.title}</td>
+                    <td className="px-4 py-3 text-emerald-800">{m.slug}</td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1 text-xs text-emerald-900">
+                        {m.type}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-emerald-800">{m.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </AdminLayout>
   );
 }
