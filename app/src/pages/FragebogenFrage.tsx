@@ -7,6 +7,7 @@ type Questionnaire = {
   code: string;
   title: string;
   description: string | null;
+  start_question_id: string | null;
 };
 
 type Question = {
@@ -20,6 +21,7 @@ type Option = {
   question_id: string;
   position: number;
   text: string;
+  next_question_id: string | null;
 };
 
 type AnswerRow = {
@@ -30,6 +32,8 @@ type AnswerRow = {
 export default function FragebogenFrage() {
   const { id: code } = useParams(); // z.B. fb1
   const navigate = useNavigate();
+
+  const [showSelectHint, setShowSelectHint] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,15 +46,21 @@ export default function FragebogenFrage() {
 
   const [sessionId, setSessionId] = useState<string | null>(null);
 
-  // Local state: pro Frage die gewählte Option
+  // pro Frage die gewählte Option
   const [selectedByQuestion, setSelectedByQuestion] = useState<
     Record<string, string>
   >({});
 
-  const [current, setCurrent] = useState(0);
+  // aktuelle Frage + History für "Vorherige Frage"
+  const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(
+    null
+  );
+  const [history, setHistory] = useState<string[]>([]);
 
-  const currentQuestion = questions[current];
-  const lastQuestion = current === questions.length - 1;
+  const currentQuestion = useMemo(
+    () => questions.find((q) => q.id === currentQuestionId) ?? null,
+    [questions, currentQuestionId]
+  );
 
   const optionsForCurrent = useMemo(() => {
     if (!currentQuestion) return [];
@@ -70,12 +80,24 @@ export default function FragebogenFrage() {
         // 1) Fragebogen holen
         const qRes = await supabase
           .from("questionnaires")
-          .select("id, code, title, description")
+          .select("id, code, title, description, start_question_id")
           .eq("code", code)
           .single();
 
         if (qRes.error) throw qRes.error;
         setQuestionnaire(qRes.data);
+
+        // Wenn keine Startfrage gesetzt ist -> in Bearbeitung
+        if (!qRes.data.start_question_id) {
+          setQuestions([]);
+          setOptions([]);
+          setSessionId(null);
+          setSelectedByQuestion({});
+          setCurrentQuestionId(null);
+          setHistory([]);
+          setLoading(false);
+          return;
+        }
 
         // 2) Fragen holen
         const questionsRes = await supabase
@@ -86,14 +108,15 @@ export default function FragebogenFrage() {
           .order("position", { ascending: true });
 
         if (questionsRes.error) throw questionsRes.error;
-        setQuestions(questionsRes.data ?? []);
+        const loadedQuestions = questionsRes.data ?? [];
+        setQuestions(loadedQuestions);
 
-        // 3) Optionen holen (für alle Fragen in einem Rutsch)
-        const questionIds = (questionsRes.data ?? []).map((x) => x.id);
+        // 3) Optionen holen (inkl. next_question_id)
+        const questionIds = loadedQuestions.map((x) => x.id);
         if (questionIds.length > 0) {
           const optsRes = await supabase
             .from("question_options")
-            .select("id, question_id, position, text")
+            .select("id, question_id, position, text, next_question_id")
             .in("question_id", questionIds)
             .order("position", { ascending: true });
 
@@ -108,7 +131,6 @@ export default function FragebogenFrage() {
         const userId = userRes.data.user?.id;
         if (!userId) throw new Error("Nicht eingeloggt.");
 
-        // Versuch: Session finden
         const sFind = await supabase
           .from("questionnaire_sessions")
           .select("id")
@@ -120,7 +142,6 @@ export default function FragebogenFrage() {
 
         let sid = sFind.data?.id ?? null;
 
-        // Wenn keine Session existiert: anlegen
         if (!sid) {
           const sCreate = await supabase
             .from("questionnaire_sessions")
@@ -128,7 +149,7 @@ export default function FragebogenFrage() {
               user_id: userId,
               questionnaire_id: qRes.data.id,
               status: "in_progress",
-              current_position: 1,
+              current_position: 1, // legacy
             })
             .select("id")
             .single();
@@ -139,7 +160,7 @@ export default function FragebogenFrage() {
 
         setSessionId(sid);
 
-        // 5) Vorhandene Antworten laden (für Checked-State)
+        // 5) Vorhandene Antworten laden
         const aRes = await supabase
           .from("answers")
           .select("question_id, option_id")
@@ -153,6 +174,11 @@ export default function FragebogenFrage() {
         });
         setSelectedByQuestion(map);
 
+        // 6) Startfrage setzen
+        setCurrentQuestionId(qRes.data.start_question_id);
+        setHistory([]);
+        setShowSelectHint(false);
+
         setLoading(false);
       } catch (e: any) {
         setError(e?.message ?? "Unbekannter Fehler");
@@ -163,27 +189,54 @@ export default function FragebogenFrage() {
     loadAll();
   }, [code]);
 
-  const back = () => {
-    if (current === 0) navigate("/entscheidungen/frageboegen-entscheidung");
-    else setCurrent((c) => c - 1);
+  const backQuestion = () => {
+    const prev = history[history.length - 1];
+    if (!prev) return;
+
+    setHistory((h) => h.slice(0, -1));
+    setCurrentQuestionId(prev);
+    setShowSelectHint(false);
   };
 
   const next = async () => {
     if (!currentQuestion) return;
 
-    // optional: Fortschritt in Session aktualisieren
+    const selectedOptionId = selectedByQuestion[currentQuestion.id];
+
+    // Keine Auswahl -> Hinweis zeigen, aber nicht weitergehen
+    if (!selectedOptionId) {
+      setShowSelectHint(true);
+      return;
+    }
+
+    // Ab hier: Erfolgspfad -> Hinweis sicher ausblenden
+    setShowSelectHint(false);
+
+    const selectedOpt = options.find((o) => o.id === selectedOptionId);
+    if (!selectedOpt) {
+      setError("Ausgewählte Option wurde nicht gefunden.");
+      return;
+    }
+
+    const nextId = selectedOpt.next_question_id;
+
+    // optional: Fortschritt speichern (nur updated_at)
     if (sessionId) {
       await supabase
         .from("questionnaire_sessions")
-        .update({
-          current_position: Math.min(current + 2, questions.length),
-          updated_at: new Date().toISOString(),
-        })
+        .update({ updated_at: new Date().toISOString() })
         .eq("id", sessionId);
     }
 
-    if (lastQuestion) navigate(`/entscheidungen/fragebogen/${code}/fertig`);
-    else setCurrent((c) => c + 1);
+    // Ende
+    if (!nextId) {
+      navigate(`/entscheidungen/fragebogen/${code}/fertig`);
+      return;
+    }
+
+    // History push + zur nächsten Frage
+    setHistory((h) => [...h, currentQuestion.id]);
+    setCurrentQuestionId(nextId);
   };
 
   const onSelect = async (questionId: string, optionId: string) => {
@@ -191,8 +244,9 @@ export default function FragebogenFrage() {
 
     // UI sofort aktualisieren
     setSelectedByQuestion((prev) => ({ ...prev, [questionId]: optionId }));
+    setShowSelectHint(false);
 
-    // DB: upsert (unique: session_id + question_id)
+    // DB speichern
     const { error } = await supabase.from("answers").upsert(
       {
         session_id: sessionId,
@@ -208,16 +262,17 @@ export default function FragebogenFrage() {
 
   const restart = async () => {
     if (!sessionId) return;
-    // Du wolltest: alte Session darf gelöscht werden → answers werden via CASCADE mitgelöscht
+
     const { error } = await supabase
       .from("questionnaire_sessions")
       .delete()
       .eq("id", sessionId);
+
     if (error) {
       setError(error.message);
       return;
     }
-    // Einfach neu laden
+
     window.location.reload();
   };
 
@@ -245,26 +300,72 @@ export default function FragebogenFrage() {
 
   if (!questionnaire) return null;
 
+  // In Bearbeitung
+  if (!questionnaire.start_question_id) {
+    return (
+      <div className="min-h-screen bg-emerald-50 px-4 md:px-10 py-10">
+        <button
+          onClick={() => navigate("/entscheidungen/frageboegen")}
+          className="flex items-center text-emerald-900 mb-6 cursor-pointer"
+        >
+          ← Zur Übersicht
+        </button>
+
+        <div className="bg-white rounded-3xl shadow-md p-6">
+          <h1 className="text-emerald-900 text-2xl font-semibold mb-2">
+            {questionnaire.title}
+          </h1>
+          <p className="text-emerald-900">
+            Dieser Fragebogen befindet sich noch in Bearbeitung.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Guard: Routing kaputt
+  if (!currentQuestion) {
+    return (
+      <div className="min-h-screen bg-emerald-50 px-4 md:px-10 py-10">
+        <button
+          onClick={() => navigate("/entscheidungen/frageboegen")}
+          className="flex items-center text-emerald-900 mb-6 cursor-pointer"
+        >
+          ← Zur Übersicht
+        </button>
+
+        <div className="bg-white rounded-3xl shadow-md p-6">
+          <h1 className="text-emerald-900 text-2xl font-semibold mb-2">
+            {questionnaire.title}
+          </h1>
+          <p className="text-red-700">
+            Fehler: Start- oder Routing-Konfiguration ist ungültig.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const step = history.length + 1;
+
   return (
     <div className="min-h-screen bg-emerald-50 px-4 md:px-10 py-10">
       <button
-        onClick={back}
+        onClick={() => navigate("/entscheidungen/frageboegen")}
         className="flex items-center text-emerald-900 mb-6 cursor-pointer"
       >
-        <span className="text-2xl mr-2">←</span> Zurück
+        ← Zur Übersicht
       </button>
 
       <h1 className="text-emerald-900 text-3xl font-semibold mb-2">
         {questionnaire.title}
       </h1>
 
-      <p className="text-emerald-800 mb-6 text-lg">
-        Frage {current + 1} von {questions.length}
-      </p>
+      <p className="text-emerald-800 mb-6 text-lg">Frage {step}</p>
 
       <div className="bg-white rounded-3xl shadow-md p-6 mb-6">
         <p className="text-lg text-emerald-900 mb-6 leading-relaxed">
-          {currentQuestion?.text}
+          {currentQuestion.text}
         </p>
 
         <div className="flex flex-col gap-4">
@@ -290,21 +391,28 @@ export default function FragebogenFrage() {
           Neu starten
         </button>
 
-        {lastQuestion ? (
+        <div className="flex items-center gap-4">
+          <button
+            onClick={backQuestion}
+            disabled={history.length === 0}
+            className="text-emerald-900 underline disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Vorherige Frage
+          </button>
+
+          {showSelectHint && (
+            <div className="px-4 py-2 rounded-full bg-emerald-100 text-emerald-900 text-sm">
+              Bitte wähle eine Option aus, um fortzufahren.
+            </div>
+          )}
+
           <button
             onClick={next}
             className="bg-emerald-900 hover:bg-emerald-800 text-white px-6 py-3 rounded-full text-base font-semibold"
           >
-            Fragebogen abschließen
-          </button>
-        ) : (
-          <button
-            onClick={next}
-            className="text-emerald-900 hover:text-emerald-700 text-lg font-medium flex items-center gap-2 pr-2"
-          >
             Weiter →
           </button>
-        )}
+        </div>
       </div>
     </div>
   );
