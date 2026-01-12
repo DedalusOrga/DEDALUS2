@@ -30,7 +30,7 @@ export default function NavBar() {
   const PATH_HELP = "/fragen"; // <- Es gibt keine /bedienhilfe-Route
 
   return (
-    <header className="bg-emerald-50">
+    <header className="sticky top-0 z-50 bg-emerald-50">
       <div className="mx-auto max-w-6xl px-4 pt-4">
         <div className="rounded-2xl bg-white shadow-sm">
           <div className="flex items-center justify-between px-4">
