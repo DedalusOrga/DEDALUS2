@@ -28,6 +28,8 @@ import NebenwirkungenDetail from "./pages/NebenwirkungenDetail";
 import UmgangNebenwirkungenDetail from "./pages/UmgangNebenwirkungenDetail";
 import PatientenPerspektiveOverview from "./pages/PatientenPerspektiveOverview";
 import PatientenVideosDetail from "./pages/PatientenVideosDetail";
+import ResetPassword from "./pages/ResetPassword";
+
 import ZusatzoptionenOverview from "./pages/ZusatzoptionenOverview";
 import ZusatzoptionenDetail from "./pages/ZusatzoptionenDetail";
 import PatientenNeueInhalteDetail from "./pages/PatientenNeueInhalteDetail";
@@ -44,6 +46,7 @@ const router = createHashRouter([
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
   { path: "/auth/forgot", element: <ForgotPassword /> },
+  { path: "/auth/reset", element: <ResetPassword /> },
 
   // Admin ganz oben – nur geschützt, aber NICHT in der App-Navigation
   {
