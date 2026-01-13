@@ -18,7 +18,7 @@ export default function TherapieDetail() {
   const location = useLocation();
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
-    [location.pathname],
+    [location.pathname]
   );
 
   const {
@@ -84,7 +84,7 @@ export default function TherapieDetail() {
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
       <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
-        {/* Zurück oben */}
+        {/* Zurück */}
         <button
           onClick={() => navigate(-1)}
           className="flex items-center text-emerald-900 mb-6 hover:text-emerald-700"
@@ -93,65 +93,59 @@ export default function TherapieDetail() {
           Zurück
         </button>
 
-        {/* Titel */}
-        <h1 className="text-2xl md:text-3xl font-semibold text-emerald-800 mb-8">
-          {title}
-        </h1>
+        {/* Header: Titel + Aktionen (wie NebenwirkungenDetail) */}
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl md:text-3xl font-semibold text-emerald-800">
+            {title}
+          </h1>
 
-        {(boundLoading || (fallbackLoading && !boundModule)) && (
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={toggleSpeak}
+              className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-5 py-2.5
+                         text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900"
+            >
+              <img src={MicrophoneIcon} alt="" className="w-5 h-5 mr-2" />
+              {isSpeaking ? "Stopp" : "Vorlesen"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setUseSimple((prev) => !prev)}
+              className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-5 py-2.5
+                         text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900"
+            >
+              <img src={TextIcon} alt="" className="w-5 h-5 mr-2" />
+              {useSimple ? "Original" : "Vereinfachen"}
+            </button>
+          </div>
+        </div>
+
+        {(boundLoading || fallbackLoading) && (
           <div className="mb-4 text-emerald-900">Inhalt wird geladen …</div>
         )}
 
         {(boundError || fallbackError) && (
-          <div className="mb-4 text-red-700">
-            Fehler beim Laden: {boundError ?? fallbackError}
-          </div>
+          <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
         )}
 
-        {/* Weißer Content-Block: Text + optional Video */}
+        {/* Content */}
         <div
           className={
             "bg-white rounded-3xl shadow-sm p-6 md:p-8 grid gap-8 " +
             (hasVideo ? "md:grid-cols-2" : "md:grid-cols-1")
           }
         >
-          {/* Textbereich */}
           <div className="text-sm md:text-base leading-relaxed text-emerald-950 whitespace-pre-line">
             {text}
           </div>
 
-          {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
           {hasVideo && (
             <div className="flex items-center justify-center">
               <video src={videoUrl} controls className="w-full rounded-xl" />
             </div>
           )}
-        </div>
-
-        {/* Buttons unten */}
-        <div className="mt-10 flex flex-col gap-4 md:flex-row md:justify-end">
-          {/* Vorlesen */}
-          <button
-            type="button"
-            onClick={toggleSpeak}
-            className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-6 py-3 
-             text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900 
-             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-          >
-            <img src={MicrophoneIcon} alt="Vorlesen" className="w-5 h-5 mr-2" />
-            {isSpeaking ? "Stopp" : "Vorlesen"}
-          </button>
-
-          <button
-            type="button"
-            className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-6 py-3 
-             text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900 
-             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-            onClick={() => setUseSimple((prev) => !prev)}
-          >
-            <img src={TextIcon} alt="Vereinfachen" className="w-5 h-5 mr-2" />
-            {useSimple ? "Original" : "Vereinfachen"}
-          </button>
         </div>
       </div>
     </div>
