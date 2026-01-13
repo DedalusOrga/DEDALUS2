@@ -8,6 +8,10 @@ import TextIcon from "../assets/text.svg";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
+import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeSanitize from "rehype-sanitize";
 
 export default function TherapieDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -137,8 +141,9 @@ export default function TherapieDetail() {
             (hasVideo ? "md:grid-cols-2" : "md:grid-cols-1")
           }
         >
-          <div className="text-sm md:text-base leading-relaxed text-emerald-950 whitespace-pre-line">
-            {text}
+          {/* Textbereich */}
+          <div className="text-sm md:text-base leading-relaxed text-emerald-950 ">
+            <MarkdownWithGlossary text={text} />
           </div>
 
           {hasVideo && (

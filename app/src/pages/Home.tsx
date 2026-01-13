@@ -14,6 +14,7 @@ export default function Home() {
       setIsAdmin(false);
       return;
     }
+    const userId = user.id;
 
     let cancelled = false;
 

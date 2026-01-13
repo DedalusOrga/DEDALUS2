@@ -1,9 +1,19 @@
 // app/src/pages/ZusatzoptionenDetail.tsx
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
-import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import type { Module } from "../components/ModuleRenderer";
+import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
+import { GlossaryPlain } from "../glossary/GlossaryPlain";
+
+function childrenToText(children: React.ReactNode): string {
+  if (children == null) return "";
+  if (typeof children === "string" || typeof children === "number")
+    return String(children);
+  if (Array.isArray(children)) return children.map(childrenToText).join("");
+  if (React.isValidElement(children))
+    return childrenToText(children.props.children);
+  return "";
+}
 
 export default function ZusatzoptionenDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -71,7 +81,7 @@ export default function ZusatzoptionenDetail() {
 
         {/* Inhalt mit Markdown */}
         <div className="rounded-3xl bg-white p-8 shadow-sm prose prose-emerald max-w-none">
-          <ReactMarkdown>{text}</ReactMarkdown>
+          <GlossaryPlain text={text} />
         </div>
       </div>
     </div>
