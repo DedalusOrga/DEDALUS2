@@ -112,16 +112,14 @@ export default function CurrentPageEditorModal({
         return;
       }
 
-      const { error } = await supabase
-        .from("page_content_bindings")
-        .upsert(
-          {
-            page_key: pageKey,
-            module_id: selectedModuleId,
-            updated_by: user.id,
-          },
-          { onConflict: "page_key" }
-        );
+      const { error } = await supabase.from("page_content_bindings").upsert(
+        {
+          page_key: pageKey,
+          module_id: selectedModuleId,
+          updated_by: user.id,
+        },
+        { onConflict: "page_key" },
+      );
 
       if (error) {
         console.error(error);

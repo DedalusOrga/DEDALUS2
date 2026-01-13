@@ -237,7 +237,7 @@ export default function AdminPage() {
       if (error) {
         console.error(error);
         setError("Modul konnte nicht aktualisiert werden.");
-         setSavingModule(false);
+        setSavingModule(false);
         return;
       }
     } else {
@@ -248,7 +248,7 @@ export default function AdminPage() {
       if (error) {
         console.error(error);
         setError("Neues Modul konnte nicht gespeichert werden.");
-         setSavingModule(false);
+        setSavingModule(false);
         return;
       }
     }
@@ -321,7 +321,7 @@ export default function AdminPage() {
   }
 
   return (
-     <AdminLayout title="Admin – Verwaltung">
+    <AdminLayout title="Admin – Verwaltung">
       {(error || info) && (
         <div className="mb-6">
           {error && (
@@ -516,11 +516,17 @@ export default function AdminPage() {
             <table className="w-full text-sm">
               <thead className="bg-emerald-50 border-b border-slate-100">
                 <tr>
-                  <th className="text-left px-4 py-3 text-emerald-950">Titel</th>
+                  <th className="text-left px-4 py-3 text-emerald-950">
+                    Titel
+                  </th>
                   <th className="text-left px-4 py-3 text-emerald-950">Slug</th>
                   <th className="text-left px-4 py-3 text-emerald-950">Typ</th>
-                  <th className="text-left px-4 py-3 text-emerald-950">Status</th>
-                  <th className="text-left px-4 py-3 text-emerald-950">Aktionen</th>
+                  <th className="text-left px-4 py-3 text-emerald-950">
+                    Status
+                  </th>
+                  <th className="text-left px-4 py-3 text-emerald-950">
+                    Aktionen
+                  </th>
                 </tr>
               </thead>
               <tbody>

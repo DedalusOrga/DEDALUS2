@@ -53,13 +53,13 @@ export default function FragebogenFrage() {
 
   // aktuelle Frage + History für "Vorherige Frage"
   const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(
-    null
+    null,
   );
   const [history, setHistory] = useState<string[]>([]);
 
   const currentQuestion = useMemo(
     () => questions.find((q) => q.id === currentQuestionId) ?? null,
-    [questions, currentQuestionId]
+    [questions, currentQuestionId],
   );
 
   const optionsForCurrent = useMemo(() => {
