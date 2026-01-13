@@ -37,6 +37,7 @@ import WeiterfuehrendeInfoOverview from "./pages/WeiterfuehrendeInfoOverview";
 import WeiterfuehrendeInfoDetail from "./pages/WeiterfuehrendeInfoDetail";
 import AdminDecisionTrees from "./pages/admin/AdminDecisionTrees";
 import AdminQuestionsPage from "./pages/admin/AdminQuestionsPage";
+import ArztgespraechDetail from "./pages/ArztgespraechDetail";
 
 import "./index.css";
 
@@ -93,7 +94,10 @@ const router = createHashRouter([
         path: "/entscheidungen/arztgespraech",
         element: <ArztgespraechOverview />,
       },
-
+      {
+        path: "/entscheidungen/arztgespraech/:slug",
+        element: <ArztgespraechDetail />,
+      },
       {
         path: "/entscheidungen/frageboegen",
         element: <FrageboegenEntscheidung />,
@@ -321,5 +325,5 @@ const router = createHashRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <AuthProvider>
     <RouterProvider router={router} />
-  </AuthProvider>,
+  </AuthProvider>
 );
