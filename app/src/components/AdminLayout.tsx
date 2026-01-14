@@ -67,7 +67,7 @@ export default function AdminLayout({ title, children }: Props) {
                 activeTab === "content" ? tabActive : tabInactive
               }`}
             >
-              Inhalte hinzufügen
+              Inhalte anlegen
             </button>
 
             <button
@@ -76,7 +76,7 @@ export default function AdminLayout({ title, children }: Props) {
                 activeTab === "questions" ? tabActive : tabInactive
               }`}
             >
-              Fragen hinzufügen
+              Fragen anlegen
             </button>
 
             <button
@@ -85,7 +85,7 @@ export default function AdminLayout({ title, children }: Props) {
                 activeTab === "routing" ? tabActive : tabInactive
               }`}
             >
-              Fragebogen bearbeiten
+              Fragebogen zusammenstellen
             </button>
           </div>
         </div>

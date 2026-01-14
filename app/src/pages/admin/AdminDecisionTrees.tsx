@@ -57,12 +57,12 @@ export default function AdminDecisionTrees() {
 
   const selectedQuestionnaire = useMemo(
     () => questionnaires.find((q) => q.id === selectedQId) ?? null,
-    [questionnaires, selectedQId],
+    [questionnaires, selectedQId]
   );
 
   const selectedQuestion = useMemo(
     () => questions.find((q) => q.id === selectedQuestionId) ?? null,
-    [questions, selectedQuestionId],
+    [questions, selectedQuestionId]
   );
 
   const nextTargets = useMemo(() => {
@@ -190,8 +190,8 @@ export default function AdminDecisionTrees() {
 
     setQuestionnaires((prev) =>
       prev.map((q) =>
-        q.id === selectedQId ? { ...q, start_question_id: startQuestionId } : q,
-      ),
+        q.id === selectedQId ? { ...q, start_question_id: startQuestionId } : q
+      )
     );
 
     setSaving(false);
@@ -218,15 +218,15 @@ export default function AdminDecisionTrees() {
       prev.map((o) =>
         o.question_id === selectedQuestionId
           ? { ...o, next_question_id: nextQuestionId }
-          : o,
-      ),
+          : o
+      )
     );
 
     setSaving(false);
   }
 
   return (
-    <AdminLayout title="Admin – Fragebogen-Routing">
+    <AdminLayout title="Admin">
       {(loading || saving) && (
         <div className="mb-4 text-emerald-900">
           {loading ? "Lade…" : "Speichere…"}
