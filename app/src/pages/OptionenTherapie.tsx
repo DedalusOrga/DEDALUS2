@@ -90,7 +90,7 @@ export default function InformationenOverview() {
       >
         {/* Back */}
         <button
-          onClick={() => navigate("/home")}
+          onClick={() => navigate(-1)}
           className="
             inline-flex items-center gap-2 rounded-xl
             px-2 py-2 text-emerald-950 hover:text-emerald-800
@@ -103,68 +103,55 @@ export default function InformationenOverview() {
           </span>
           <span className="text-base font-medium">Zurück</span>
         </button>
+        <div className="mx-auto max-w-6xl px-6 py-10">
+          <h1 className="text-3xl font-extrabold text-emerald-900 mb-10">
+            Therapieoptionen
+          </h1>
 
-        {/* Headline */}
-        <h1 className="mt-5 text-xl font-semibold leading-snug text-emerald-950 sm:mt-6 sm:text-2xl lg:text-3xl">
-          Hier finden Sie verständliche Informationen zu verschiedenen
-          Therapien.
-        </h1>
+          {/* Headline */}
+          <h1 className="mt-5 text-xl font-semibold leading-snug text-emerald-950 sm:mt-6 sm:text-2xl lg:text-3xl">
+            Hier finden Sie verständliche Informationen zu verschiedenen
+            Therapien.
+          </h1>
 
-        {/* Grid */}
-        <div className="mt-6 sm:mt-8">
-          <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-            {therapies.map((card) => (
-              <button
-                key={card.id}
-                onClick={() => handleCardClick(card.slug)}
-                className="
+          {/* Grid */}
+          <div className="mt-6 sm:mt-8">
+            <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+              {therapies.map((card) => (
+                <button
+                  key={card.id}
+                  onClick={() => handleCardClick(card.slug)}
+                  className="
                   group rounded-3xl bg-white
                   px-4 py-4 sm:px-5 sm:py-5
                   text-center shadow-sm transition
                   hover:shadow-md active:scale-[0.99]
                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400
                 "
-              >
-                <div className="mx-auto flex flex-col items-center justify-center">
-                  <img
-                    src={card.icon}
-                    alt=""
-                    className="h-10 w-10 sm:h-12 sm:w-12"
-                    aria-hidden
-                  />
+                >
+                  <div className="mx-auto flex flex-col items-center justify-center">
+                    <img
+                      src={card.icon}
+                      alt=""
+                      className="h-10 w-10 sm:h-12 sm:w-12"
+                      aria-hidden
+                    />
 
-                  <div
-                    className="
+                    <div
+                      className="
                       mt-3 text-[15px] font-semibold leading-snug text-emerald-950
                       sm:text-base lg:text-[17px]
                       break-words [hyphens:auto]
                       overflow-hidden
                       [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]
                     "
-                  >
-                    {card.name}
+                    >
+                      {card.name}
+                    </div>
                   </div>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {/* CTA */}
-          <div className="mt-8 flex w-full justify-end sm:mt-10">
-            <button
-              onClick={() => navigate("/videos")}
-              className="
-                inline-flex items-center gap-2
-                rounded-full bg-emerald-800
-                px-5 py-3 text-base font-semibold text-white shadow-md
-                hover:bg-emerald-900 active:scale-[0.99]
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300
-                sm:px-6 sm:text-lg
-              "
-            >
-              <img src={PlayIcon} alt="" className="h-5 w-5" aria-hidden />
-              Zu den Videos
-            </button>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
