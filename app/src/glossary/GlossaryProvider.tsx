@@ -73,7 +73,7 @@ export function GlossaryProvider({ children }: { children: React.ReactNode }) {
       getDefinition: (term: string) => map.get(normalize(term)) ?? null,
       openTerm,
     }),
-    [isLoading, map]
+    [isLoading, map],
   );
 
   return (

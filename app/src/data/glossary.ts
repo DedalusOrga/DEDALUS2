@@ -1,4 +1,3 @@
-
 interface GlossaryEntry {
   term: string;
   definition: string;
@@ -8,7 +7,7 @@ export const glossaryInformation = {
   title: "Glossar",
   icon: "book",
   iconOutline: "book-outline",
-}
+};
 
 export const glossary: GlossaryEntry[] = [
   {
@@ -83,7 +82,7 @@ export const glossary: GlossaryEntry[] = [
   {
     term: "DEDALUS",
     definition:
-      'DEDALUS ist die Abkürzung für „Development, implementation and Evaluation of Educational tools and Decision Aids for immune checkpoint-inhibitors in advanced LUng cancer: a mixed-methods Study“. Hierbei handelt es sich um eine Studie, die an der Thoraxklinik des Universitätsklinikums in Heidelberg durchgeführt wurde. Im Rahmen dieser Studie soll eine Entscheidungshilfe für Patienten und Patientinnen mit Lungenkrebs im Stadium IV entwickelt werden. Alle Patienten haben eine Immuntherapie erhalten.',
+      "DEDALUS ist die Abkürzung für „Development, implementation and Evaluation of Educational tools and Decision Aids for immune checkpoint-inhibitors in advanced LUng cancer: a mixed-methods Study“. Hierbei handelt es sich um eine Studie, die an der Thoraxklinik des Universitätsklinikums in Heidelberg durchgeführt wurde. Im Rahmen dieser Studie soll eine Entscheidungshilfe für Patienten und Patientinnen mit Lungenkrebs im Stadium IV entwickelt werden. Alle Patienten haben eine Immuntherapie erhalten.",
   },
   {
     term: "Drainage",
@@ -226,8 +225,7 @@ export const glossary: GlossaryEntry[] = [
   },
   {
     term: "Rezidiv",
-    definition:
-      "Wiederauftreten eines scheinbar geheilten Tumors.",
+    definition: "Wiederauftreten eines scheinbar geheilten Tumors.",
   },
   {
     term: "Röntgen",
@@ -539,7 +537,7 @@ export const glossary: GlossaryEntry[] = [
   {
     term: "Staging",
     definition:
-      'Bestimmung des Ausbreitungsgrades der Krebserkrankung. Es werden eine Vielzahl von Untersuchungsmethoden angewandt, um diesen “Status” zu erheben',
+      "Bestimmung des Ausbreitungsgrades der Krebserkrankung. Es werden eine Vielzahl von Untersuchungsmethoden angewandt, um diesen “Status” zu erheben",
   },
   {
     term: "Teilresektion",
@@ -553,7 +551,7 @@ export const glossary: GlossaryEntry[] = [
   {
     term: "Thorakotomie",
     definition:
-      'Chirurgische Eröffnung des Brustkorbs im Rahmen einer „offenen“ Operation.',
+      "Chirurgische Eröffnung des Brustkorbs im Rahmen einer „offenen“ Operation.",
   },
   {
     term: "Thorax",
@@ -570,55 +568,62 @@ export const glossary: GlossaryEntry[] = [
   },
   {
     term: "Tumor",
-    definition: "Ein Tumor ist eine Gruppe von kranken Zellen im Körper. (Worte mit einer gleichen oder sehr ähnlichen Bedeutung von Tumor lauten: Geschwulst, Krebs, Wucherung, Knoten, Gewächs, Neoplasma, Raumforderung)"
+    definition:
+      "Ein Tumor ist eine Gruppe von kranken Zellen im Körper. (Worte mit einer gleichen oder sehr ähnlichen Bedeutung von Tumor lauten: Geschwulst, Krebs, Wucherung, Knoten, Gewächs, Neoplasma, Raumforderung)",
   },
   {
     term: "Tumorgewebe",
-    definition: "Tumorgewebe unterscheidet sich von normalem Gewebe, weil die Zellen nicht mehr richtig funktionieren. Sie teilen sich zu oft und sterben nicht ab, wenn sie es sollten."
+    definition:
+      "Tumorgewebe unterscheidet sich von normalem Gewebe, weil die Zellen nicht mehr richtig funktionieren. Sie teilen sich zu oft und sterben nicht ab, wenn sie es sollten.",
   },
   {
     term: "Tumorzentriert",
-    definition: "Tumorzentriert bedeutet, dass man vor allem auf diesen Tumor schaut. Man achtet besonders darauf, was mit dem Tumor passiert und wie man ihn behandeln kann."
+    definition:
+      "Tumorzentriert bedeutet, dass man vor allem auf diesen Tumor schaut. Man achtet besonders darauf, was mit dem Tumor passiert und wie man ihn behandeln kann.",
   },
   {
     term: "Lebensqualität und Lebenszeit",
     definition: `
 Wenn Menschen alt werden oder krank sind, denken sie oft darüber nach, wie lange sie noch leben werden und wie gut es ihnen dabei geht. Es ist wichtig zu verstehen, dass nicht nur die Länge des Lebens zählt. Auch wie gut es einem dabei geht, ist sehr wichtig.
-Lebensqualität bedeutet, wie gut es einem Menschen in seinem Leben geht. Es geht darum, wie zufrieden und glücklich jemand ist.`
+Lebensqualität bedeutet, wie gut es einem Menschen in seinem Leben geht. Es geht darum, wie zufrieden und glücklich jemand ist.`,
   },
   {
     term: "Checkpoint-Inhibitor",
-    definition: 'Checkpoint-Inhibitoren (Inhibitoren = Hemmer) lösen die "Bremsen" des Immunsystems. Diese Bremsen heißen Checkpoints. Normalerweise schützen sie gesunde Zellen vor Angriffen. Ziel der Behandlung ist: Das Immunsystem soll Krebszellen besser erkennen und zerstören.'
+    definition:
+      'Checkpoint-Inhibitoren (Inhibitoren = Hemmer) lösen die "Bremsen" des Immunsystems. Diese Bremsen heißen Checkpoints. Normalerweise schützen sie gesunde Zellen vor Angriffen. Ziel der Behandlung ist: Das Immunsystem soll Krebszellen besser erkennen und zerstören.',
   },
   {
     term: "Symptom",
-    definition: "Ein Symptom ist ein Zeichen oder eine Veränderung, die darauf hinweist, dass etwas im Körper nicht in Ordnung ist. Es kann von der Person selbst wahrgenommen werden oder von einem Arzt bei einer Untersuchung festgestellt werden."
+    definition:
+      "Ein Symptom ist ein Zeichen oder eine Veränderung, die darauf hinweist, dass etwas im Körper nicht in Ordnung ist. Es kann von der Person selbst wahrgenommen werden oder von einem Arzt bei einer Untersuchung festgestellt werden.",
   },
   {
     term: "Biomarker",
-    definition: "Ein Biomarker ist wie ein Hinweis im Körper. Er zeigt, ob jemand gesund ist oder krank werden könnte. Ärzte können Biomarker im Blut, Urin oder anderen Körperteilen finden. Beispiele für Biomarker sind: Die Körpertemperatur (zeigt Fieber an); Der Blutzucker (wichtig bei Diabetes); Bestimmte Proteine im Blut (können auf Krebs hinweisen)."
+    definition:
+      "Ein Biomarker ist wie ein Hinweis im Körper. Er zeigt, ob jemand gesund ist oder krank werden könnte. Ärzte können Biomarker im Blut, Urin oder anderen Körperteilen finden. Beispiele für Biomarker sind: Die Körpertemperatur (zeigt Fieber an); Der Blutzucker (wichtig bei Diabetes); Bestimmte Proteine im Blut (können auf Krebs hinweisen).",
   },
   {
     term: "Multiprofessionell",
-    definition: "Multiprofessionell bedeutet, dass Menschen mit verschiedenen Berufen zusammenarbeiten. Multiprofessionelle Teams sind wichtig, weil sie verschiedene Sichtweisen und Fähigkeiten zusammenbringen."
+    definition:
+      "Multiprofessionell bedeutet, dass Menschen mit verschiedenen Berufen zusammenarbeiten. Multiprofessionelle Teams sind wichtig, weil sie verschiedene Sichtweisen und Fähigkeiten zusammenbringen.",
   },
   {
     term: "Distress Thermometer",
-    definition: `Distress Thermometer basierend auf: NCCN 1.2005 Distress Management Guideline; National Comprehensive Cancer Network. Deutsche Version: Mehnert A, Müller D, Lehmann C, Koch U (2006): Die deutsche Version des NCCN Distress-Thermometers - Empirische Prüfung eines Screening-Instruments zur Erfassung psychosozialer Belastung bei Krebspatienten. Zeitschrift für Psychiatrie, Psychologie und Psychotherapie, 54 (3), 213-223.`
+    definition: `Distress Thermometer basierend auf: NCCN 1.2005 Distress Management Guideline; National Comprehensive Cancer Network. Deutsche Version: Mehnert A, Müller D, Lehmann C, Koch U (2006): Die deutsche Version des NCCN Distress-Thermometers - Empirische Prüfung eines Screening-Instruments zur Erfassung psychosozialer Belastung bei Krebspatienten. Zeitschrift für Psychiatrie, Psychologie und Psychotherapie, 54 (3), 213-223.`,
   },
   {
     term: "Fragebogen - Wie möchte ich bei Entscheidungen mitwirken?",
-    definition: "Fragebogen basierend auf Ende J, Kazis L, Ash A, Moskowitz MA. Measuring patients' desire for autonomy: decision making and information-seeking preferences among medical patients. J Gen Intern Med. 1989 Jan-Feb;4(1):23-30. doi: 10.1007/BF02596485. PMID: 2644407. Deutsche Version: Härter M, Simon D, Kriston L (2011): Die deutsche modifizierte Fassung des Autonomie-Präferenz-Index (API-Dm). Klin Diagn Eval. ;4(1E):5-14."
+    definition:
+      "Fragebogen basierend auf Ende J, Kazis L, Ash A, Moskowitz MA. Measuring patients' desire for autonomy: decision making and information-seeking preferences among medical patients. J Gen Intern Med. 1989 Jan-Feb;4(1):23-30. doi: 10.1007/BF02596485. PMID: 2644407. Deutsche Version: Härter M, Simon D, Kriston L (2011): Die deutsche modifizierte Fassung des Autonomie-Präferenz-Index (API-Dm). Klin Diagn Eval. ;4(1E):5-14.",
   },
   {
     term: "Fragebogen - Was möchte ich mit der Behandlung erreichen?",
-    definition: "Fragebogen basierend auf Stiggelbout AM, de Haes JC, Kiebert GM, Kievit J, Leer JW. Tradeoffs between quality and quantity of life: development of the QQ Questionnaire for Cancer Patient Attitudes. Med Decis Making. 1996 Apr-Jun;16(2):184-92. doi: 10.1177/0272989X9601600211. PMID: 8778537. Deutsche Version: Laryionava K, Sklenarova H, Heußner P, Haun MW, Stiggelbout AM, Hartmann M, Winkler EC. Cancer patients' preferences for quantity or quality of life: German translation and validation of the quality and quantity questionnaire. Oncol Res Treat. 2014;37(9):472-8. doi: 10.1159/000366250. Epub 2014 Aug 22. PMID: 25231687."
+    definition:
+      "Fragebogen basierend auf Stiggelbout AM, de Haes JC, Kiebert GM, Kievit J, Leer JW. Tradeoffs between quality and quantity of life: development of the QQ Questionnaire for Cancer Patient Attitudes. Med Decis Making. 1996 Apr-Jun;16(2):184-92. doi: 10.1177/0272989X9601600211. PMID: 8778537. Deutsche Version: Laryionava K, Sklenarova H, Heußner P, Haun MW, Stiggelbout AM, Hartmann M, Winkler EC. Cancer patients' preferences for quantity or quality of life: German translation and validation of the quality and quantity questionnaire. Oncol Res Treat. 2014;37(9):472-8. doi: 10.1159/000366250. Epub 2014 Aug 22. PMID: 25231687.",
   },
- {
-  term: "Fragebogen - Was ist mir während der Behandlungsphase wichtig?",
-  definition: `Fragebogen basierend auf dem EQ-5D-3L: https://euroqol.org/information-and-support/euroqol-instruments/eq-5d-3l/
+  {
+    term: "Fragebogen - Was ist mir während der Behandlungsphase wichtig?",
+    definition: `Fragebogen basierend auf dem EQ-5D-3L: https://euroqol.org/information-and-support/euroqol-instruments/eq-5d-3l/
    und Roth P, Gengenbacher M, Theiler R. Activity-index ...`,
-},
-
-
+  },
 ];

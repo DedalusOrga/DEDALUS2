@@ -66,7 +66,7 @@ export default function AdminQuestionsPage() {
   const [newOptionCount, setNewOptionCount] =
     useState<number>(DEFAULT_OPTION_COUNT);
   const [newOptions, setNewOptions] = useState<string[]>(
-    Array.from({ length: DEFAULT_OPTION_COUNT }, () => "")
+    Array.from({ length: DEFAULT_OPTION_COUNT }, () => ""),
   );
 
   // modal edit
@@ -81,7 +81,7 @@ export default function AdminQuestionsPage() {
 
   const selectedQuestionnaire = useMemo(
     () => questionnaires.find((q) => q.id === selectedQuestionnaireId) ?? null,
-    [questionnaires, selectedQuestionnaireId]
+    [questionnaires, selectedQuestionnaireId],
   );
 
   useEffect(() => {
@@ -266,7 +266,7 @@ export default function AdminQuestionsPage() {
       const texts = opts.map((o) => o.text ?? "");
       const count = Math.max(
         MIN_OPTIONS,
-        Math.min(MAX_OPTIONS, texts.length || DEFAULT_OPTION_COUNT)
+        Math.min(MAX_OPTIONS, texts.length || DEFAULT_OPTION_COUNT),
       );
 
       setEditOptionCount(count);
@@ -466,8 +466,8 @@ export default function AdminQuestionsPage() {
                 setNewOptionCount(
                   Math.max(
                     MIN_OPTIONS,
-                    Math.min(MAX_OPTIONS, Number(e.target.value || 1))
-                  )
+                    Math.min(MAX_OPTIONS, Number(e.target.value || 1)),
+                  ),
                 )
               }
               className="w-36 rounded-xl border border-slate-200 px-3 py-2"
@@ -623,8 +623,8 @@ export default function AdminQuestionsPage() {
                       setEditOptionCount(
                         Math.max(
                           MIN_OPTIONS,
-                          Math.min(MAX_OPTIONS, Number(e.target.value || 1))
-                        )
+                          Math.min(MAX_OPTIONS, Number(e.target.value || 1)),
+                        ),
                       )
                     }
                     className="w-36 rounded-xl border border-slate-200 px-3 py-2"
