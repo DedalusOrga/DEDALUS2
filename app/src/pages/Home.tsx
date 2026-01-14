@@ -44,16 +44,6 @@ export default function Home() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      {/* Zurück-Link oben */}
-      <button
-        type="button"
-        onClick={() => navigate(-1)}
-        className="mt-4 mb-4 inline-flex items-center gap-2 text-sm font-medium text-emerald-800 hover:underline"
-      >
-        <span className="text-lg">←</span>
-        Zurück
-      </button>
-
       {/* großer Bereich wie im Mock */}
       <section className="rounded-b-2xl bg-emerald-100 pt-6 pb-10">
         {/* Überschrift-Zeile */}
