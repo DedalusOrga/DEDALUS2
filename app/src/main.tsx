@@ -9,6 +9,7 @@ import { GlossaryProvider } from "./glossary/GlossaryProvider";
 import Register from "./pages/Register";
 import EntscheidungenOverview from "./pages/EntscheidungenOverview";
 import FrageboegenEntscheidung from "./pages/FrageboegenEntscheidung";
+import FragebogenErgebnis from "./pages/FragebogenErgebnis";
 import FragebogenFrage from "./pages/FragebogenFrage";
 import FragebogenFertig from "./pages/FragebogenFertig";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -28,6 +29,8 @@ import NebenwirkungenDetail from "./pages/NebenwirkungenDetail";
 import UmgangNebenwirkungenDetail from "./pages/UmgangNebenwirkungenDetail";
 import PatientenPerspektiveOverview from "./pages/PatientenPerspektiveOverview";
 import PatientenVideosDetail from "./pages/PatientenVideosDetail";
+import ResetPassword from "./pages/ResetPassword";
+
 import ZusatzoptionenOverview from "./pages/ZusatzoptionenOverview";
 import ZusatzoptionenDetail from "./pages/ZusatzoptionenDetail";
 import PatientenNeueInhalteDetail from "./pages/PatientenNeueInhalteDetail";
@@ -47,6 +50,7 @@ const router = createHashRouter([
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
   { path: "/auth/forgot", element: <ForgotPassword /> },
+  { path: "/auth/reset", element: <ResetPassword /> },
 
   // Admin ganz oben – nur geschützt, aber NICHT in der App-Navigation
   {
@@ -108,6 +112,10 @@ const router = createHashRouter([
       {
         path: "/entscheidungen/fragebogen/:id/fertig",
         element: <FragebogenFertig />,
+      },
+      {
+        path: "/entscheidungen/fragebogen/:id/ergebnis",
+        element: <FragebogenErgebnis />,
       },
 
       {

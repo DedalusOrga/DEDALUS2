@@ -1,5 +1,5 @@
 // src/pages/ForgotPassword.tsx
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../infrastructure/supabase/client";
@@ -21,41 +21,42 @@ export default function ForgotPassword() {
     setMsg(null);
     setLoading(true);
 
+    const base = import.meta.env.BASE_URL ?? "/";
+    const redirectTo = `${window.location.origin}${base}#/auth/reset`;
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset`,
+      redirectTo,
     });
 
     setLoading(false);
 
-    if (error) return setMsg(error.message);
-    // freundliche Erfolgsmeldung + Option zurück zum Login
+    if (error) {
+      setMsg(error.message);
+      return;
+    }
+
     setMsg(
-      "Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet.",
+      "Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet."
     );
   }
 
   return (
     <div className="min-h-screen border border-blue-300 bg-emerald-50 flex items-center justify-center px-4">
       <div className="w-full max-w-xl px-6 py-12 text-center">
-        {/* Überschrift */}
         <h1 className="text-3xl md:text-4xl font-extrabold text-[#0D3B2E] mb-4">
           Passwort zurücksetzen
         </h1>
 
-        {/* Beschreibung */}
         <p className="text-lg md:text-xl font-semibold text-[#0D1B2A] mb-8">
           Bitte geben Sie Ihre E-Mail ein.
         </p>
 
-        {/* Fehlermeldung */}
         {msg && <p className="text-sm font-medium text-red-600 mb-4">{msg}</p>}
 
-        {/* Formular */}
         <form
           onSubmit={onSubmit}
           className="w-full max-w-sm mx-auto space-y-4 text-left"
         >
-          {/* E-Mail */}
           <div className="flex flex-col w-full">
             <label className="mb-1 font-semibold text-[#0D1B2A]">E-Mail</label>
             <input
@@ -68,17 +69,15 @@ export default function ForgotPassword() {
             />
           </div>
 
-          {/* Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#0D3B2E] text-white font-semibold py-3 rounded-full mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="_slsk3 w-full bg-[#0D3B2E] text-white font-semibold py-3 rounded-full mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? "Bitte warten…" : "Reset-Link senden"}
           </button>
         </form>
 
-        {/* Zurück zum Login */}
         <p className="mt-8 font-semibold text-[#0D1B2A]">
           Zurück zum{" "}
           <button
