@@ -90,6 +90,12 @@ export default function AdminPage() {
     file_url: "",
   });
 
+  const [draftBodyMd, setDraftBodyMd] = useSessionDraft(
+  "admin:text:draft",
+  ""
+);
+
+  
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -125,6 +131,7 @@ export default function AdminPage() {
   function resetForm() {
     setEditingId(null);
     setUploadError(null);
+    setDraftBodyMd("");
     setForm({
       type: "text",
       title: "",
@@ -146,7 +153,23 @@ export default function AdminPage() {
       body_md: m.body_md ?? "",
       file_url: m.file_url ?? "",
     });
+
+    setDraftBodyMd(m.body_md ?? "");
+
   }
+
+  function useSessionDraft(key: string, initial = "") {
+  const [value, setValue] = useState(() => {
+    return sessionStorage.getItem(key) ?? initial;
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem(key, value);
+  }, [key, value]);
+
+  return [value, setValue] as const;
+}
+
 
   function setField<K extends keyof NewModuleFormState>(
     key: K,
@@ -224,7 +247,7 @@ export default function AdminPage() {
     };
 
     if (form.type === "text") {
-      payload.body_md = form.body_md || "";
+      payload.body_md = draftBodyMd || "";
     } else {
       payload.file_url = form.file_url || "";
     }
@@ -412,8 +435,8 @@ export default function AdminPage() {
               </label>
               <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <MdxTextEditor
-                  value={form.body_md}
-                  onChange={(md: string) => setField("body_md", md)}
+                  value={draftBodyMd}
+                  onChange={setDraftBodyMd}
                 />
               </div>
             </div>
