@@ -5,6 +5,7 @@ import Startseite from "./pages/Startseite";
 import AdminPage from "./pages/AdminPage";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
+import { GlossaryProvider } from "./glossary/GlossaryProvider";
 import Register from "./pages/Register";
 import EntscheidungenOverview from "./pages/EntscheidungenOverview";
 import FrageboegenEntscheidung from "./pages/FrageboegenEntscheidung";
@@ -37,6 +38,9 @@ import UnterstuetzungsangeboteOverview from "./pages/UnterstuetzungsangeboteOver
 import UnterstuetzungsangeboteDetail from "./pages/UnterstuetzungsangeboteDetail";
 import WeiterfuehrendeInfoOverview from "./pages/WeiterfuehrendeInfoOverview";
 import WeiterfuehrendeInfoDetail from "./pages/WeiterfuehrendeInfoDetail";
+import AdminDecisionTrees from "./pages/admin/AdminDecisionTrees";
+import AdminQuestionsPage from "./pages/admin/AdminQuestionsPage";
+import ArztgespraechDetail from "./pages/ArztgespraechDetail";
 
 import "./index.css";
 
@@ -58,12 +62,31 @@ const router = createHashRouter([
     ),
   },
 
+  {
+    path: "/admin/decision-trees",
+    element: (
+      <AdminProtected>
+        <AdminDecisionTrees />
+      </AdminProtected>
+    ),
+  },
+  {
+    path: "/admin/questions",
+    element: (
+      <AdminProtected>
+        <AdminQuestionsPage />
+      </AdminProtected>
+    ),
+  },
+
   // 🔐 Alle übrigen Routen nur mit Login erreichbar
   {
     path: "/",
     element: (
       <Protected>
-        <App />
+        <GlossaryProvider>
+          <App />
+        </GlossaryProvider>
       </Protected>
     ),
     children: [
@@ -75,7 +98,10 @@ const router = createHashRouter([
         path: "/entscheidungen/arztgespraech",
         element: <ArztgespraechOverview />,
       },
-
+      {
+        path: "/entscheidungen/arztgespraech/:slug",
+        element: <ArztgespraechDetail />,
+      },
       {
         path: "/entscheidungen/frageboegen",
         element: <FrageboegenEntscheidung />,
@@ -307,5 +333,5 @@ const router = createHashRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <AuthProvider>
     <RouterProvider router={router} />
-  </AuthProvider>
+  </AuthProvider>,
 );

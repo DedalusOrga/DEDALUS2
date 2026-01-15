@@ -31,13 +31,13 @@ const cards: InfoCard[] = [
   },
   {
     id: "nebenwirkungen",
-    title: "Nebenwirkungs-management",
+    title: "Nebenwirkungsmanagement",
     icon: SideIcon,
     slug: "nebenwirkungen",
   },
   {
     id: "patienten",
-    title: "Patient*innen-perspektive",
+    title: "Patient*innenperspektive",
     icon: PatientIcon,
     slug: "patientenperspektive",
   },
@@ -49,7 +49,7 @@ const cards: InfoCard[] = [
   },
   {
     id: "support",
-    title: "Unterstützungs-angebote",
+    title: "Unterstützungsangebote",
     icon: HandshakeIcon,
     slug: "unterstuetzung",
   },

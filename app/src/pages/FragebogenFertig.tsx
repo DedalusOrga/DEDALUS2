@@ -36,7 +36,7 @@ export default function FragebogenFertig() {
         <div className="flex justify-center gap-6">
           {/* Zur Übersicht */}
           <button
-            onClick={() => navigate("/entscheidungen/frageboegen-entscheidung")}
+            onClick={() => navigate("/entscheidungen/frageboegen")}
             className="bg-emerald-100 text-emerald-900 px-6 py-3 rounded-full font-semibold hover:bg-emerald-200"
           >
             Zur Übersicht

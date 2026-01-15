@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../infrastructure/supabase/client";
 import { useAuth } from "../hooks/AuthProvider";
-import { useNavigate } from "react-router-dom";
+import AdminLayout from "../components/AdminLayout";
 
 type ContentModule = {
   id: string;
@@ -34,7 +35,6 @@ type ContentModulePayload = {
 function getBucketForType(type: "text" | "pdf" | "video") {
   if (type === "pdf") return "PDF";
   if (type === "video") return "videos";
-  // für Text wird kein Storage verwendet – Fallback, falls nötig
   return "Text";
 }
 
@@ -67,11 +67,19 @@ function parseSupabaseStorageObject(
 export default function AdminPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Tabs aktiv erkennen
+  const isQuestions = location.pathname.startsWith("/admin/questions");
+  const isRouting = location.pathname.startsWith("/admin/decision-trees");
+  const isContent = !isQuestions && !isRouting; // default: /admin
 
   const [modules, setModules] = useState<ContentModule[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [loadingModules, setLoadingModules] = useState(true);
+  const [savingModule, setSavingModule] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
 
   const [form, setForm] = useState<NewModuleFormState>({
     type: "text",
@@ -87,14 +95,16 @@ export default function AdminPage() {
   // Edit-Mode
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  const busy = savingModule || uploading;
   useEffect(() => {
     void loadModules();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadModules() {
-    setLoading(true);
+    setLoadingModules(true);
     setError(null);
+    setInfo(null);
 
     const { data, error } = await supabase
       .from("content_modules")
@@ -104,11 +114,11 @@ export default function AdminPage() {
     if (error) {
       console.error(error);
       setError("Inhalte konnten nicht geladen werden.");
-    } else if (data) {
-      setModules(data as ContentModule[]);
+    } else {
+      setModules((data ?? []) as ContentModule[]);
     }
 
-    setLoading(false);
+    setLoadingModules(false);
   }
 
   function resetForm() {
@@ -137,14 +147,13 @@ export default function AdminPage() {
     });
   }
 
-  function handleFormChange<K extends keyof NewModuleFormState>(
+  function setField<K extends keyof NewModuleFormState>(
     key: K,
     value: NewModuleFormState[K],
   ) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  // Datei (PDF/Video) in Supabase Storage hochladen und URL ins Formular schreiben
   async function handleFileUpload(file: File) {
     if (form.type === "text") {
       setUploadError("Dateiupload ist nur für PDF- und Video-Module möglich.");
@@ -153,6 +162,8 @@ export default function AdminPage() {
 
     setUploading(true);
     setUploadError(null);
+    setError(null);
+    setInfo(null);
 
     try {
       const ext = file.name.split(".").pop() ?? "bin";
@@ -166,10 +177,7 @@ export default function AdminPage() {
 
       const { error: uploadErr } = await supabase.storage
         .from(bucket)
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
+        .upload(filePath, file, { cacheControl: "3600", upsert: false });
 
       if (uploadErr) {
         console.error("UPLOAD ERROR:", uploadErr);
@@ -190,16 +198,20 @@ export default function AdminPage() {
   // Create oder Update
   async function handleSaveModule(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
+    setSavingModule(true);
     setError(null);
+    setInfo(null);
 
-    if (!form.title || !form.slug) {
+    const title = form.title.trim();
+    const slug = form.slug.trim();
+
+    if (!title || !slug) {
       setError("Titel und Kurzname sind Pflichtfelder.");
-      setSaving(false);
+      setSavingModule(false);
       return;
     }
 
-    const normalizedSlug = form.slug.trim().toLowerCase().replace(/\s+/g, "-");
+    const normalizedSlug = slug.toLowerCase().replace(/\s+/g, "-");
 
     const payload: ContentModulePayload = {
       title: form.title,
@@ -225,7 +237,7 @@ export default function AdminPage() {
       if (error) {
         console.error(error);
         setError("Modul konnte nicht aktualisiert werden.");
-        setSaving(false);
+        setSavingModule(false);
         return;
       }
     } else {
@@ -236,14 +248,14 @@ export default function AdminPage() {
       if (error) {
         console.error(error);
         setError("Neues Modul konnte nicht gespeichert werden.");
-        setSaving(false);
+        setSavingModule(false);
         return;
       }
     }
 
     resetForm();
     await loadModules();
-    setSaving(false);
+    setSavingModule(false);
   }
 
   // ✅ Löschen für Text/PDF/Video:
@@ -260,7 +272,7 @@ export default function AdminPage() {
     const ok = window.confirm(`${label} „${m.title}“ wirklich löschen?`);
     if (!ok) return;
 
-    setSaving(true);
+    setSavingModule(true);
     setError(null);
 
     // 1) Storage-Datei löschen (nur bei pdf/video + Supabase URL)
@@ -294,13 +306,13 @@ export default function AdminPage() {
       setError(
         `DB-Eintrag konnte nicht gelöscht werden: ${delError.message ?? "unknown error"}`,
       );
-      setSaving(false);
+      setSavingModule(false);
       return;
     }
 
     if (editingId === m.id) resetForm();
     await loadModules();
-    setSaving(false);
+    setSavingModule(false);
   }
 
   async function handleLogout() {
@@ -309,157 +321,137 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      {/* Header: Zurück + Titel + Logout */}
-      <header className="flex items-center justify-between mb-2">
-        <button
-          onClick={() => navigate("/home")}
-          className="text-sm underline text-gray-700"
-        >
-          Zurück
-        </button>
-
-        <div className="text-center flex-1">
-          <h1 className="text-xl font-semibold">Adminbereich – Inhalte</h1>
-          <p className="text-xs text-gray-500">
-            Angemeldet als {user?.email ?? "Unbekannt"}
-          </p>
-        </div>
-
-        <button
-          onClick={handleLogout}
-          className="text-sm underline text-red-600"
-        >
-          Logout
-        </button>
-      </header>
-
-      {/* Fehlermeldung */}
-      {error && (
-        <div className="border border-red-300 bg-red-50 text-red-700 px-3 py-2 rounded">
-          {error}
+    <AdminLayout title="Admin">
+      {(error || info) && (
+        <div className="mb-6">
+          {error && (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-800">
+              {error}
+            </div>
+          )}
+          {info && (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900 mt-3">
+              {info}
+            </div>
+          )}
         </div>
       )}
 
-      {/* Neues Modul anlegen / Bearbeiten */}
-      <section className="p-4 border rounded-xl bg-white shadow-sm space-y-4">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">
-            {editingId ? "Modul bearbeiten" : "Neues Modul anlegen"}
+      {/* Create / Edit module */}
+      <div className="bg-white rounded-3xl shadow-sm p-6 mb-6">
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <h2 className="text-xl font-semibold text-emerald-950">
+            {editingId ? "Modul bearbeiten" : "Neues Modul"}
           </h2>
 
           {editingId && (
             <button
               type="button"
               onClick={resetForm}
-              className="text-sm underline text-gray-600"
+              className="text-emerald-900 underline"
+              disabled={busy}
             >
               Bearbeiten abbrechen
             </button>
           )}
         </div>
 
-        <form onSubmit={handleSaveModule} className="space-y-3">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-            <label className="text-sm font-medium w-full sm:w-1/3">Typ</label>
-            <select
-              value={form.type}
-              onChange={(e) =>
-                handleFormChange(
-                  "type",
-                  e.target.value as "text" | "pdf" | "video",
-                )
-              }
-              className="border rounded px-2 py-1 w-full sm:w-2/3"
-            >
-              <option value="text">Text</option>
-              <option value="pdf">PDF</option>
-              <option value="video">Video</option>
-            </select>
+        <form onSubmit={handleSaveModule} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-center">
+            <label className="text-emerald-900 font-semibold">Typ</label>
+            <div className="md:col-span-2">
+              <select
+                value={form.type}
+                onChange={(e) => setField("type", e.target.value as any)}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2"
+                disabled={busy}
+              >
+                <option value="text">Text</option>
+                <option value="pdf">PDF</option>
+                <option value="video">Video</option>
+              </select>
+            </div>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-            <label className="text-sm font-medium w-full sm:w-1/3">
-              Titel *
-            </label>
-            <input
-              type="text"
-              value={form.title}
-              onChange={(e) => handleFormChange("title", e.target.value)}
-              className="border rounded px-2 py-1 w-full sm:w-2/3"
-              placeholder="z. B. Behandlungsinformation"
-              required
-            />
-          </div>
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-4">
-            <label className="text-sm font-medium w-full sm:w-1/3">
-              Kurzname für das Modul *
-              <span className="block text-xs font-normal text-gray-500">
-                Wird nur technisch im System verwendet (z. B. „behandlungsinfo“)
-              </span>
-            </label>
 
-            <div className="w-full sm:w-2/3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-center">
+            <label className="text-emerald-900 font-semibold">Titel *</label>
+            <div className="md:col-span-2">
               <input
-                type="text"
-                value={form.slug}
-                onChange={(e) => handleFormChange("slug", e.target.value)}
-                className="border rounded px-2 py-1 w-full"
-                placeholder="z. B. behandlungsinfo"
+                value={form.title}
+                onChange={(e) => setField("title", e.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2"
+                disabled={busy}
                 required
               />
             </div>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-start">
+            <label className="text-emerald-900 font-semibold">
+              Kurzname *
+              <span className="block text-xs font-normal text-emerald-700">
+                Wird nur intern verwendet (z. B. „behandlungsinfo“)
+              </span>
+            </label>
+            <div className="md:col-span-2">
+              <input
+                value={form.slug}
+                onChange={(e) => setField("slug", e.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2"
+                disabled={busy}
+                required
+              />
+            </div>
+          </div>
+
           {form.type === "text" && (
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Textinhalt</label>
+            <div className="grid grid-cols-1 gap-3">
+              <label className="text-emerald-900 font-semibold">
+                Textinhalt
+              </label>
               <textarea
                 value={form.body_md}
-                onChange={(e) => handleFormChange("body_md", e.target.value)}
-                className="border rounded px-2 py-1 w-full"
-                rows={4}
-                placeholder="Text, der im Frontend angezeigt werden soll…"
+                onChange={(e) => setField("body_md", e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 px-3 py-2"
+                rows={5}
+                disabled={busy}
               />
             </div>
           )}
+
           {(form.type === "pdf" || form.type === "video") && (
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">
-                {form.type === "pdf"
-                  ? "PDF-Datei oder URL"
-                  : "Video-Datei oder URL"}
+            <div className="grid grid-cols-1 gap-3">
+              <label className="text-emerald-900 font-semibold">
+                {form.type === "pdf" ? "PDF" : "Video"} (Upload oder URL)
               </label>
 
-              {/* Upload in Supabase Storage */}
               <input
                 type="file"
                 accept={form.type === "pdf" ? "application/pdf" : "video/*"}
                 onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    void handleFileUpload(file);
-                  }
+                  const f = e.target.files?.[0];
+                  if (f) void handleFileUpload(f);
                 }}
-                className="border rounded px-2 py-1 w-full"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+                disabled={busy}
               />
 
               {uploading && (
-                <p className="text-xs text-gray-500">Datei wird hochgeladen…</p>
+                <div className="text-sm text-emerald-800">Upload läuft…</div>
               )}
               {uploadError && (
-                <p className="text-xs text-red-600">{uploadError}</p>
+                <div className="text-sm text-rose-800 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                  {uploadError}
+                </div>
               )}
 
-              {/* URL anzeigen / manuell überschreiben */}
               <input
                 type="url"
                 value={form.file_url}
-                onChange={(e) => handleFormChange("file_url", e.target.value)}
-                className="border rounded px-2 py-1 w-full"
-                placeholder={
-                  form.type === "pdf"
-                    ? "Direkte PDF-URL (oder wird nach Upload automatisch gesetzt)"
-                    : "Direkte Video-URL (oder wird nach Upload automatisch gesetzt)"
-                }
+                onChange={(e) => setField("file_url", e.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2"
+                placeholder="oder URL einfügen…"
+                disabled={busy}
               />
             </div>
           )}
@@ -467,96 +459,103 @@ export default function AdminPage() {
           <div className="pt-2 flex items-center gap-3">
             <button
               type="submit"
-              disabled={saving}
-              className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-60"
+              disabled={busy}
+              className="bg-emerald-900 hover:bg-emerald-800 text-white px-6 py-3 rounded-full text-base font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {saving
+              {savingModule
                 ? "Speichere…"
                 : editingId
                   ? "Änderungen speichern"
                   : "Modul anlegen"}
             </button>
 
+            <button
+              type="button"
+              onClick={() => void loadModules()}
+              className="text-emerald-900 underline"
+              disabled={busy}
+            >
+              Aktualisieren
+            </button>
+
             {!editingId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="text-sm underline text-gray-600"
+                className="text-emerald-900 underline"
+                disabled={busy}
               >
                 Formular leeren
               </button>
             )}
           </div>
         </form>
-      </section>
+      </div>
 
-      {/* Modul-Übersicht */}
-      <section className="p-4 border rounded-xl bg-white shadow-sm space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Bestehende Module</h2>
+      {/* List modules */}
+      <div className="bg-white rounded-3xl shadow-sm p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-emerald-950">
+            Bestehende Module
+          </h2>
           <button
             onClick={() => void loadModules()}
-            className="text-sm underline text-gray-600"
+            className="text-emerald-900 underline"
+            disabled={busy}
           >
             Aktualisieren
           </button>
         </div>
 
-        {loading ? (
-          <div>Inhalte werden geladen…</div>
+        {loadingModules ? (
+          <div className="text-emerald-900">Lade…</div>
         ) : modules.length === 0 ? (
-          <div className="text-sm text-gray-600">
-            Es sind noch keine Module vorhanden.
-          </div>
+          <div className="text-emerald-900">Noch keine Module vorhanden.</div>
         ) : (
-          <div className="border rounded overflow-hidden">
+          <div className="border border-slate-100 rounded-2xl overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-gray-100 border-b">
+              <thead className="bg-emerald-50 border-b border-slate-100">
                 <tr>
-                  <th className="text-left px-3 py-2">Titel</th>
-                  <th className="text-left px-3 py-2">Slug</th>
-                  <th className="text-left px-3 py-2">Typ</th>
-                  <th className="text-left px-3 py-2">Status</th>
-                  <th className="text-left px-3 py-2">Aktionen</th>
+                  <th className="text-left px-4 py-3 text-emerald-950">
+                    Titel
+                  </th>
+                  <th className="text-left px-4 py-3 text-emerald-950">Slug</th>
+                  <th className="text-left px-4 py-3 text-emerald-950">Typ</th>
+                  <th className="text-left px-4 py-3 text-emerald-950">
+                    Status
+                  </th>
+                  <th className="text-left px-4 py-3 text-emerald-950">
+                    Aktionen
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {modules.map((m) => (
-                  <tr key={m.id} className="border-t">
-                    <td className="px-3 py-2">{m.title}</td>
-                    <td className="px-3 py-2 text-gray-600">{m.slug}</td>
-                    <td className="px-3 py-2">
-                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs">
+                  <tr key={m.id} className="border-t border-slate-100">
+                    <td className="px-4 py-3 text-emerald-950">{m.title}</td>
+                    <td className="px-4 py-3 text-emerald-800">{m.slug}</td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1 text-xs text-emerald-900">
                         {m.type}
                       </span>
                     </td>
-                    <td className="px-3 py-2 text-gray-600">{m.status}</td>
-
-                    <td className="px-3 py-2">
-                      <div className="flex items-center gap-3">
-                        {m.type === "text" && (
-                          <button
-                            type="button"
-                            onClick={() => startEdit(m)}
-                            className="text-sm underline text-blue-700"
-                            disabled={saving}
-                          >
-                            Bearbeiten
-                          </button>
-                        )}
+                    <td className="px-4 py-3 text-emerald-800">{m.status}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-4">
                         <button
                           type="button"
-                          onClick={() => {
-                            console.log(
-                              "[UI] Delete button clicked",
-                              m.id,
-                              m.type,
-                              m.file_url,
-                            );
-                            void handleDeleteModule(m);
-                          }}
-                          className="text-sm underline text-red-600"
-                          disabled={saving}
+                          onClick={() => startEdit(m)}
+                          className="text-emerald-900 underline"
+                          disabled={busy}
+                        >
+                          Bearbeiten
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => void handleDeleteModule(m)}
+                          className="text-rose-700 underline"
+                          disabled={busy}
                         >
                           Löschen
                         </button>
@@ -568,7 +567,7 @@ export default function AdminPage() {
             </table>
           </div>
         )}
-      </section>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

@@ -294,7 +294,7 @@ export default function FragebogenErgebnis() {
   const [error, setError] = useState<string | null>(null);
 
   const [questionnaire, setQuestionnaire] = useState<Questionnaire | null>(
-    null
+    null,
   );
   const [questions, setQuestions] = useState<Question[]>([]);
   const [options, setOptions] = useState<Option[]>([]);
@@ -476,7 +476,7 @@ export default function FragebogenErgebnis() {
         {/* Buttons */}
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-end">
           <button
-            onClick={() => navigate("/entscheidungen/frageboegen-entscheidung")}
+            onClick={() => navigate("/entscheidungen/frageboegen")}
             className="bg-emerald-100 text-emerald-900 px-6 py-3 rounded-full font-semibold hover:bg-emerald-200"
           >
             Zur Übersicht
@@ -485,7 +485,7 @@ export default function FragebogenErgebnis() {
           <button
             onClick={() =>
               navigate(
-                `/entscheidungen/fragebogen/${questionnaire?.code ?? code}`
+                `/entscheidungen/fragebogen/${questionnaire?.code ?? code}`,
               )
             }
             className="bg-emerald-900 text-white px-6 py-3 rounded-full font-semibold hover:bg-emerald-800"

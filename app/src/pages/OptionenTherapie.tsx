@@ -1,13 +1,12 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+
 import SunIcon from "../assets/sun.svg";
 import SyringeIcon from "../assets/syringe.svg";
 import HospitalIcon from "../assets/hospital.svg";
 import ShieldIcon from "../assets/shield.svg";
 import TargetIcon from "../assets/target.svg";
 import LeafIcon from "../assets/leaf.svg";
-import ArrowRight from "../assets/arrowRight.svg";
-import ArrowLeft from "../assets/arrowLeft.svg";
 import PlayIcon from "../assets/play.svg";
 
 type Therapy = {
@@ -17,7 +16,7 @@ type Therapy = {
   slug: string;
 };
 
-const page1: Therapy[] = [
+const THERAPIES: Therapy[] = [
   {
     id: "immun",
     name: "Immuntherapie",
@@ -36,13 +35,10 @@ const page1: Therapy[] = [
     icon: SyringeIcon,
     slug: "chemotherapie",
   },
-];
-
-const page2: Therapy[] = [
   { id: "op", name: "Operationen", icon: HospitalIcon, slug: "operationen" },
   {
     id: "target",
-    name: "zielgerichtete Therapie",
+    name: "Zielgerichtete Therapie",
     icon: TargetIcon,
     slug: "zielgerichtete-therapie",
   },
@@ -52,102 +48,111 @@ const page2: Therapy[] = [
     icon: LeafIcon,
     slug: "palliativmedizin",
   },
+  {
+    id: "radiochemo",
+    name: "Radiochemotherapie",
+    icon: SunIcon,
+    slug: "radiochemotherapie",
+  },
+  {
+    id: "chemoimmun",
+    name: "Chemoimmuntherapie",
+    icon: ShieldIcon,
+    slug: "chemoimmuntherapie",
+  },
+  {
+    id: "ablauf34",
+    name: "Typischer Ablauf Stadium III / IV",
+    icon: TargetIcon,
+    slug: "ablauf-stadium-3-4",
+  },
 ];
 
 export default function InformationenOverview() {
-  const [page, setPage] = useState<0 | 1>(0); // 0 = erste 3, 1 = zweite 3
   const navigate = useNavigate();
 
-  const therapies = page === 0 ? page1 : page2;
+  const therapies = useMemo(() => THERAPIES, []);
 
   const handleCardClick = (slug: string) => {
     navigate(`/informationen/${slug}`);
   };
 
-  const togglePage = () => {
-    setPage((prev) => (prev === 0 ? 1 : 0));
-  };
-
   return (
-    <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
-      <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
-        {/* Zurück oben */}
+    <div className="min-h-screen w-full bg-emerald-50 overflow-x-hidden">
+      <div
+        className="
+          mx-auto w-full max-w-screen-xl
+          px-4 sm:px-6 lg:px-8
+          pt-6 sm:pt-8 lg:pt-10
+          pb-10
+          [padding-bottom:calc(2.5rem+env(safe-area-inset-bottom))]
+        "
+      >
+        {/* Back */}
         <button
-          onClick={() => navigate("/home")}
-          className="flex items-center text-emerald-900 mb-6 hover:text-emerald-700"
+          onClick={() => navigate(-1)}
+          className="
+            inline-flex items-center gap-2 rounded-xl
+            px-2 py-2 text-emerald-950 hover:text-emerald-800
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400
+          "
+          aria-label="Zurück"
         >
-          <span className="text-2xl mr-2">←</span>
-          Zurück
+          <span className="text-2xl leading-none" aria-hidden>
+            ←
+          </span>
+          <span className="text-base font-medium">Zurück</span>
         </button>
+        <div className="mx-auto max-w-6xl px-6 py-10">
+          <h1 className="text-3xl font-extrabold text-emerald-900 mb-10">
+            Therapieoptionen
+          </h1>
 
-        {/* Titel */}
-        <h1 className="text-2xl md:text-3xl font-semibold text-emerald-950 mb-10">
-          Hier finden Sie verständliche Informationen zu verschiedenen
-          Therapien.
-        </h1>
+          {/* Headline */}
+          <h1 className="mt-5 text-xl font-semibold leading-snug text-emerald-950 sm:mt-6 sm:text-2xl lg:text-3xl">
+            Hier finden Sie verständliche Informationen zu verschiedenen
+            Therapien.
+          </h1>
 
-        {/* Karten + Pfeile nebeneinander */}
-        <div className="relative mb-16">
-          {/* Grid mit 3 Karten */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {therapies.map((card) => (
-              <button
-                key={card.id}
-                onClick={() => handleCardClick(card.slug)}
-                className="bg-white rounded-3xl shadow-sm h-64 flex flex-col items-center justify-center 
-                         hover:shadow-md hover:-translate-y-0.5 transition-all"
-              >
-                <div className="mb-3">
-                  <img
-                    src={card.icon}
-                    alt={card.name}
-                    className="w-12 h-12 mb-3 text-emerald-900"
-                  />
-                </div>
-                <div className="text-lg font-medium text-emerald-900 text-center">
-                  {card.name}
-                </div>
-              </button>
-            ))}
+          {/* Grid */}
+          <div className="mt-6 sm:mt-8">
+            <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+              {therapies.map((card) => (
+                <button
+                  key={card.id}
+                  onClick={() => handleCardClick(card.slug)}
+                  className="
+                  group rounded-3xl bg-white
+                  px-4 py-4 sm:px-5 sm:py-5
+                  text-center shadow-sm transition
+                  hover:shadow-md active:scale-[0.99]
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400
+                "
+                >
+                  <div className="mx-auto flex flex-col items-center justify-center">
+                    <img
+                      src={card.icon}
+                      alt=""
+                      className="h-10 w-10 sm:h-12 sm:w-12"
+                      aria-hidden
+                    />
+
+                    <div
+                      className="
+                      mt-3 text-[15px] font-semibold leading-snug text-emerald-950
+                      sm:text-base lg:text-[17px]
+                      break-words [hyphens:auto]
+                      overflow-hidden
+                      [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]
+                    "
+                    >
+                      {card.name}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
-
-          {/* Pfeil links (nur Seite 2) */}
-          {page === 1 && (
-            <button
-              onClick={togglePage}
-              className="absolute top-1/2 left-[-4rem] -translate-y-1/2 flex items-center justify-center 
-                       w-16 h-16 border-emerald-800 text-3xl text-emerald-900 
-                       hover:bg-emerald-100 transition"
-              aria-label="Zu vorherigen Therapien zurück"
-            >
-              <img src={ArrowLeft} alt="Zurück" className="w-10 h-10" />
-            </button>
-          )}
-
-          {/* Pfeil rechts (nur Seite 1) */}
-          {page === 0 && (
-            <button
-              onClick={togglePage}
-              className="absolute top-1/2 right-[-4rem] -translate-y-1/2 flex items-center justify-center 
-                       w-16 h-16 border-emerald-800 text-3xl text-emerald-900 
-                       hover:bg-emerald-100 transition"
-              aria-label="Weitere Therapien anzeigen"
-            >
-              <img src={ArrowRight} alt="Weiter" className="w-10 h-10" />
-            </button>
-          )}
-        </div>
-
-        {/* Videos Button */}
-        <div className="w-full flex items-center justify-end mt-4 gap-6">
-          <button
-            onClick={() => navigate("/videos")} // Route musst du noch anlegen
-            className="flex items-center bg-emerald-800 hover:bg-emerald-900 text-white 
-                     font-semibold px-6 py-3 rounded-full text-lg shadow-md"
-          >
-            <img src={PlayIcon} alt="Zu den Videos" className="w-5 h-5 mr-2" />{" "}
-            Zu den Videos
-          </button>
         </div>
       </div>
     </div>
