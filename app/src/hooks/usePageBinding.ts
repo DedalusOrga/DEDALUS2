@@ -18,15 +18,16 @@ export function usePageBinding(pageKey: string) {
       const { data, error } = await supabase
         .from("page_content_bindings")
         .select("module_id")
-        .eq("page_key", pageKey);
+        .eq("page_key", pageKey)
+        .limit(1);
 
       if (cancelled) return;
 
-      if (error) {
+      if (error || !data || data.length === 0) {
         setModuleId(null);
       } else {
-        const first = (data as PageBindingRow[] | null)?.[0] ?? null;
-        setModuleId(first?.module_id ?? null);
+        const row: PageBindingRow = data[0];
+        setModuleId(row.module_id ?? null);
       }
 
       setLoading(false);
