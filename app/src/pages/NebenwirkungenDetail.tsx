@@ -33,7 +33,6 @@ export default function NebenwirkungenDetail() {
 
   // 2️⃣ Fallback: direkt über slug aus content_modules
   const {
-
     module: fallbackModule,
     loading: fallbackLoading,
     error: fallbackError,
@@ -43,14 +42,16 @@ export default function NebenwirkungenDetail() {
     slug,
   });
 
-
-    useEffect(() => {
+  useEffect(() => {
     if (!boundLoading && !boundModule && slug) {
       loadModules();
     }
   }, [boundLoading, boundModule, slug, loadModules]);
 
-  const module = (boundModule ?? fallbackModule) as ContentModule | null | undefined;
+  const module = (boundModule ?? fallbackModule) as
+    | ContentModule
+    | null
+    | undefined;
 
   const title = module?.title ?? "Nebenwirkungen";
 
@@ -61,9 +62,9 @@ export default function NebenwirkungenDetail() {
     : (module?.body_md ??
       "Für diesen Inhalt sind noch keine Texte hinterlegt.");
 
-// Video-URL aus data.video_url
-    const videoUrl = module?.data?.video_url;
-    const hasVideo = !!videoUrl;
+  // Video-URL aus data.video_url
+  const videoUrl = module?.data?.video_url;
+  const hasVideo = !!videoUrl;
 
   const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
     lang: "de-DE",
@@ -113,12 +114,12 @@ export default function NebenwirkungenDetail() {
           </div>
         </div>
 
-          {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
-          {hasVideo && (
-              <div className="flex items-center justify-center">
-                  <video src={videoUrl} controls className="w-full rounded-xl" />
-              </div>
-          )}
+        {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
+        {hasVideo && (
+          <div className="flex items-center justify-center">
+            <video src={videoUrl} controls className="w-full rounded-xl" />
+          </div>
+        )}
 
         {/* Ladezustand */}
         {(boundLoading || fallbackLoading) && (

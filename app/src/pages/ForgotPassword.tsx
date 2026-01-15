@@ -36,7 +36,7 @@ export default function ForgotPassword() {
     }
 
     setMsg(
-      "Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet."
+      "Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet.",
     );
   }
 

@@ -5,7 +5,7 @@ import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import type { Module } from "../components/ModuleRenderer";
-import type {ContentModule} from "../types/ContentModule.ts";
+import type { ContentModule } from "../types/ContentModule.ts";
 
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
@@ -48,7 +48,10 @@ export default function PatientenVideosDetail() {
     }
   }, [boundLoading, boundModule, slug, loadModules]);
 
-  const module = (boundModule ?? fallbackModule) as ContentModule | null | undefined;
+  const module = (boundModule ?? fallbackModule) as
+    | ContentModule
+    | null
+    | undefined;
 
   const title = module?.title ?? "Patientenperspektive I zu Nebenwirkungen";
 
@@ -59,9 +62,9 @@ export default function PatientenVideosDetail() {
     : (module?.body_md ??
       "Für diesen Inhalt sind noch keine Texte hinterlegt.");
 
-    // Video-URL aus data.video_url
-    const videoUrl = module?.data?.video_url;
-    const hasVideo = !!videoUrl;
+  // Video-URL aus data.video_url
+  const videoUrl = module?.data?.video_url;
+  const hasVideo = !!videoUrl;
 
   const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
     lang: "de-DE",
@@ -110,29 +113,26 @@ export default function PatientenVideosDetail() {
         {(boundError || fallbackError) && (
           <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
         )}
-          {/* Weißer Content-Block: Text + optional Video */}
-          <div
-              className={
-                  "bg-white rounded-3xl shadow-sm p-6 md:p-8 grid gap-8 " +
-                  (hasVideo ? "md:grid-cols-2" : "md:grid-cols-1")
-              }
-          >
-              {/* Textbereich */}
-              <div className="text-sm md:text-base leading-relaxed text-emerald-950 whitespace-pre-line">
-                  {text}
-              </div>
+        {/* Weißer Content-Block: Text + optional Video */}
+        <div
+          className={
+            "bg-white rounded-3xl shadow-sm p-6 md:p-8 grid gap-8 " +
+            (hasVideo ? "md:grid-cols-2" : "md:grid-cols-1")
+          }
+        >
+          {/* Textbereich */}
+          <div className="text-sm md:text-base leading-relaxed text-emerald-950 whitespace-pre-line">
+            {text}
+          </div>
 
           {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
           {hasVideo && (
-              <div className="flex items-center justify-center">
-                  <video src={videoUrl} controls className="w-full rounded-xl" />
-              </div>
+            <div className="flex items-center justify-center">
+              <video src={videoUrl} controls className="w-full rounded-xl" />
+            </div>
           )}
+        </div>
       </div>
-
     </div>
-  </div>
   );
 }
-
-
