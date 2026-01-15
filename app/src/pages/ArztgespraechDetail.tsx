@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import type { Module } from "../components/ModuleRenderer";
-import { GlossaryMarkdown } from "../glossary/GlossaryMarkdown";
+import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 
 export default function ZusatzoptionenDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -63,8 +63,8 @@ export default function ZusatzoptionenDetail() {
         )}
 
         {/* Inhalt mit Markdown */}
-        <div className="rounded-3xl bg-white p-8 shadow-sm prose prose-emerald max-w-none">
-          <GlossaryMarkdown text={text} />
+        <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
+          <MarkdownWithGlossary text={text} />
         </div>
       </div>
     </div>

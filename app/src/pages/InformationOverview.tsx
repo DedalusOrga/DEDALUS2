@@ -19,7 +19,7 @@ type InfoCard = {
 const cards: InfoCard[] = [
   {
     id: "krebs",
-    title: "allgemeine Krebsinformationen",
+    title: "Allgemeine Krebsinformationen",
     icon: BookIcon,
     slug: "allgemein",
   },
@@ -43,7 +43,7 @@ const cards: InfoCard[] = [
   },
   {
     id: "zusaetzlich",
-    title: "zusätzliche Therapieoptionen",
+    title: "Zusätzliche Therapieoptionen",
     icon: LensIcon,
     slug: "zusaetzlich",
   },
@@ -55,7 +55,7 @@ const cards: InfoCard[] = [
   },
   {
     id: "weiterfuehrende",
-    title: "weiterführende Informationen",
+    title: "Weiterführende Informationen",
     icon: InfoIcon,
     slug: "weiter",
   },

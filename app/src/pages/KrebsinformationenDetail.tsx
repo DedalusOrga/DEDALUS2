@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
+import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 
 export default function KrebsinformationenDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -55,8 +56,8 @@ luctus mauris id, interdum augue.`
         </h1>
 
         {/* Weißer Content-Block */}
-        <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8 text-sm md:text-base leading-relaxed text-emerald-950 whitespace-pre-line">
-          {text}
+        <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
+          <MarkdownWithGlossary text={text} />
         </div>
 
         {/* Buttons unten */}

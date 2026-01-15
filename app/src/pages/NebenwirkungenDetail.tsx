@@ -5,7 +5,7 @@ import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import type { Module } from "../components/ModuleRenderer";
-import { GlossaryPlain } from "../glossary/GlossaryPlain";
+import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
@@ -21,7 +21,7 @@ export default function NebenwirkungenDetail() {
   // 🔑 pageKey für page_content_bindings
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
-    [location.pathname],
+    [location.pathname]
   );
 
   // 1️⃣ Erst: gebundene Inhalte (page_content_bindings)
@@ -118,12 +118,8 @@ export default function NebenwirkungenDetail() {
         )}
 
         {/* Text */}
-        <div
-          className="bg-white rounded-3xl shadow-sm p-6 md:p-8
-                      text-sm md:text-base leading-relaxed
-                      text-emerald-950 whitespace-pre-line"
-        >
-          <GlossaryPlain text={text} />
+        <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
+          <MarkdownWithGlossary text={text} />
         </div>
       </div>
     </div>

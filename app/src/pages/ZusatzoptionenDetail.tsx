@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { Module } from "../components/ModuleRenderer";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
-import { GlossaryPlain } from "../glossary/GlossaryPlain";
+import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 
 function childrenToText(children: React.ReactNode): string {
   if (children == null) return "";
@@ -80,8 +80,8 @@ export default function ZusatzoptionenDetail() {
         )}
 
         {/* Inhalt mit Markdown */}
-        <div className="rounded-3xl bg-white p-8 shadow-sm prose prose-emerald max-w-none">
-          <GlossaryPlain text={text} />
+        <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
+          <MarkdownWithGlossary text={text} />
         </div>
       </div>
     </div>
