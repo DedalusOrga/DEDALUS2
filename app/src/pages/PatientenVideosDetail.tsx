@@ -21,7 +21,7 @@ export default function PatientenVideosDetail() {
   // 🔑 pageKey für page_content_bindings
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
-    [location.pathname]
+    [location.pathname],
   );
 
   // 1️⃣ Erst: gebundene Inhalte (page_content_bindings)
