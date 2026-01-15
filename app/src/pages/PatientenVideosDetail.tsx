@@ -5,6 +5,7 @@ import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import type { Module } from "../components/ModuleRenderer";
+import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
@@ -107,12 +108,8 @@ export default function PatientenVideosDetail() {
         )}
 
         {/* Text */}
-        <div
-          className="bg-white rounded-3xl shadow-sm p-6 md:p-8
-                      text-sm md:text-base leading-relaxed
-                      text-emerald-950 whitespace-pre-line"
-        >
-          {text}
+        <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
+          <MarkdownWithGlossary text={text} />
         </div>
       </div>
     </div>

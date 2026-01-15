@@ -22,7 +22,10 @@ export default function ForgotPassword() {
     setLoading(true);
 
     const base = import.meta.env.BASE_URL ?? "/";
-    const redirectTo = `${window.location.origin}${base}#/auth/reset`;
+    const redirectTo = new URL(
+      `${base}auth/reset`,
+      window.location.origin,
+    ).toString();
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo,

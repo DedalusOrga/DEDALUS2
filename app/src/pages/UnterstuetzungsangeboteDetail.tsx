@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import type { Module } from "../components/ModuleRenderer";
+import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 
 export default function UnterstuetzungsangeboteDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -67,8 +68,8 @@ export default function UnterstuetzungsangeboteDetail() {
         )}
 
         {/* Inhalt mit Markdown */}
-        <div className="rounded-3xl bg-white p-8 shadow-sm prose prose-emerald max-w-none">
-          <ReactMarkdown>{text}</ReactMarkdown>
+        <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
+          <MarkdownWithGlossary text={text} />
         </div>
       </div>
     </div>
