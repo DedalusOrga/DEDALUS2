@@ -5,6 +5,7 @@ import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import type { Module } from "../components/ModuleRenderer";
+import type { ContentModule } from "../types/ContentModule";
 
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
@@ -32,6 +33,7 @@ export default function NebenwirkungenDetail() {
 
   // 2️⃣ Fallback: direkt über slug aus content_modules
   const {
+
     module: fallbackModule,
     loading: fallbackLoading,
     error: fallbackError,
@@ -41,13 +43,14 @@ export default function NebenwirkungenDetail() {
     slug,
   });
 
-  useEffect(() => {
+
+    useEffect(() => {
     if (!boundLoading && !boundModule && slug) {
       loadModules();
     }
   }, [boundLoading, boundModule, slug, loadModules]);
 
-  const module = (boundModule ?? fallbackModule) as Module | null | undefined;
+  const module = (boundModule ?? fallbackModule) as ContentModule | null | undefined;
 
   const title = module?.title ?? "Nebenwirkungen";
 
@@ -57,6 +60,10 @@ export default function NebenwirkungenDetail() {
       "Für diesen Inhalt sind noch keine Texte hinterlegt.")
     : (module?.body_md ??
       "Für diesen Inhalt sind noch keine Texte hinterlegt.");
+
+// Video-URL aus data.video_url
+    const videoUrl = module?.data?.video_url;
+    const hasVideo = !!videoUrl;
 
   const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
     lang: "de-DE",
@@ -105,6 +112,13 @@ export default function NebenwirkungenDetail() {
             </button>
           </div>
         </div>
+
+          {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
+          {hasVideo && (
+              <div className="flex items-center justify-center">
+                  <video src={videoUrl} controls className="w-full rounded-xl" />
+              </div>
+          )}
 
         {/* Ladezustand */}
         {(boundLoading || fallbackLoading) && (

@@ -5,7 +5,7 @@ import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import type { Module } from "../components/ModuleRenderer";
-
+import type { ContentModule} from "../types/ContentModule.ts";
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
 
@@ -47,7 +47,7 @@ export default function UmgangNebenwirkungenDetail() {
     }
   }, [boundLoading, boundModule, slug, loadModules]);
 
-  const module = (boundModule ?? fallbackModule) as Module | null | undefined;
+  const module = (boundModule ?? fallbackModule) as ContentModule | null | undefined;
 
   const title = module?.title ?? "Umgang mit Nebenwirkungen";
 
@@ -57,6 +57,9 @@ export default function UmgangNebenwirkungenDetail() {
       "Für diesen Inhalt sind noch keine Texte hinterlegt.")
     : (module?.body_md ??
       "Für diesen Inhalt sind noch keine Texte hinterlegt.");
+// Video-URL aus data.video_url
+    const videoUrl = module?.data?.video_url;
+    const hasVideo = !!videoUrl;
 
   const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
     lang: "de-DE",
@@ -75,12 +78,20 @@ export default function UmgangNebenwirkungenDetail() {
           Zurück
         </button>
 
+          {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
+          {hasVideo && (
+              <div className="flex items-center justify-center">
+                  <video src={videoUrl} controls className="w-full rounded-xl" />
+              </div>
+          )}
+
         {/* Header: Titel + Aktionen */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {/* Titel */}
           <h1 className="text-2xl md:text-3xl font-semibold text-emerald-800">
             {title}
           </h1>
+
 
           {/* Buttons */}
           <div className="flex gap-3">
