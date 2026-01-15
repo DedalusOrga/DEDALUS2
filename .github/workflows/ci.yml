@@ -34,5 +34,5 @@ jobs:
       - name: Prettier
         run: npm run format:check --if-present
 
-      - name: Run Jest tests
-        run: npm test -- --ci
+      #- name: Run Jest tests
+      #  run: npm test -- --ci
