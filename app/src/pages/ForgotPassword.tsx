@@ -1,8 +1,16 @@
-// src/pages/ForgotPassword.tsx
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../infrastructure/supabase/client";
+
+// BASE_URL ohne import.meta (damit Jest nicht crasht)
+// Funktional gleich: wenn keine Base gesetzt ist → "/"
+function getBaseUrl(): string {
+  // Wenn im HTML ein <base href="..."> gesetzt ist, nutzen wir das.
+  // Sonst fallback auf "/"
+  const baseHref = document.querySelector("base")?.getAttribute("href");
+  return baseHref ?? "/";
+}
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -21,7 +29,7 @@ export default function ForgotPassword() {
     setMsg(null);
     setLoading(true);
 
-    const base = import.meta.env.BASE_URL ?? "/";
+    const base = getBaseUrl(); // statt import.meta.env.BASE_URL
     const redirectTo = `${window.location.origin}${base}#/auth/reset`;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -36,7 +44,7 @@ export default function ForgotPassword() {
     }
 
     setMsg(
-      "Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet.",
+      "Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet."
     );
   }
 
