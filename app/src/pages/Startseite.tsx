@@ -23,7 +23,7 @@ export default function Startseite() {
 
           {/* ➜ Der Button führt zu /register */}
           <Link
-            to="/login"
+            to="/Login"
             className="inline-block bg-green-900 text-white px-10 py-3 rounded-full text-lg font-semibold mt-10"
           >
             Anmelden
