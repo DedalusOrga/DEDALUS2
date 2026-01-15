@@ -46,7 +46,7 @@ function getBucketForType(type: "text" | "pdf" | "video") {
  * Gibt null zurück bei externen URLs.
  */
 function parseSupabaseStorageObject(
-  fileUrl: string
+  fileUrl: string,
 ): { bucket: string; path: string } | null {
   try {
     const u = new URL(fileUrl);
@@ -149,7 +149,7 @@ export default function AdminPage() {
 
   function setField<K extends keyof NewModuleFormState>(
     key: K,
-    value: NewModuleFormState[K]
+    value: NewModuleFormState[K],
   ) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
@@ -182,7 +182,7 @@ export default function AdminPage() {
       if (uploadErr) {
         console.error("UPLOAD ERROR:", uploadErr);
         setUploadError(
-          uploadErr.message ?? "Datei konnte nicht hochgeladen werden."
+          uploadErr.message ?? "Datei konnte nicht hochgeladen werden.",
         );
         return;
       }
@@ -288,7 +288,7 @@ export default function AdminPage() {
           // Jetzt NICHT nur warnen, sondern anzeigen:
           console.error("Storage delete failed:", storageError);
           setError(
-            `Datei konnte nicht aus Storage gelöscht werden: ${storageError.message ?? "unknown error"}`
+            `Datei konnte nicht aus Storage gelöscht werden: ${storageError.message ?? "unknown error"}`,
           );
           // Wir versuchen trotzdem, den DB-Eintrag zu löschen
         }
@@ -304,7 +304,7 @@ export default function AdminPage() {
     if (delError) {
       console.error("DB delete failed:", delError);
       setError(
-        `DB-Eintrag konnte nicht gelöscht werden: ${delError.message ?? "unknown error"}`
+        `DB-Eintrag konnte nicht gelöscht werden: ${delError.message ?? "unknown error"}`,
       );
       setSavingModule(false);
       return;
@@ -379,7 +379,6 @@ export default function AdminPage() {
               <input
                 value={form.title}
                 onChange={(e) => setField("title", e.target.value)}
-                placeholder="z. B. Behandlungsinformation"
                 className="w-full rounded-xl border border-slate-200 px-3 py-2"
                 disabled={busy}
                 required
@@ -398,7 +397,6 @@ export default function AdminPage() {
               <input
                 value={form.slug}
                 onChange={(e) => setField("slug", e.target.value)}
-                placeholder="z. B. behandlungsinfo"
                 className="w-full rounded-xl border border-slate-200 px-3 py-2"
                 disabled={busy}
                 required
