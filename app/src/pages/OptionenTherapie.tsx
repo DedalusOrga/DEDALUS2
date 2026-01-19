@@ -8,6 +8,10 @@ import ShieldIcon from "../assets/shield.svg";
 import TargetIcon from "../assets/target.svg";
 import LeafIcon from "../assets/leaf.svg";
 import PlayIcon from "../assets/play.svg";
+import sunAndSyringeIcon from "../assets/sunAndSyringe.svg";
+import MoleculeIcon from "../assets/molecule.svg";
+import pillAndDNAIcon from "../assets/pillAndDNA.svg";
+import arrowIcon from "../assets/arrow.svg";
 
 type Therapy = {
   id: string;
@@ -20,8 +24,14 @@ const THERAPIES: Therapy[] = [
   {
     id: "immun",
     name: "Immuntherapie",
-    icon: ShieldIcon,
+    icon: MoleculeIcon,
     slug: "immuntherapie",
+  },
+  {
+    id: "chemo",
+    name: "Chemotherapie",
+    icon: SyringeIcon,
+    slug: "chemotherapie",
   },
   {
     id: "strahlen",
@@ -30,12 +40,17 @@ const THERAPIES: Therapy[] = [
     slug: "strahlentherapie",
   },
   {
-    id: "chemo",
-    name: "Chemotherapie",
-    icon: SyringeIcon,
-    slug: "chemotherapie",
+    id: "radiochemo",
+    name: "Radiochemotherapie",
+    icon: sunAndSyringeIcon,
+    slug: "radiochemotherapie",
   },
-  { id: "op", name: "Operationen", icon: HospitalIcon, slug: "operationen" },
+  {
+    id: "chemoimmun",
+    name: "Chemoimmuntherapie",
+    icon: pillAndDNAIcon,
+    slug: "chemoimmuntherapie",
+  },
   {
     id: "target",
     name: "Zielgerichtete Therapie",
@@ -49,21 +64,9 @@ const THERAPIES: Therapy[] = [
     slug: "palliativmedizin",
   },
   {
-    id: "radiochemo",
-    name: "Radiochemotherapie",
-    icon: SunIcon,
-    slug: "radiochemotherapie",
-  },
-  {
-    id: "chemoimmun",
-    name: "Chemoimmuntherapie",
-    icon: ShieldIcon,
-    slug: "chemoimmuntherapie",
-  },
-  {
     id: "ablauf34",
     name: "Typischer Ablauf Stadium III / IV",
-    icon: TargetIcon,
+    icon: arrowIcon,
     slug: "ablauf-stadium-3-4",
   },
 ];
@@ -130,12 +133,14 @@ export default function InformationenOverview() {
                 "
                 >
                   <div className="mx-auto flex flex-col items-center justify-center">
-                    <img
-                      src={card.icon}
-                      alt=""
-                      className="h-10 w-10 sm:h-12 sm:w-12"
-                      aria-hidden
-                    />
+                    <div className="h-14 w-14 flex items-center justify-center mx-auto">
+                      <img
+                        src={card.icon}
+                        alt=""
+                        className="h-full w-full object-contain"
+                        aria-hidden
+                      />
+                    </div>
 
                     <div
                       className="
