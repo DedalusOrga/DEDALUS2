@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/AuthProvider";
 import { supabase } from "../infrastructure/supabase/client";
+import thoraxImage from "../assets/thx-klinik.jpg";
+
 
 export default function Home() {
   const navigate = useNavigate();
@@ -43,41 +45,49 @@ export default function Home() {
   }, [user]);
 
   return (
-    <div className="px-20 pt-12 pb-24">
-      {/* Titel ganz oben */}
-      <h1 className="text-5xl font-bold text-emerald-800 mb-32">
-        Willkommen bei DEDALUS
-      </h1>
+  <div className="px-16 py-16">
+    <div className="flex items-start justify-between gap-16">
+      
+      {/* LINKE SEITE */}
+      <div className="max-w-xl">
+        <h1 className="text-5xl font-bold text-emerald-900 mb-10">
+          Willkommen bei DEDALUS
+        </h1>
 
-      {/* Inhalt darunter */}
-      <div className="flex justify-between items-start">
-        {/* Linke Spalte */}
-        <div className="max-w-xl">
-          <p className="text-lg text-emerald-700 mb-10">
-            In der Bedienhilfe finden Sie einfache Erklärungen und ein kurzes Video
-            zur Nutzung der WebApp.
-          </p>
+        <p className="text-lg text-emerald-800 mb-8">
+          In der Bedienhilfe finden Sie einfache Erklärungen und ein kurzes Video
+          zur Nutzung der WebApp.
+        </p>
 
-          <div className="flex gap-4">
-            <Link to="/bedienhilfe">
-              <button className="inline-flex items-center rounded-full border border-emerald-700 px-6 py-3 text-lg font-semibold text-emerald-800 hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-700">
-                Zur Bedienhilfe
-              </button>
-            </Link>
+        <div className="flex gap-4">
+          <button
+            onClick={() => navigate("/bedienhilfe")}
+            className="px-6 py-3 rounded-full border border-emerald-700 text-emerald-700 hover:bg-emerald-100"
+          >
+            Zur Bedienhilfe
+          </button>
 
-            <Link to="/admin">
-              <button className="inline-flex items-center rounded-full border border-purple-700 px-6 py-3 text-lg font-semibold text-purple-800 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-700">
-                Adminbereich öffnen
-              </button>
-            </Link>
-          </div>
-        </div>
-
-        {/* Rechte Spalte */}
-        <div className="w-[420px] h-[320px] bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-400">
-          Illustration / Einführung folgt
+          <button
+            onClick={() => navigate("/admin")}
+            className="px-6 py-3 rounded-full border border-purple-600 text-purple-600 hover:bg-purple-50"
+          >
+            Adminbereich öffnen
+          </button>
         </div>
       </div>
+
+      {/* RECHTE SEITE */}
+      <div className="w-[520px] h-[520px] rounded-full overflow-hidden shadow-xl flex-shrink-0">
+        <img
+          src={thoraxImage}
+          alt="Thoraxklinik"
+          className="w-full h-full object-cover"
+        />
+      </div>
+
     </div>
-  );
+  </div>
+);
+
+
 }
