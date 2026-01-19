@@ -24,7 +24,7 @@ export default function ForgotPassword() {
     const base = import.meta.env.BASE_URL ?? "/";
     const redirectTo = new URL(
       `${base}auth/reset`,
-      window.location.origin
+      window.location.origin,
     ).toString();
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -39,7 +39,7 @@ export default function ForgotPassword() {
     }
 
     setMsg(
-      "Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet."
+      "Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet.",
     );
   }
 

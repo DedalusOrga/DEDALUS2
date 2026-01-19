@@ -23,7 +23,7 @@ export default function ArztgespraechDetail() {
   // Wichtig: Seite ist binding-gesteuert (kein slug-fallback!)
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
-    [location.pathname]
+    [location.pathname],
   );
 
   const {

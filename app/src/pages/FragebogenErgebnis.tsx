@@ -31,12 +31,11 @@ type AnswerRow = {
 
 type Category = "niedrig" | "mittel" | "hoch";
 
-type RecommendationTexts = Record<Category, string>;
-
-type QuestionnaireResultConfig = {
-  titleOverride?: string;
-  intro?: string;
-  texts: RecommendationTexts;
+type RecommendationRow = {
+  questionnaire_id: string;
+  category: Category;
+  body_md: string;
+  status: string;
 };
 
 function categoryFromRatio(ratio: number): Category {
@@ -45,218 +44,11 @@ function categoryFromRatio(ratio: number): Category {
   return "hoch";
 }
 
-const RESULT_TEXTS_BY_CODE: Record<string, QuestionnaireResultConfig> = {
-  fb1: {
-    titleOverride: "Was möchte ich mit der Behandlung erreichen?",
-    intro:
-      "Auf Basis Ihrer Antworten sehen Sie hier eine kurze, verständliche Empfehlung.",
-    texts: {
-      niedrig: `
-### Empfehlung
-Ihre Antworten zeigen, dass Ihre Ziele mit der Behandlung noch nicht ganz klar sind.
+const DEFAULT_INTRO =
+  "Auf Basis Ihrer Antworten sehen Sie hier eine kurze Empfehlung.";
 
-**Nächste Schritte:**
-- Überlegen Sie, was Ihnen persönlich am wichtigsten ist.
-- Notieren Sie 1–2 Ziele für das nächste Gespräch.
-- Fragen Sie gezielt nach, welche Behandlung diese Ziele unterstützen kann.
-
-> Tipp: Ziele dürfen sich ändern – wichtig ist, dass Sie gemeinsam starten.
-`,
-      mittel: `
-### Empfehlung
-Ihre Antworten zeigen, dass Sie einige Ziele bereits benennen können, andere aber noch offen sind.
-
-**Hilfreich kann sein:**
-- Priorisieren Sie Ihre wichtigsten Ziele.
-- Klären Sie, welche Ziele realistisch erreichbar sind.
-- Besprechen Sie mögliche Zielkonflikte.
-
-> Tipp: Fragen Sie: „Woran merken wir, dass die Behandlung wirkt?“
-`,
-      hoch: `
-### Empfehlung
-Ihre Antworten zeigen, dass Sie sehr klar wissen, was Sie mit der Behandlung erreichen möchten.
-
-**So bleiben Sie gut vorbereitet:**
-- Kommunizieren Sie Ihre Ziele aktiv.
-- Fragen Sie nach einem konkreten Behandlungsplan.
-- Prüfen Sie regelmäßig, ob Ihre Ziele noch passen.
-
-> Tipp: Eine kurze Notizliste vor dem Termin hilft, nichts zu vergessen.
-`,
-    },
-  },
-
-  fb2: {
-    titleOverride: "Wie möchte ich bei Entscheidungen mitwirken?",
-    intro:
-      "Hier finden Sie eine Empfehlung, wie Sie Ihre Rolle im Entscheidungsprozess gut gestalten können.",
-    texts: {
-      niedrig: `
-### Empfehlung
-Ihre Antworten deuten darauf hin, dass Sie sich bisher eher zurückhaltend in Entscheidungen einbringen.
-
-**Mögliche nächste Schritte:**
-- Notieren Sie offene Fragen.
-- Bitten Sie um verständliche Erklärungen.
-- Nehmen Sie ggf. eine Vertrauensperson mit.
-
-> Tipp: Es ist völlig in Ordnung, nachzufragen oder um Bedenkzeit zu bitten.
-`,
-      mittel: `
-### Empfehlung
-Sie bringen sich teilweise in Entscheidungen ein, wünschen sich aber noch mehr Sicherheit.
-
-**Das kann helfen:**
-- Klären Sie Vor- und Nachteile der Optionen.
-- Fragen Sie nach Alternativen.
-- Bitten Sie um Bedenkzeit und eine kurze Zusammenfassung.
-
-> Tipp: Fragen Sie: „Was bedeutet das konkret für meinen Alltag?“
-`,
-      hoch: `
-### Empfehlung
-Sie beteiligen sich aktiv an Entscheidungen und kennen Ihre Rolle gut.
-
-**So nutzen Sie das:**
-- Formulieren Sie Ihre Präferenzen klar („Mir ist wichtig, dass …“).
-- Lassen Sie Optionen an Ihren Prioritäten messen.
-- Vereinbaren Sie klare nächste Schritte.
-
-> Tipp: Eine schriftliche Notiz der nächsten Schritte schafft Sicherheit.
-`,
-    },
-  },
-
-  fb3: {
-    titleOverride: "Was beeinflusst meine Entscheidungen?",
-    intro:
-      "Diese Empfehlung hilft Ihnen, Einflussfaktoren besser einzuordnen und gezielt anzusprechen.",
-    texts: {
-      niedrig: `
-### Empfehlung
-Einflussfaktoren auf Ihre Entscheidungen sind Ihnen noch nicht vollständig bewusst.
-
-**Hilfreich kann sein:**
-- Reflektieren Sie persönliche Werte, Sorgen und Erwartungen.
-- Sprechen Sie Unsicherheiten offen an.
-- Bitten Sie um strukturierte Entscheidungsübersichten.
-
-> Tipp: Es hilft, wenn Sie 1–2 Punkte benennen, die Ihnen besonders Angst machen oder wichtig sind.
-`,
-      mittel: `
-### Empfehlung
-Sie erkennen mehrere Einflussfaktoren, aber nicht alle sind klar priorisiert.
-
-**Nächste Schritte:**
-- Ordnen Sie Ihre Einflussfaktoren nach Wichtigkeit.
-- Klären Sie Zielkonflikte (z. B. Wirksamkeit vs. Nebenwirkungen).
-- Fragen Sie nach, welche Option am besten zu Ihren Prioritäten passt.
-
-> Tipp: Eine „Top 3“-Liste reicht oft schon.
-`,
-      hoch: `
-### Empfehlung
-Sie haben ein gutes Verständnis dafür, was Ihre Entscheidungen beeinflusst.
-
-**So bleiben Sie handlungsfähig:**
-- Benennen Sie diese Faktoren klar im Gespräch.
-- Nutzen Sie sie aktiv beim Abwägen.
-- Prüfen Sie regelmäßig, ob sich Ihre Prioritäten verändern.
-
-> Tipp: Wenn sich etwas ändert, ist eine Therapieanpassung oft möglich – fragen Sie nach dem Vorgehen.
-`,
-    },
-  },
-
-  fb4: {
-    titleOverride: "Wie werden Entscheidungen bei Krankheiten getroffen?",
-    intro:
-      "Hier finden Sie eine kurze Empfehlung, wie Sie den Entscheidungsprozess besser verstehen und nutzen können.",
-    texts: {
-      niedrig: `
-### Empfehlung
-Der Entscheidungsprozess ist für Sie noch nicht ganz transparent.
-
-**Das kann helfen:**
-- Fragen Sie nach dem Ablauf: „Wie treffen wir die Entscheidung Schritt für Schritt?“
-- Bitten Sie um einfache Erklärungen von Begriffen und Optionen.
-- Lassen Sie sich Alternativen nennen.
-
-> Tipp: Fragen Sie nach einer kurzen Zusammenfassung am Ende des Gesprächs.
-`,
-      mittel: `
-### Empfehlung
-Sie verstehen Teile des Entscheidungsprozesses, wünschen sich aber mehr Klarheit.
-
-**Hilfreich:**
-- Lassen Sie sich die nächsten Schritte erklären (Diagnostik, Abwägung, Entscheidung).
-- Fragen Sie, wie Sie sich konkret einbringen können.
-- Bitten Sie um Bedenkzeit, wenn Sie sie brauchen.
-
-> Tipp: „Welche Informationen fehlen noch, bevor wir entscheiden?“ ist oft eine gute Frage.
-`,
-      hoch: `
-### Empfehlung
-Sie haben ein gutes Verständnis davon, wie Entscheidungen getroffen werden.
-
-**So bleiben Sie informiert:**
-- Fragen Sie gezielt nach Ihrer Rolle und nach Alternativen.
-- Klären Sie, wann eine Neubewertung sinnvoll ist.
-- Vereinbaren Sie klare Follow-ups.
-
-> Tipp: Notieren Sie sich offene Fragen direkt während des Gesprächs.
-`,
-    },
-  },
-
-  fb5: {
-    titleOverride: "Was ist mir während der Behandlungsphase wichtig?",
-    intro:
-      "Diese Empfehlung unterstützt Sie dabei, Prioritäten in der Behandlungsphase klar zu benennen.",
-    texts: {
-      niedrig: `
-### Empfehlung
-Ihre Prioritäten in der Behandlungsphase sind noch nicht klar definiert.
-
-**Mögliche Schritte:**
-- Überlegen Sie, was Sie im Alltag entlastet (Termine, Wege, Unterstützung).
-- Sprechen Sie über Bedürfnisse (Schlaf, Ernährung, Bewegung, psychische Belastung).
-- Fragen Sie nach Unterstützungsangeboten (Beratung, Sozialdienst, Gruppen).
-
-> Tipp: Es hilft, wenn Sie eine Sache nennen, die Ihnen aktuell am meisten fehlt oder schwerfällt.
-`,
-      mittel: `
-### Empfehlung
-Sie haben mehrere Prioritäten, aber noch keine klare Reihenfolge.
-
-**Hilfreich:**
-- Priorisieren Sie 2–3 Punkte, die jetzt am wichtigsten sind.
-- Besprechen Sie diese mit dem Behandlungsteam.
-- Klären Sie, welche Maßnahmen Ihnen konkret helfen können.
-
-> Tipp: Konkrete Wünsche („Ich brauche …“) sind leichter umzusetzen als allgemeine.
-`,
-      hoch: `
-### Empfehlung
-Ihre Prioritäten sind klar und gut reflektiert.
-
-**So nutzen Sie das:**
-- Kommunizieren Sie Ihre Prioritäten aktiv im Team.
-- Prüfen Sie regelmäßig, ob sich etwas verändert.
-- Legen Sie fest, wann Sie Unterstützung brauchen und wen Sie ansprechen.
-
-> Tipp: Ein gutes Unterstützungsnetz kann die Lebensqualität spürbar verbessern.
-`,
-    },
-  },
-};
-
-const DEFAULT_CONFIG: QuestionnaireResultConfig = {
-  titleOverride: "Ergebnis",
-  intro: "Auf Basis Ihrer Antworten sehen Sie hier eine kurze Empfehlung.",
-  texts: {
-    niedrig: `
+const DEFAULT_FALLBACK_TEXTS: Record<Category, string> = {
+  niedrig: `
 ### Empfehlung
 Ihr Ergebnis liegt im **niedrigen Bereich**. In diesem Themenfeld sind vermutlich noch Fragen offen.
 
@@ -265,7 +57,7 @@ Ihr Ergebnis liegt im **niedrigen Bereich**. In diesem Themenfeld sind vermutlic
 - Lassen Sie Optionen und nächste Schritte konkret erklären.
 - Bitten Sie um eine kurze Zusammenfassung.
 `,
-    mittel: `
+  mittel: `
 ### Empfehlung
 Ihr Ergebnis liegt im **mittleren Bereich**. Sie haben bereits Orientierung, aber vermutlich sind noch einzelne Punkte unklar.
 
@@ -274,7 +66,7 @@ Ihr Ergebnis liegt im **mittleren Bereich**. Sie haben bereits Orientierung, abe
 - Klären Sie Vor- und Nachteile der Optionen.
 - Prüfen Sie, welche Informationen noch fehlen.
 `,
-    hoch: `
+  hoch: `
 ### Empfehlung
 Ihr Ergebnis liegt im **hohen Bereich**. Das deutet darauf hin, dass Sie in diesem Themenfeld gut orientiert sind.
 
@@ -283,14 +75,14 @@ Ihr Ergebnis liegt im **hohen Bereich**. Das deutet darauf hin, dass Sie in dies
 - Lassen Sie einen konkreten Plan festhalten.
 - Prüfen Sie regelmäßig, ob sich Ziele oder Bedürfnisse verändern.
 `,
-  },
 };
 
 export default function FragebogenErgebnis() {
   const { id: code } = useParams();
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
+  const [loadingBase, setLoadingBase] = useState(true);
+  const [loadingReco, setLoadingReco] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [questionnaire, setQuestionnaire] = useState<Questionnaire | null>(
@@ -300,11 +92,22 @@ export default function FragebogenErgebnis() {
   const [options, setOptions] = useState<Option[]>([]);
   const [answers, setAnswers] = useState<AnswerRow[]>([]);
 
+  // Empfehlungstext aus DB
+  const [recommendationMdFromDb, setRecommendationMdFromDb] = useState<
+    string | null
+  >(null);
+  const [recommendationWarning, setRecommendationWarning] = useState<
+    string | null
+  >(null);
+
+  // 1) Basisdaten laden (Fragebogen, Fragen, Optionen, Antworten)
   useEffect(() => {
-    const load = async () => {
+    const loadBase = async () => {
       try {
-        setLoading(true);
+        setLoadingBase(true);
         setError(null);
+        setRecommendationWarning(null);
+        setRecommendationMdFromDb(null);
 
         if (!code) throw new Error("Kein Fragebogen-Code in der URL.");
 
@@ -331,7 +134,6 @@ export default function FragebogenErgebnis() {
           .order("position", { ascending: true });
 
         if (questionsRes.error) throw questionsRes.error;
-
         const qs = questionsRes.data ?? [];
         setQuestions(qs);
 
@@ -371,14 +173,14 @@ export default function FragebogenErgebnis() {
         if (aRes.error) throw aRes.error;
         setAnswers(aRes.data ?? []);
 
-        setLoading(false);
+        setLoadingBase(false);
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Unbekannter Fehler");
-        setLoading(false);
+        setLoadingBase(false);
       }
     };
 
-    void load();
+    void loadBase();
   }, [code]);
 
   const optionById = useMemo(() => {
@@ -387,6 +189,7 @@ export default function FragebogenErgebnis() {
     return m;
   }, [options]);
 
+  // 2) Kategorie berechnen
   const category: Category = useMemo(() => {
     // Summe der gewählten Option.position
     let score = 0;
@@ -411,23 +214,63 @@ export default function FragebogenErgebnis() {
     return categoryFromRatio(ratio);
   }, [answers, optionById, options, questions]);
 
-  const cfg = useMemo(() => {
-    const key = questionnaire?.code ?? code ?? "";
-    return RESULT_TEXTS_BY_CODE[key] ?? DEFAULT_CONFIG;
-  }, [questionnaire?.code, code]);
+  // 3) Empfehlungstext aus questionnaire_recommendations laden
+  useEffect(() => {
+    const loadRecommendation = async () => {
+      const qid = questionnaire?.id;
+      if (!qid) return;
+
+      try {
+        setLoadingReco(true);
+        setRecommendationWarning(null);
+        setRecommendationMdFromDb(null);
+
+        const res = await supabase
+          .from("questionnaire_recommendations")
+          .select("questionnaire_id, category, body_md, status")
+          .eq("questionnaire_id", qid)
+          .eq("category", category)
+          .eq("status", "published")
+          .maybeSingle<RecommendationRow>();
+
+        if (res.error) throw res.error;
+
+        const md = res.data?.body_md?.trim();
+        if (!md) {
+          setRecommendationWarning(
+            "Kein Empfehlungstext in der Datenbank gefunden. Es wird ein Standardtext angezeigt.",
+          );
+          setRecommendationMdFromDb(null);
+        } else {
+          setRecommendationMdFromDb(md);
+        }
+      } catch (e: unknown) {
+        setRecommendationWarning(
+          `Empfehlungstext konnte nicht aus der Datenbank geladen werden. Es wird ein Standardtext angezeigt.`,
+        );
+        setRecommendationMdFromDb(null);
+      } finally {
+        setLoadingReco(false);
+      }
+    };
+
+    // erst laden, wenn Basisdaten da sind
+    if (!loadingBase && questionnaire?.id) {
+      void loadRecommendation();
+    }
+  }, [category, questionnaire?.id, loadingBase]);
+
+  const isLoading = loadingBase || loadingReco;
 
   const pageTitle = useMemo(() => {
-    if (cfg.titleOverride) return cfg.titleOverride;
     return questionnaire?.title ?? "Ergebnis";
-  }, [cfg.titleOverride, questionnaire?.title]);
-
-  const intro = cfg.intro ?? DEFAULT_CONFIG.intro;
+  }, [questionnaire?.title]);
 
   const recommendationMarkdown = useMemo(() => {
-    return cfg.texts[category];
-  }, [cfg, category]);
+    return recommendationMdFromDb ?? DEFAULT_FALLBACK_TEXTS[category];
+  }, [recommendationMdFromDb, category]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-emerald-50 px-4 md:px-10 py-10 text-emerald-900">
         Lade Ergebnis…
@@ -465,7 +308,13 @@ export default function FragebogenErgebnis() {
           <h1 className="text-3xl font-semibold text-emerald-900">
             {pageTitle}
           </h1>
-          {intro && <p className="text-emerald-800 mt-2">{intro}</p>}
+          <p className="text-emerald-800 mt-2">{DEFAULT_INTRO}</p>
+
+          {recommendationWarning && (
+            <p className="text-amber-700 mt-3 text-sm">
+              Hinweis: {recommendationWarning}
+            </p>
+          )}
         </div>
 
         {/* Empfehlungstext */}

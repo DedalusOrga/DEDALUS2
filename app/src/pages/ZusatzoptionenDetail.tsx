@@ -6,6 +6,7 @@ import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
 import { GlossaryPlain } from "../glossary/GlossaryPlain";
+import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 
 export default function ZusatzoptionenDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -15,7 +16,7 @@ export default function ZusatzoptionenDetail() {
 
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
-    [location.pathname]
+    [location.pathname],
   );
 
   const {
@@ -95,7 +96,7 @@ export default function ZusatzoptionenDetail() {
         )}
 
         <div className="rounded-3xl bg-white p-8 shadow-sm prose prose-emerald max-w-none">
-          <GlossaryPlain text={text} />
+          <MarkdownWithGlossary text={text} />
         </div>
       </div>
     </div>

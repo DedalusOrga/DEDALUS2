@@ -4,6 +4,7 @@ import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
 import type { Module } from "../components/ModuleRenderer";
+import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 
 export default function KrebsinformationenDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -12,7 +13,7 @@ export default function KrebsinformationenDetail() {
 
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
-    [location.pathname]
+    [location.pathname],
   );
 
   const {
@@ -73,6 +74,8 @@ export default function KrebsinformationenDetail() {
 
         <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8 text-sm md:text-base leading-relaxed text-emerald-950 whitespace-pre-line">
           {text}
+
+          <MarkdownWithGlossary text={text} />
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import { useBoundContent } from "../hooks/useBoundContent";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import type { Module } from "../components/ModuleRenderer";
+import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
@@ -105,7 +106,7 @@ export default function UmgangNebenwirkungenDetail() {
                       text-sm md:text-base leading-relaxed
                       text-emerald-950 whitespace-pre-line"
         >
-          {text}
+          <MarkdownWithGlossary text={text} />
         </div>
       </div>
     </div>

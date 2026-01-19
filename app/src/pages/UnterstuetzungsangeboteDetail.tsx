@@ -5,6 +5,7 @@ import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
 import type { Module } from "../components/ModuleRenderer";
+import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 
 export default function UnterstuetzungsangeboteDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -14,7 +15,7 @@ export default function UnterstuetzungsangeboteDetail() {
 
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
-    [location.pathname]
+    [location.pathname],
   );
 
   const {
@@ -92,7 +93,7 @@ export default function UnterstuetzungsangeboteDetail() {
         )}
 
         <div className="rounded-3xl bg-white p-8 shadow-sm prose prose-emerald max-w-none">
-          <ReactMarkdown>{text}</ReactMarkdown>
+          <MarkdownWithGlossary text={text} />
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
+import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 
 export default function PatientenNeueInhalteDetail() {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ export default function PatientenNeueInhalteDetail() {
 
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
-    [location.pathname]
+    [location.pathname],
   );
 
   const { module, loading, error } = useBoundContent(pageKey);
@@ -41,7 +42,7 @@ export default function PatientenNeueInhalteDetail() {
         )}
 
         <div className="rounded-3xl bg-white p-8 shadow-sm text-emerald-950 whitespace-pre-line">
-          {text}
+          <MarkdownWithGlossary text={text} />
         </div>
       </div>
     </div>
