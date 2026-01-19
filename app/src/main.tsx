@@ -54,6 +54,8 @@ import WeiterfuehrendeInfoDetail from "./pages/WeiterfuehrendeInfoDetail";
 import AdminDecisionTrees from "./pages/admin/AdminDecisionTrees";
 import AdminQuestionsPage from "./pages/admin/AdminQuestionsPage";
 
+import AdminGlossary from "./pages/admin/AdminGlossary";
+
 // Basename sauber aus Vite ziehen (z.B. "/" lokal, "/DEDALUS2/" in Prod)
 const basename = import.meta.env.BASE_URL ?? "/";
 
@@ -88,6 +90,14 @@ const router = createBrowserRouter(
       element: (
         <AdminProtected>
           <AdminQuestionsPage />
+        </AdminProtected>
+      ),
+    },
+    {
+      path: "/admin/glossary",
+      element: (
+        <AdminProtected>
+          <AdminGlossary />
         </AdminProtected>
       ),
     },
@@ -213,6 +223,10 @@ const router = createBrowserRouter(
         {
           path: "informationen/weiter/:slug",
           element: <WeiterfuehrendeInfoDetail />,
+        },
+        {
+          path: "glossary",
+          element: <AdminGlossary />,
         },
       ],
     },
