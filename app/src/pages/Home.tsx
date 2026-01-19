@@ -43,66 +43,41 @@ export default function Home() {
   }, [user]);
 
   return (
-    <div className="mx-auto max-w-6xl">
-      {/* großer Bereich wie im Mock */}
-      <section className="rounded-b-2xl bg-emerald-100 pt-6 pb-10">
-        {/* Überschrift-Zeile */}
-        <div className="px-8 md:px-12 pb-8 border-b border-emerald-50">
-          <h1 className="text-3xl md:text-4xl font-extrabold leading-snug text-emerald-900 max-w-3xl">
-            Hier finden Sie einfache Erklärungen und Videos zur Nutzung der
-            WebApp.
-          </h1>
-        </div>
+    <div className="px-20 pt-12 pb-24">
+      {/* Titel ganz oben */}
+      <h1 className="text-5xl font-bold text-emerald-800 mb-32">
+        Willkommen bei DEDALUS
+      </h1>
 
-        {/* Text + Video-Placeholder */}
-        <div className="px-8 md:px-12 pt-8">
-          <div className="grid gap-8 md:grid-cols-2 items-stretch rounded-2xl bg-white p-6 md:p-8 shadow-sm">
-            <div className="text-base leading-relaxed text-slate-800">
-              <p className="mb-4">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur.
-              </p>
-              <p>
-                Excepteur sint occaecat cupidatat non proident, sunt in culpa
-                qui officia deserunt mollit anim id est laborum.
-              </p>
-            </div>
+      {/* Inhalt darunter */}
+      <div className="flex justify-between items-start">
+        {/* Linke Spalte */}
+        <div className="max-w-xl">
+          <p className="text-lg text-emerald-700 mb-10">
+            In der Bedienhilfe finden Sie einfache Erklärungen und ein kurzes Video
+            zur Nutzung der WebApp.
+          </p>
 
-            {/* Video-Platzhalter – hier später echtes Video einbauen */}
-            <div className="flex items-center justify-center">
-              <div className="relative w-full aspect-video max-w-xl rounded-xl bg-slate-200 flex items-center justify-center shadow-inner">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full border-2 border-white/80">
-                  <div className="ml-1 w-0 h-0 border-t-[10px] border-b-[10px] border-l-[16px] border-t-transparent border-b-transparent border-l-white/90" />
-                </div>
-              </div>
-            </div>
+          <div className="flex gap-4">
+            <Link to="/bedienhilfe">
+              <button className="inline-flex items-center rounded-full border border-emerald-700 px-6 py-3 text-lg font-semibold text-emerald-800 hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-700">
+                Zur Bedienhilfe
+              </button>
+            </Link>
+
+            <Link to="/admin">
+              <button className="inline-flex items-center rounded-full border border-purple-700 px-6 py-3 text-lg font-semibold text-purple-800 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-700">
+                Adminbereich öffnen
+              </button>
+            </Link>
           </div>
         </div>
 
-        {/* Button zu Fragen/Antworten + Admin-Button */}
-        <div className="px-8 md:px-12 pt-10 flex flex-col gap-4 md:flex-row md:items-center md:gap-6">
-          <Link
-            to="/fragen"
-            className="inline-flex items-center rounded-full border border-emerald-700 px-6 py-3 text-lg font-semibold text-emerald-800 hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-700"
-          >
-            Zu den Fragen/Antworten
-          </Link>
-
-          {isAdmin && (
-            <button
-              type="button"
-              onClick={() => navigate("/admin")}
-              className="inline-flex items-center rounded-full border border-purple-700 px-6 py-3 text-lg font-semibold text-purple-800 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-700"
-            >
-              Adminbereich öffnen
-            </button>
-          )}
+        {/* Rechte Spalte */}
+        <div className="w-[420px] h-[320px] bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-400">
+          Illustration / Einführung folgt
         </div>
-      </section>
+      </div>
     </div>
   );
 }
