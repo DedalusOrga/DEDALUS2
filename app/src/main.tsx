@@ -54,8 +54,6 @@ import WeiterfuehrendeInfoDetail from "./pages/WeiterfuehrendeInfoDetail";
 import AdminDecisionTrees from "./pages/admin/AdminDecisionTrees";
 import AdminQuestionsPage from "./pages/admin/AdminQuestionsPage";
 
-import Bedienhilfe from "./pages/Bedienhilfe";
-
 // Basename sauber aus Vite ziehen (z.B. "/" lokal, "/DEDALUS2/" in Prod)
 const basename = import.meta.env.BASE_URL ?? "/";
 
@@ -107,10 +105,6 @@ const router = createBrowserRouter(
       children: [
         { path: "home", element: <Home /> },
 
-        { path: "bedienhilfe", element: <Bedienhilfe /> },
-
-        { path: "bedienhilfe/fragen", element: <QuestionsPage /> },
-
         { path: "entscheidungen", element: <EntscheidungenOverview /> },
 
         {
@@ -151,7 +145,7 @@ const router = createBrowserRouter(
             <div className="p-6 text-lg">Einstellungen (Platzhalter)</div>
           ),
         },
-        
+        { path: "fragen", element: <QuestionsPage /> },
 
         // Krebsinformationen
         {

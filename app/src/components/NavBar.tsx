@@ -20,7 +20,7 @@ export default function NavBar() {
   // ✅ Deine Pfade (ggf. anpassen)
   const PATH_INFO = "/informationen-uebersicht";
   const PATH_DECISIONS = "/entscheidungen";
-  const PATH_HELP = "/bedienhilfe";
+  const PATH_HELP = "/fragen";
   const PATH_ADMIN = "/admin";
 
   const tabClass = ({ isActive }: { isActive: boolean }) =>
