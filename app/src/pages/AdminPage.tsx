@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../infrastructure/supabase/client";
 import { useAuth } from "../hooks/AuthProvider";
 import AdminLayout from "../components/AdminLayout";
+import MdxTextEditor from "../components/MdxTextEditor";
 
 type ContentModule = {
   id: string;
@@ -80,7 +81,7 @@ const normText = (s: string | null | undefined) =>
   (s ?? "").replace(/\r\n/g, "\n").trimEnd();
 
 export default function AdminPage() {
-  const { user, signOut } = useAuth();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -111,8 +112,6 @@ export default function AdminPage() {
 
   const busy = savingModule || uploading;
 
-  const bodyMdRef = useRef<HTMLTextAreaElement | null>(null);
-
   useEffect(() => {
     void loadModules();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -140,6 +139,9 @@ export default function AdminPage() {
   function resetForm() {
     setEditingId(null);
     setUploadError(null);
+    setError(null);
+    setInfo(null);
+
     setForm({
       type: "text",
       title: "",
@@ -147,19 +149,14 @@ export default function AdminPage() {
       body_md: "",
       file_url: "",
     });
-
-    // optional: ref leeren
-    if (bodyMdRef.current) bodyMdRef.current.value = "";
   }
 
-  // ✅ Änderung: startEdit lädt immer frisch aus DB (kein “stale list” Edit)
+  // ✅ lädt immer frisch aus DB (kein “stale list” Edit)
   async function startEdit(m: ContentModule) {
     setError(null);
     setInfo(null);
     setUploadError(null);
     setEditingId(m.id);
-
-    console.log("START EDIT:", { id: m.id, slug: m.slug, title: m.title });
 
     const fresh = await supabase
       .from("content_modules")
@@ -183,19 +180,6 @@ export default function AdminPage() {
       slug: row.slug,
       body_md: row.body_md ?? "",
       file_url: row.file_url ?? "",
-    });
-
-    // ✅ FIX: beim Wechsel in ein anderes Dokument im Editor wieder oben starten
-    requestAnimationFrame(() => {
-      if (bodyMdRef.current) {
-        bodyMdRef.current.value = row.body_md ?? "";
-        bodyMdRef.current.scrollTop = 0;
-        try {
-          bodyMdRef.current.setSelectionRange(0, 0);
-        } catch {
-          // ignore (manche Browser)
-        }
-      }
     });
   }
 
@@ -273,47 +257,32 @@ export default function AdminPage() {
       };
 
       if (form.type === "text") {
-        // immer den aktuellen DOM-Wert nehmen
-        const liveBody = normText(
-          bodyMdRef.current?.value ?? form.body_md ?? "",
-        );
-        payload.body_md = liveBody;
+        payload.body_md = normText(form.body_md);
       } else {
         payload.file_url = form.file_url ?? "";
       }
 
-      console.log("SAVE CLICK:", { editingId, payload, formSnapshot: form });
-
       if (editingId) {
-        // UPDATE ohne RETURNING
         const upd = await supabase
           .from("content_modules")
           .update(payload)
           .eq("id", editingId);
-
-        console.log("UPDATE:", upd);
 
         if (upd.error) {
           setError(`Update fehlgeschlagen: ${formatSbError(upd.error)}`);
           return;
         }
 
-        // ✅ FIX: NICHT resetForm() nach Update -> sonst springt UI auf "Neues Modul"
-        // Stattdessen nur Liste neu laden (damit Tabelle aktuell ist)
         await loadModules();
-
         setInfo("Änderungen gespeichert.");
         return;
       }
 
-      // INSERT mit RETURNING ist ok
       const res = await supabase
         .from("content_modules")
         .insert([payload])
         .select("id, slug, title, type, body_md, file_url, status, updated_at")
         .single();
-
-      console.log("INSERT result:", res);
 
       if (res.error) {
         setError(`Insert fehlgeschlagen: ${formatSbError(res.error)}`);
@@ -482,20 +451,19 @@ export default function AdminPage() {
             </div>
           </div>
 
+          {/* ✅ Text-Modul: Markdown Editor (controlled) */}
           {form.type === "text" && (
             <div className="grid grid-cols-1 gap-3">
               <label className="text-emerald-900 font-semibold">
                 Textinhalt
               </label>
-              <textarea
-                ref={bodyMdRef}
-                name="body_md"
-                value={form.body_md}
-                onChange={(e) => setField("body_md", e.target.value)}
-                className="w-full rounded-2xl border border-slate-200 px-3 py-2"
-                rows={5}
-                disabled={busy}
-              />
+              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <MdxTextEditor
+                  key={editingId ?? "new"} // ✅ wichtig: verhindert "Editor bleibt leer/alt" bei Dokumentwechsel
+                  value={form.body_md}
+                  onChange={(v) => setField("body_md", v)}
+                />
+              </div>
             </div>
           )}
 
