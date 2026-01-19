@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../infrastructure/supabase/client";
 import { useAuth } from "../hooks/AuthProvider";
 import AdminLayout from "../components/AdminLayout";
+import MdxTextEditor from "../components/MdxTextEditor";
 
 type ContentModule = {
   id: string;
@@ -89,6 +90,12 @@ export default function AdminPage() {
     file_url: "",
   });
 
+  const [draftBodyMd, setDraftBodyMd] = useSessionDraft(
+  "admin:text:draft",
+  ""
+);
+
+  
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -124,6 +131,7 @@ export default function AdminPage() {
   function resetForm() {
     setEditingId(null);
     setUploadError(null);
+    setDraftBodyMd("");
     setForm({
       type: "text",
       title: "",
@@ -145,7 +153,23 @@ export default function AdminPage() {
       body_md: m.body_md ?? "",
       file_url: m.file_url ?? "",
     });
+
+    setDraftBodyMd(m.body_md ?? "");
+
   }
+
+  function useSessionDraft(key: string, initial = "") {
+  const [value, setValue] = useState(() => {
+    return sessionStorage.getItem(key) ?? initial;
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem(key, value);
+  }, [key, value]);
+
+  return [value, setValue] as const;
+}
+
 
   function setField<K extends keyof NewModuleFormState>(
     key: K,
@@ -223,7 +247,7 @@ export default function AdminPage() {
     };
 
     if (form.type === "text") {
-      payload.body_md = form.body_md || "";
+      payload.body_md = draftBodyMd || "";
     } else {
       payload.file_url = form.file_url || "";
     }
@@ -409,13 +433,12 @@ export default function AdminPage() {
               <label className="text-emerald-900 font-semibold">
                 Textinhalt
               </label>
-              <textarea
-                value={form.body_md}
-                onChange={(e) => setField("body_md", e.target.value)}
-                className="w-full rounded-2xl border border-slate-200 px-3 py-2"
-                rows={5}
-                disabled={busy}
-              />
+              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <MdxTextEditor
+                  value={draftBodyMd}
+                  onChange={setDraftBodyMd}
+                />
+              </div>
             </div>
           )}
 
