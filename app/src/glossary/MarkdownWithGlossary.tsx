@@ -8,10 +8,8 @@ type MarkdownWithGlossaryProps = {
   text: string;
 };
 
-// Hilfsfunktion: trennt in einem <li> den "Textteil" von evtl. Unterlisten (<ul>/<ol>)
 function splitLiChildren(children: React.ReactNode) {
   const flat = React.Children.toArray(children);
-
   const textish: React.ReactNode[] = [];
   const sublists: React.ReactNode[] = [];
 
@@ -35,17 +33,9 @@ export const MarkdownWithGlossary: React.FC<MarkdownWithGlossaryProps> = ({
     <div
       className="
         prose prose-sm max-w-none text-emerald-950
-
-        /* Basis-Listen */
-        prose-ul:ml-4
-        prose-ol:ml-4
-        prose-li:my-1
-
-        /* Verschachtelte Listen */
-        prose-ul ul:ml-4
-        prose-ol ol:ml-4
-        prose-ul ol:ml-4
-        prose-ol ul:ml-4
+        prose-ul:ml-4 prose-ol:ml-4 prose-li:my-1
+        prose-ul ul:ml-4 prose-ol ol:ml-4
+        prose-ul ol:ml-4 prose-ol ul:ml-4
       "
     >
       <ReactMarkdown
@@ -58,11 +48,8 @@ export const MarkdownWithGlossary: React.FC<MarkdownWithGlossaryProps> = ({
             </p>
           ),
 
-          // WICHTIG: li nicht mehr "alles" durch GlossaryRichChildren jagen,
-          // sondern Unterlisten (ul/ol) separat lassen.
           li: ({ children }) => {
             const { textish, sublists } = splitLiChildren(children);
-
             return (
               <li>
                 {textish.length > 0 ? (
