@@ -78,14 +78,13 @@ export default function TherapieDetail() {
     : (module?.body_md ??
       "Für diese Therapie sind noch keine Inhalte hinterlegt.");
 
+  const activeAudioUrl = useSimple
+    ? (module?.audio_simple_url ?? module?.audio_url ?? null)
+    : (module?.audio_url ?? null);
+
   // Video-URL aus data.video_url
   const videoUrl = module?.data?.video_url;
   const hasVideo = !!videoUrl;
-
-  const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
-    lang: "de-DE",
-    rate: 1.0,
-  });
 
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
@@ -104,7 +103,7 @@ export default function TherapieDetail() {
           <h1 className="text-2xl md:text-3xl font-semibold text-emerald-800">
             {title}
           </h1>
-          <AudioPlayer audioUrl={module?.audio_url ?? null} />
+          <AudioPlayer audioUrl={activeAudioUrl} />
 
           <div className="flex gap-3">
             <button

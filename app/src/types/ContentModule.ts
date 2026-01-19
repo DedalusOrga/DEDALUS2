@@ -9,6 +9,7 @@ export type ContentModule = {
   type: string;
   file_url: string | null;
   audio_url?: string | null;
+  audio_simple_url?: string | null;
   data: ContentModuleData | null;
   created_at: string;
 };

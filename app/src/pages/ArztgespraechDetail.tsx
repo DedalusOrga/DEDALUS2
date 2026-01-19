@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
-import type { Module } from "../components/ModuleRenderer";
+import type { ContentModule } from "../types/ContentModule";
 import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
+import { AudioPlayer } from "../components/AudioPlayer";
 
 export default function ZusatzoptionenDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -18,9 +19,9 @@ export default function ZusatzoptionenDetail() {
     if (slug) {
       loadModules();
     }
-  }, [slug, loadModules]);
+  }, [slug, loadedOnce, loadModules]);
 
-  const module = modules[0] as Module | undefined;
+  const module = modules[0] as ContentModule | undefined;
 
   const title =
     module?.title ??
@@ -40,6 +41,10 @@ export default function ZusatzoptionenDetail() {
       "Für diese Fragen zu Artzgespräche sind noch keine Inhalte hinterlegt.")
     : (module?.body_md ??
       "Für diese Fragen zu Artzgespräche sind noch keine Inhalte hinterlegt.");
+
+  const activeAudioUrl = useSimple
+    ? (module?.audio_simple_url ?? module?.audio_url ?? null)
+    : (module?.audio_url ?? null);
 
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
@@ -61,6 +66,7 @@ export default function ZusatzoptionenDetail() {
         {loading && !loadedOnce && (
           <div className="mb-4 text-emerald-900">Inhalt wird geladen …</div>
         )}
+        <AudioPlayer audioUrl={activeAudioUrl} />
 
         {/* Inhalt mit Markdown */}
         <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
