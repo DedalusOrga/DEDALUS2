@@ -11,3 +11,61 @@ body,
 body {
   @apply bg-emerald-50;
 }
+
+/* ===== MDX Editor Content ===== */
+
+.mdx-editor-content {
+  min-height: 240px;
+  padding: 12px;
+  cursor: text;
+}
+
+/* Headings sichtbar machen */
+.mdx-editor-content h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
+.mdx-editor-content h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
+.mdx-editor-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
+/* Listen sichtbar machen */
+.mdx-editor-content ul {
+  list-style: disc;
+  margin-left: 1.5rem;
+}
+
+.mdx-editor-content ol {
+  list-style: decimal;
+  margin-left: 1.5rem;
+}
+
+.mdx-editor-content li {
+  margin: 0.25rem 0;
+}
+
+/* Toolbar */
+.mdxeditor-toolbar {
+  border-bottom: 1px solid #e5e7eb; /* slate-200 */
+  background-color: #f8fafc; /* slate-50 */
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+/* Editor Content */
+.mdx-editor-content {
+  min-height: 260px;
+  padding: 16px;
+  font-size: 15px;
+  line-height: 1.7;
+}
