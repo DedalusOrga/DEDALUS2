@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../infrastructure/supabase/client";
 import { useAuth } from "../hooks/AuthProvider";
@@ -92,7 +92,9 @@ export default function AdminPage() {
 
   const [modules, setModules] = useState<ContentModule[]>([]);
   const [loadingModules, setLoadingModules] = useState(true);
+
   const [savingModule, setSavingModule] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -108,9 +110,16 @@ export default function AdminPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
+  // Edit-Mode
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const busy = savingModule || uploading;
+  // ✅ Schutz vor Race Conditions, wenn man schnell mehrfach "Bearbeiten" klickt
+  const editReqRef = useRef(0);
+
+  // ✅ erzwingt Editor-Remount genau dann, wenn frische Daten da sind
+  const [editorNonce, setEditorNonce] = useState(0);
+
+  const busy = savingModule || uploading || loadingEdit;
 
   useEffect(() => {
     void loadModules();
@@ -137,6 +146,9 @@ export default function AdminPage() {
   }
 
   function resetForm() {
+    // laufende edit-requests invalidieren
+    editReqRef.current++;
+
     setEditingId(null);
     setUploadError(null);
     setError(null);
@@ -149,20 +161,31 @@ export default function AdminPage() {
       body_md: "",
       file_url: "",
     });
+
+    // Editor sicher leeren
+    setEditorNonce((n) => n + 1);
   }
 
-  // ✅ lädt immer frisch aus DB (kein “stale list” Edit)
+  // ✅ BUGFIX: editingId erst setzen NACHDEM der frische body_md da ist
+  // + Race Condition Schutz
   async function startEdit(m: ContentModule) {
     setError(null);
     setInfo(null);
     setUploadError(null);
-    setEditingId(m.id);
+    setLoadingEdit(true);
+
+    const reqId = ++editReqRef.current;
 
     const fresh = await supabase
       .from("content_modules")
       .select("id, slug, title, type, body_md, file_url, status")
       .eq("id", m.id)
       .single();
+
+    // wenn zwischenzeitlich ein anderer "Bearbeiten"-Klick kam: ignore
+    if (reqId !== editReqRef.current) return;
+
+    setLoadingEdit(false);
 
     if (fresh.error) {
       console.error("START EDIT load failed:", fresh.error);
@@ -174,6 +197,7 @@ export default function AdminPage() {
 
     const row = fresh.data;
 
+    // 1) erst Form mit frischem Content setzen
     setForm({
       type: row.type,
       title: row.title,
@@ -181,6 +205,12 @@ export default function AdminPage() {
       body_md: row.body_md ?? "",
       file_url: row.file_url ?? "",
     });
+
+    // 2) dann edit mode setzen (damit Editor erst jetzt remountet)
+    setEditingId(row.id);
+
+    // 3) Editor remount erzwingen, damit wirklich der korrekte Text erscheint
+    setEditorNonce((n) => n + 1);
   }
 
   function setField<K extends keyof NewModuleFormState>(
@@ -451,15 +481,21 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* ✅ Text-Modul: Markdown Editor (controlled) */}
+          {/* ✅ Text-Modul: Markdown Editor */}
           {form.type === "text" && (
             <div className="grid grid-cols-1 gap-3">
               <label className="text-emerald-900 font-semibold">
                 Textinhalt
               </label>
+
+              {loadingEdit && (
+                <div className="text-sm text-emerald-800">Lade Inhalt…</div>
+              )}
+
               <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <MdxTextEditor
-                  key={editingId ?? "new"} // ✅ wichtig: verhindert "Editor bleibt leer/alt" bei Dokumentwechsel
+                  // ✅ remount erst, wenn Form schon frische Daten hat
+                  key={`${editingId ?? "new"}:${editorNonce}`}
                   value={form.body_md}
                   onChange={(v) => setField("body_md", v)}
                 />
