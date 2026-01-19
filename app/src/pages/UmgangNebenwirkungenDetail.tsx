@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import { useBoundContent } from "../hooks/useBoundContent";
-import { makePageKey } from "../utils/pageKey";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import type { Module } from "../components/ModuleRenderer";
 
@@ -13,24 +12,17 @@ export default function UmgangNebenwirkungenDetail() {
   const slug = "umgang-nebenwirkungen";
 
   const navigate = useNavigate();
-  const location = useLocation();
-
   const [useSimple, setUseSimple] = useState(false);
 
-  // 🔑 pageKey für page_content_bindings
-  const pageKey = useMemo(
-    () => makePageKey(location.pathname),
-    [location.pathname],
-  );
+  // ✅ PageKey im selben Schema wie page_content_bindings
+  const pageKey = "informationen:nebenwirkungen:umgang-nebenwirkungen";
 
-  // 1️⃣ Erst: gebundene Inhalte (page_content_bindings)
   const {
     module: boundModule,
     loading: boundLoading,
     error: boundError,
   } = useBoundContent(pageKey);
 
-  // 2️⃣ Fallback: direkt über slug aus content_modules
   const {
     module: fallbackModule,
     loading: fallbackLoading,
@@ -42,9 +34,7 @@ export default function UmgangNebenwirkungenDetail() {
   });
 
   useEffect(() => {
-    if (!boundLoading && !boundModule && slug) {
-      loadModules();
-    }
+    if (!boundLoading && !boundModule && slug) loadModules();
   }, [boundLoading, boundModule, slug, loadModules]);
 
   const module = (boundModule ?? fallbackModule) as Module | null | undefined;
@@ -66,7 +56,6 @@ export default function UmgangNebenwirkungenDetail() {
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
       <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
-        {/* Zurück */}
         <button
           onClick={() => navigate(-1)}
           className="flex items-center text-emerald-900 mb-6 hover:text-emerald-700"
@@ -75,14 +64,11 @@ export default function UmgangNebenwirkungenDetail() {
           Zurück
         </button>
 
-        {/* Header: Titel + Aktionen */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          {/* Titel */}
           <h1 className="text-2xl md:text-3xl font-semibold text-emerald-800">
             {title}
           </h1>
 
-          {/* Buttons */}
           <div className="flex gap-3">
             <button
               type="button"
@@ -106,17 +92,14 @@ export default function UmgangNebenwirkungenDetail() {
           </div>
         </div>
 
-        {/* Ladezustand */}
         {(boundLoading || fallbackLoading) && (
           <div className="mb-4 text-emerald-900">Inhalt wird geladen …</div>
         )}
 
-        {/* Fehler */}
         {(boundError || fallbackError) && (
           <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
         )}
 
-        {/* Text */}
         <div
           className="bg-white rounded-3xl shadow-sm p-6 md:p-8
                       text-sm md:text-base leading-relaxed
