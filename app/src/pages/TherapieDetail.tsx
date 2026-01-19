@@ -9,6 +9,8 @@ import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
 import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
+import { AudioPlayer } from "../components/AudioPlayer";
+
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
@@ -22,7 +24,7 @@ export default function TherapieDetail() {
   const location = useLocation();
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
-    [location.pathname],
+    [location.pathname]
   );
 
   const {
@@ -76,14 +78,13 @@ export default function TherapieDetail() {
     : (module?.body_md ??
       "Für diese Therapie sind noch keine Inhalte hinterlegt.");
 
+  const activeAudioUrl = useSimple
+    ? (module?.audio_simple_url ?? module?.audio_url ?? null)
+    : (module?.audio_url ?? null);
+
   // Video-URL aus data.video_url
   const videoUrl = module?.data?.video_url;
   const hasVideo = !!videoUrl;
-
-  const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
-    lang: "de-DE",
-    rate: 1.0,
-  });
 
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
@@ -102,18 +103,9 @@ export default function TherapieDetail() {
           <h1 className="text-2xl md:text-3xl font-semibold text-emerald-800">
             {title}
           </h1>
+          <AudioPlayer audioUrl={activeAudioUrl} />
 
           <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={toggleSpeak}
-              className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-5 py-2.5
-                         text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900"
-            >
-              <img src={MicrophoneIcon} alt="" className="w-5 h-5 mr-2" />
-              {isSpeaking ? "Stopp" : "Vorlesen"}
-            </button>
-
             <button
               type="button"
               onClick={() => setUseSimple((prev) => !prev)}

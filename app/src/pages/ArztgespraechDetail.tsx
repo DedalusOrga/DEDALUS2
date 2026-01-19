@@ -1,9 +1,13 @@
-import { useMemo, useState } from "react";
+// app/src/pages/ArztgespraechDetail.tsx
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import type { ContentModule } from "../types/ContentModule";
 import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
+import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
+
 import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
+import { AudioPlayer } from "../components/AudioPlayer";
 
 // ✅ Admin
 import CurrentPageEditorModal from "../components/CurrentPageEditorModal";
@@ -20,7 +24,6 @@ export default function ArztgespraechDetail() {
   // ✅ Admin Modal
   const [editOpen, setEditOpen] = useState(false);
 
-  // Wichtig: Seite ist binding-gesteuert (kein slug-fallback!)
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
     [location.pathname],
@@ -32,14 +35,33 @@ export default function ArztgespraechDetail() {
     error: boundError,
   } = useBoundContent(pageKey);
 
-  const module = boundModule as ContentModule | null | undefined;
+  const {
+    module: fallbackModule,
+    loading: fallbackLoading,
+    error: fallbackError,
+    loadModules,
+  } = useContentModulesLazy<ContentModule>({
+    type: "text",
+    slug,
+  });
 
-  // Admin eligibility (Button anzeigen nur wenn erlaubt)
+  // Wie TherapieDetail: nur wenn Binding nichts liefert -> slug-Fallback laden
+  useEffect(() => {
+    if (!boundLoading && !boundModule && slug) {
+      loadModules();
+    }
+  }, [slug, boundModule, boundLoading, loadModules]);
+
+  const module = (boundModule ?? fallbackModule) as
+    | ContentModule
+    | null
+    | undefined;
+
+  // Admin eligibility
   const { canEditCurrentPage } = useCurrentPageEditEligibility();
   const { user } = useIsAdmin();
   const isAdmin = !!user;
 
-  // Fallback-Titel auf Basis des Slugs, falls in der DB noch kein Titel steht
   const title =
     module?.title ??
     (slug === "checkliste"
@@ -52,7 +74,6 @@ export default function ArztgespraechDetail() {
             ? "Fragen zu Nebenwirkungen"
             : "Fragen für das Arztgespräch");
 
-  // Text aus body_md/body_md_simple, sonst Fallback
   const text = useSimple
     ? (module?.body_md_simple ??
       module?.body_md ??
@@ -60,8 +81,14 @@ export default function ArztgespraechDetail() {
     : (module?.body_md ??
       "Für diese Fragen zum Arztgespräch sind noch keine Inhalte hinterlegt.");
 
-  // ✅ Kein Binding => keine Inhalte anzeigen (nicht über slug nachladen!)
-  const showMissingState = !boundLoading && !boundError && !module;
+  const activeAudioUrl = useSimple
+    ? (module?.audio_simple_url ?? module?.audio_url ?? null)
+    : (module?.audio_url ?? null);
+
+  const loading = boundLoading || fallbackLoading;
+  const error = boundError || fallbackError;
+
+  const showMissingState = !loading && !error && !module;
 
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
@@ -81,6 +108,8 @@ export default function ArztgespraechDetail() {
             {title}
           </h1>
 
+          <AudioPlayer audioUrl={activeAudioUrl} />
+
           <div className="flex gap-3">
             <button
               type="button"
@@ -90,14 +119,25 @@ export default function ArztgespraechDetail() {
             >
               {useSimple ? "Original" : "Vereinfachen"}
             </button>
+
+            {isAdmin && canEditCurrentPage && (
+              <button
+                type="button"
+                onClick={() => setEditOpen(true)}
+                className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5
+                           text-sm md:text-base font-semibold text-emerald-900 shadow-md hover:bg-emerald-50 border border-emerald-200"
+              >
+                Bearbeiten
+              </button>
+            )}
           </div>
         </div>
 
-        {boundLoading && (
+        {loading && (
           <div className="mb-4 text-emerald-900">Inhalt wird geladen …</div>
         )}
 
-        {boundError && (
+        {error && (
           <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
         )}
 
@@ -108,7 +148,7 @@ export default function ArztgespraechDetail() {
           </div>
         )}
 
-        {!showMissingState && !boundLoading && !boundError && (
+        {!showMissingState && !loading && !error && (
           <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
             <div className="text-sm md:text-base leading-relaxed text-emerald-950">
               <MarkdownWithGlossary text={text} />
