@@ -95,7 +95,24 @@ export default function CurrentPageEditorModal({
 
   const showResults = query.trim().length > 0;
 
+  // Änderung: Entfernen zählt jetzt als "Change" (bound -> "")
   const hasChanges = (boundModuleId ?? "") !== selectedModuleId;
+
+  // "Remove" ist pending, wenn bound existiert und selected leer ist
+  const isRemovalPending = !!boundModuleId && selectedModuleId === "";
+
+  function notifyBindingUpdated() {
+    window.dispatchEvent(
+      new CustomEvent("page-binding-updated", { detail: { pageKey } })
+    );
+  }
+
+  function markForRemoval() {
+    setUiError(null);
+    setUiInfo(null);
+    setSelectedModuleId(""); // nur lokal leeren, NICHT speichern
+    setUiInfo("Zuordnung wird entfernt. Bitte Speichern klicken.");
+  }
 
   async function saveBinding() {
     setSaving(true);
@@ -107,18 +124,33 @@ export default function CurrentPageEditorModal({
         setUiError("Du bist nicht eingeloggt.");
         return;
       }
-      if (!selectedModuleId) {
-        setUiError("Bitte einen Inhalt auswählen.");
+
+      // ✅ FALL 1: Entfernen wurde ausgewählt -> DELETE
+      if (selectedModuleId === "") {
+        const { error } = await supabase
+          .from("page_content_bindings")
+          .delete()
+          .eq("page_key", pageKey);
+
+        if (error) {
+          console.error(error);
+          setUiError("Entfernen nicht möglich.");
+          return;
+        }
+
+        setUiInfo("Zuordnung entfernt.");
+        notifyBindingUpdated();
         return;
       }
 
+      // ✅ FALL 2: normal speichern -> UPSERT
       const { error } = await supabase.from("page_content_bindings").upsert(
         {
           page_key: pageKey,
           module_id: selectedModuleId,
           updated_by: user.id,
         },
-        { onConflict: "page_key" },
+        { onConflict: "page_key" }
       );
 
       if (error) {
@@ -128,30 +160,7 @@ export default function CurrentPageEditorModal({
       }
 
       setUiInfo("Gespeichert.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function removeBinding() {
-    setSaving(true);
-    setUiError(null);
-    setUiInfo(null);
-
-    try {
-      const { error } = await supabase
-        .from("page_content_bindings")
-        .delete()
-        .eq("page_key", pageKey);
-
-      if (error) {
-        console.error(error);
-        setUiError("Entfernen nicht möglich.");
-        return;
-      }
-
-      setSelectedModuleId("");
-      setUiInfo("Zuordnung entfernt.");
+      notifyBindingUpdated();
     } finally {
       setSaving(false);
     }
@@ -214,7 +223,11 @@ export default function CurrentPageEditorModal({
               ) : selectedModuleId ? (
                 <span className="font-semibold">{selectedTitle || "—"}</span>
               ) : (
-                <span className="text-slate-600">Kein Inhalt ausgewählt</span>
+                <span className="text-slate-600">
+                  {isRemovalPending
+                    ? "Zuordnung wird entfernt (noch nicht gespeichert)"
+                    : "Kein Inhalt ausgewählt"}
+                </span>
               )}
             </div>
           </div>
@@ -298,7 +311,7 @@ export default function CurrentPageEditorModal({
         <div className="flex flex-col gap-3 border-t border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
           <button
             type="button"
-            onClick={removeBinding}
+            onClick={markForRemoval}
             className="text-sm font-semibold text-red-700 hover:text-red-800 disabled:opacity-50"
             disabled={saving || !boundModuleId}
             title="Zuordnung entfernen"
@@ -320,9 +333,7 @@ export default function CurrentPageEditorModal({
               type="button"
               onClick={saveBinding}
               className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
-              disabled={
-                saving || modulesLoading || !selectedModuleId || !hasChanges
-              }
+              disabled={saving || modulesLoading || !hasChanges}
               title={!hasChanges ? "Keine Änderungen" : "Speichern"}
             >
               {saving ? "Speichere…" : "Speichern"}

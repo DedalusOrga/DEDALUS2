@@ -22,21 +22,41 @@ export function useCurrentPageEditEligibility() {
   const { canEdit, pageKey } = useMemo(() => {
     const segments = splitPath(pathname);
 
+    // ✅ robust gegen Prefix wie /DEDALUS2/...
+    const areaIndex = segments.findIndex(
+      (s) => s === "informationen" || s === "entscheidungen"
+    );
+
+    if (areaIndex === -1) {
+      return { canEdit: false, pageKey: makePageKey(pathname) };
+    }
+
+    const area = segments[areaIndex]; // "informationen" | "entscheidungen"
+    const rest = segments.slice(areaIndex + 1);
+
+    // ✅ Fragebogen immer ausschließen
     const isQuestionnaire =
-      pathname.startsWith("/entscheidungen/fragebogen") ||
-      pathname.startsWith("/entscheidungen/frageboegen-entscheidung");
+      area === "entscheidungen" &&
+      (rest[0] === "fragebogen" || rest[0] === "frageboegen-entscheidung");
 
-    const isInformationsArea = segments[0] === "informationen";
+    let allowed = false;
 
-    // Detail:
-    // - /informationen/<kategorie>/<detail> (>=3 Segmente)
-    // - /informationen/<detail> aber nur wenn <detail> KEIN Overview-Slug ist
-    const isDetailPage =
-      isInformationsArea &&
-      (segments.length >= 3 ||
-        (segments.length === 2 && !OVERVIEW_SLUGS.has(segments[1])));
+    if (area === "informationen") {
+      // Detail:
+      // - /informationen/<kategorie>/<detail> (rest.length >= 2)
+      // - /informationen/<detail> aber nur wenn <detail> KEIN Overview-Slug ist
+      const isDetailPage =
+        rest.length >= 2 || (rest.length === 1 && !OVERVIEW_SLUGS.has(rest[0]));
 
-    const allowed = isDetailPage && !isQuestionnaire;
+      allowed = isDetailPage && !isQuestionnaire;
+    }
+
+    if (area === "entscheidungen") {
+      // ✅ Entscheidung-Detailseiten sollen editierbar sein:
+      // z.B. /entscheidungen/arztgespraech/checkliste
+      const isDecisionDetail = rest.length >= 2;
+      allowed = isDecisionDetail && !isQuestionnaire;
+    }
 
     return {
       canEdit: allowed,
