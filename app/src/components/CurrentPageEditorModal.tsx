@@ -103,7 +103,7 @@ export default function CurrentPageEditorModal({
 
   function notifyBindingUpdated() {
     window.dispatchEvent(
-      new CustomEvent("page-binding-updated", { detail: { pageKey } })
+      new CustomEvent("page-binding-updated", { detail: { pageKey } }),
     );
   }
 
@@ -150,7 +150,7 @@ export default function CurrentPageEditorModal({
           module_id: selectedModuleId,
           updated_by: user.id,
         },
-        { onConflict: "page_key" }
+        { onConflict: "page_key" },
       );
 
       if (error) {

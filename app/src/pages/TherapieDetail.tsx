@@ -24,7 +24,7 @@ export default function TherapieDetail() {
   const location = useLocation();
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
-    [location.pathname]
+    [location.pathname],
   );
 
   const {

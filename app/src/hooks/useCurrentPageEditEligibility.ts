@@ -24,7 +24,7 @@ export function useCurrentPageEditEligibility() {
 
     // ✅ robust gegen Prefix wie /DEDALUS2/...
     const areaIndex = segments.findIndex(
-      (s) => s === "informationen" || s === "entscheidungen"
+      (s) => s === "informationen" || s === "entscheidungen",
     );
 
     if (areaIndex === -1) {
