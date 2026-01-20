@@ -107,6 +107,8 @@ export default function AdminPage() {
     file_url: "",
   });
 
+  const [draftBodyMd, setDraftBodyMd] = useSessionDraft("admin:text:draft", "");
+
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -211,6 +213,18 @@ export default function AdminPage() {
 
     // 3) Editor remount erzwingen, damit wirklich der korrekte Text erscheint
     setEditorNonce((n) => n + 1);
+  }
+
+  function useSessionDraft(key: string, initial = "") {
+    const [value, setValue] = useState(() => {
+      return sessionStorage.getItem(key) ?? initial;
+    });
+
+    useEffect(() => {
+      sessionStorage.setItem(key, value);
+    }, [key, value]);
+
+    return [value, setValue] as const;
   }
 
   function setField<K extends keyof NewModuleFormState>(

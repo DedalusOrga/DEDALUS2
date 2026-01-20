@@ -1,30 +1,50 @@
+import { useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useBoundContent } from "../hooks/useBoundContent";
+import { makePageKey } from "../utils/pageKey";
 import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 
 export default function PatientenNeueInhalteDetail() {
-  const text = `
-## Informationen zu neuen Inhalten
+  const navigate = useNavigate();
+  const location = useLocation();
 
-Hier werden begleitende Texte zu den Videos angezeigt.
-`;
+  const pageKey = useMemo(
+    () => makePageKey(location.pathname),
+    [location.pathname],
+  );
+
+  const { module, loading, error } = useBoundContent(pageKey);
+
+  const title = module?.title ?? "Neue Videos / Inhalte";
+  const text =
+    module?.body_md ??
+    "Noch keine Inhalte hinterlegt. (Admin: bitte ein Content-Modul an diese Seite binden.)";
 
   return (
-    <div className="mx-auto max-w-4xl p-6">
-      <h1 className="mb-6 text-2xl font-semibold text-emerald-900">
-        Neue Videos
-      </h1>
+    <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
+      <div className="w-full max-w-6xl mx-auto px-6 py-10">
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-6 text-emerald-900 hover:text-emerald-700"
+        >
+          ← Zurück
+        </button>
 
-      {/* Videos */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-8">
-        <div className="flex h-40 items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-700">
-          Video
-        </div>
-        <div className="flex h-40 items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-700">
-          Video
+        <h1 className="mb-6 text-3xl font-semibold text-emerald-800">
+          {title}
+        </h1>
+
+        {loading && (
+          <div className="mb-4 text-emerald-900">Inhalt wird geladen …</div>
+        )}
+        {error && (
+          <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
+        )}
+
+        <div className="rounded-3xl bg-white p-8 shadow-sm text-emerald-950 whitespace-pre-line">
+          <MarkdownWithGlossary text={text} />
         </div>
       </div>
-
-      {/* Text */}
-      <MarkdownWithGlossary text={text} />
     </div>
   );
 }

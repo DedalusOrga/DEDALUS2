@@ -1,37 +1,45 @@
 // app/src/pages/ZusatzoptionenDetail.tsx
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import type { Module } from "../components/ModuleRenderer";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
+import { useBoundContent } from "../hooks/useBoundContent";
+import { makePageKey } from "../utils/pageKey";
+import { GlossaryPlain } from "../glossary/GlossaryPlain";
 import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
-
-function childrenToText(children: React.ReactNode): string {
-  if (children == null) return "";
-  if (typeof children === "string" || typeof children === "number")
-    return String(children);
-  if (Array.isArray(children)) return children.map(childrenToText).join("");
-  if (React.isValidElement(children))
-    return childrenToText(children.props.children);
-  return "";
-}
 
 export default function ZusatzoptionenDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [useSimple, setUseSimple] = useState(false);
 
-  const { modules, loading, loadedOnce, loadModules } = useContentModulesLazy({
+  const pageKey = useMemo(
+    () => makePageKey(location.pathname),
+    [location.pathname],
+  );
+
+  const {
+    module: boundModule,
+    loading: boundLoading,
+    error: boundError,
+  } = useBoundContent(pageKey);
+
+  const {
+    module: fallbackModule,
+    loading: fallbackLoading,
+    error: fallbackError,
+    loadModules,
+  } = useContentModulesLazy({
     type: "text",
     slug,
   });
 
   useEffect(() => {
-    if (slug) {
-      loadModules();
-    }
-  }, [slug, loadModules]);
+    if (!boundLoading && !boundModule && slug) loadModules();
+  }, [boundLoading, boundModule, slug, loadModules]);
 
-  const module = modules[0] as Module | undefined;
+  const module = (boundModule ?? fallbackModule) as Module | null | undefined;
 
   const title =
     module?.title ??
@@ -61,7 +69,6 @@ export default function ZusatzoptionenDetail() {
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
       <div className="w-full max-w-6xl mx-auto px-6 py-10">
-        {/* Zurück */}
         <button
           onClick={() => navigate(-1)}
           className="mb-6 text-emerald-900 hover:text-emerald-700"
@@ -69,18 +76,26 @@ export default function ZusatzoptionenDetail() {
           ← Zurück
         </button>
 
-        {/* Titel */}
-        <h1 className="mb-8 text-3xl font-semibold text-emerald-800">
-          {title}
-        </h1>
+        <div className="mb-8 flex items-center justify-between gap-4">
+          <h1 className="text-3xl font-semibold text-emerald-800">{title}</h1>
 
-        {/* Ladezustand */}
-        {loading && !loadedOnce && (
+          <button
+            type="button"
+            onClick={() => setUseSimple((p) => !p)}
+            className="rounded-full bg-emerald-800 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-emerald-900"
+          >
+            {useSimple ? "Original" : "Vereinfachen"}
+          </button>
+        </div>
+
+        {(boundLoading || fallbackLoading) && (
           <div className="mb-4 text-emerald-900">Inhalt wird geladen …</div>
         )}
+        {(boundError || fallbackError) && (
+          <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
+        )}
 
-        {/* Inhalt mit Markdown */}
-        <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
+        <div className="rounded-3xl bg-white p-8 shadow-sm prose prose-emerald max-w-none">
           <MarkdownWithGlossary text={text} />
         </div>
       </div>
