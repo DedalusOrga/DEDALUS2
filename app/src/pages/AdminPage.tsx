@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../infrastructure/supabase/client";
 import { useAuth } from "../hooks/AuthProvider";
@@ -31,6 +31,18 @@ type ContentModulePayload = {
   body_md: string | null;
   file_url: string | null;
 };
+
+function formatSbError(err: any) {
+  if (!err) return "unknown error";
+  return [
+    err.message ?? "no message",
+    err.code ? `code=${err.code}` : null,
+    err.details ? `details=${err.details}` : null,
+    err.hint ? `hint=${err.hint}` : null,
+  ]
+    .filter(Boolean)
+    .join(" | ");
+}
 
 // Bucket je nach Modultyp auswählen
 function getBucketForType(type: "text" | "pdf" | "video") {
@@ -65,19 +77,24 @@ function parseSupabaseStorageObject(
   }
 }
 
+const normText = (s: string | null | undefined) =>
+  (s ?? "").replace(/\r\n/g, "\n").trimEnd();
+
 export default function AdminPage() {
-  const { user, signOut } = useAuth();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Tabs aktiv erkennen
+  // Tabs aktiv erkennen (aktuell nicht im JSX genutzt – gelassen wie bei dir)
   const isQuestions = location.pathname.startsWith("/admin/questions");
   const isRouting = location.pathname.startsWith("/admin/decision-trees");
-  const isContent = !isQuestions && !isRouting; // default: /admin
+  const isContent = !isQuestions && !isRouting;
 
   const [modules, setModules] = useState<ContentModule[]>([]);
   const [loadingModules, setLoadingModules] = useState(true);
+
   const [savingModule, setSavingModule] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -90,19 +107,22 @@ export default function AdminPage() {
     file_url: "",
   });
 
-  const [draftBodyMd, setDraftBodyMd] = useSessionDraft(
-  "admin:text:draft",
-  ""
-);
+  const [draftBodyMd, setDraftBodyMd] = useSessionDraft("admin:text:draft", "");
 
-  
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   // Edit-Mode
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const busy = savingModule || uploading;
+  // ✅ Schutz vor Race Conditions, wenn man schnell mehrfach "Bearbeiten" klickt
+  const editReqRef = useRef(0);
+
+  // ✅ erzwingt Editor-Remount genau dann, wenn frische Daten da sind
+  const [editorNonce, setEditorNonce] = useState(0);
+
+  const busy = savingModule || uploading || loadingEdit;
+
   useEffect(() => {
     void loadModules();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,7 +131,6 @@ export default function AdminPage() {
   async function loadModules() {
     setLoadingModules(true);
     setError(null);
-    setInfo(null);
 
     const { data, error } = await supabase
       .from("content_modules")
@@ -129,9 +148,14 @@ export default function AdminPage() {
   }
 
   function resetForm() {
+    // laufende edit-requests invalidieren
+    editReqRef.current++;
+
     setEditingId(null);
     setUploadError(null);
-    setDraftBodyMd("");
+    setError(null);
+    setInfo(null);
+
     setForm({
       type: "text",
       title: "",
@@ -139,37 +163,69 @@ export default function AdminPage() {
       body_md: "",
       file_url: "",
     });
+
+    // Editor sicher leeren
+    setEditorNonce((n) => n + 1);
   }
 
-  function startEdit(m: ContentModule) {
-    setEditingId(m.id);
+  // ✅ BUGFIX: editingId erst setzen NACHDEM der frische body_md da ist
+  // + Race Condition Schutz
+  async function startEdit(m: ContentModule) {
     setError(null);
+    setInfo(null);
     setUploadError(null);
+    setLoadingEdit(true);
 
+    const reqId = ++editReqRef.current;
+
+    const fresh = await supabase
+      .from("content_modules")
+      .select("id, slug, title, type, body_md, file_url, status")
+      .eq("id", m.id)
+      .single();
+
+    // wenn zwischenzeitlich ein anderer "Bearbeiten"-Klick kam: ignore
+    if (reqId !== editReqRef.current) return;
+
+    setLoadingEdit(false);
+
+    if (fresh.error) {
+      console.error("START EDIT load failed:", fresh.error);
+      setError(
+        `Modul konnte nicht geladen werden: ${formatSbError(fresh.error)}`,
+      );
+      return;
+    }
+
+    const row = fresh.data;
+
+    // 1) erst Form mit frischem Content setzen
     setForm({
-      type: m.type,
-      title: m.title,
-      slug: m.slug,
-      body_md: m.body_md ?? "",
-      file_url: m.file_url ?? "",
+      type: row.type,
+      title: row.title,
+      slug: row.slug,
+      body_md: row.body_md ?? "",
+      file_url: row.file_url ?? "",
     });
 
-    setDraftBodyMd(m.body_md ?? "");
+    // 2) dann edit mode setzen (damit Editor erst jetzt remountet)
+    setEditingId(row.id);
 
+    // 3) Editor remount erzwingen, damit wirklich der korrekte Text erscheint
+    setEditorNonce((n) => n + 1);
   }
 
   function useSessionDraft(key: string, initial = "") {
-  const [value, setValue] = useState(() => {
-    return sessionStorage.getItem(key) ?? initial;
-  });
+    const [value, setValue] = useState(() => {
+      return sessionStorage.getItem(key) ?? initial;
+    });
 
-  useEffect(() => {
-    sessionStorage.setItem(key, value);
-  }, [key, value]);
+    useEffect(() => {
+      sessionStorage.setItem(key, value);
+    }, [key, value]);
 
-  return [value, setValue] as const;
-}
-
+    return [value, setValue] as const;
+  }
 
   function setField<K extends keyof NewModuleFormState>(
     key: K,
@@ -211,7 +267,6 @@ export default function AdminPage() {
         return;
       }
 
-      // Public URL holen (Bucket muss public sein, sonst brauchst du signed URLs zur Laufzeit)
       const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
       setForm((prev) => ({ ...prev, file_url: data.publicUrl }));
     } finally {
@@ -219,72 +274,80 @@ export default function AdminPage() {
     }
   }
 
-  // Create oder Update
   async function handleSaveModule(e: React.FormEvent) {
     e.preventDefault();
     setSavingModule(true);
     setError(null);
     setInfo(null);
 
-    const title = form.title.trim();
-    const slug = form.slug.trim();
+    try {
+      const title = form.title.trim();
+      const slug = form.slug.trim();
 
-    if (!title || !slug) {
-      setError("Titel und Kurzname sind Pflichtfelder.");
+      if (!title || !slug) {
+        setError("Titel und Kurzname sind Pflichtfelder.");
+        return;
+      }
+
+      const normalizedSlug = slug.toLowerCase().replace(/\s+/g, "-");
+
+      const payload: ContentModulePayload = {
+        title,
+        slug: normalizedSlug,
+        type: form.type,
+        status: "published",
+        body_md: null,
+        file_url: null,
+      };
+
+      if (form.type === "text") {
+        payload.body_md = normText(form.body_md);
+      } else {
+        payload.file_url = form.file_url ?? "";
+      }
+
+      if (editingId) {
+        const upd = await supabase
+          .from("content_modules")
+          .update(payload)
+          .eq("id", editingId);
+
+        if (upd.error) {
+          setError(`Update fehlgeschlagen: ${formatSbError(upd.error)}`);
+          return;
+        }
+
+        await loadModules();
+        setInfo("Änderungen gespeichert.");
+        return;
+      }
+
+      const res = await supabase
+        .from("content_modules")
+        .insert([payload])
+        .select("id, slug, title, type, body_md, file_url, status, updated_at")
+        .single();
+
+      if (res.error) {
+        setError(`Insert fehlgeschlagen: ${formatSbError(res.error)}`);
+        return;
+      }
+
+      setInfo("Modul angelegt.");
+      resetForm();
+      await loadModules();
+    } catch (err) {
+      console.error("SAVE unexpected error:", err);
+      setError(
+        `Unerwarteter Fehler beim Speichern: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      );
+    } finally {
       setSavingModule(false);
-      return;
     }
-
-    const normalizedSlug = slug.toLowerCase().replace(/\s+/g, "-");
-
-    const payload: ContentModulePayload = {
-      title: form.title,
-      slug: normalizedSlug,
-      type: form.type,
-      status: "published",
-      body_md: null,
-      file_url: null,
-    };
-
-    if (form.type === "text") {
-      payload.body_md = draftBodyMd || "";
-    } else {
-      payload.file_url = form.file_url || "";
-    }
-
-    if (editingId) {
-      const { error } = await supabase
-        .from("content_modules")
-        .update(payload)
-        .eq("id", editingId);
-
-      if (error) {
-        console.error(error);
-        setError("Modul konnte nicht aktualisiert werden.");
-        setSavingModule(false);
-        return;
-      }
-    } else {
-      const { error } = await supabase
-        .from("content_modules")
-        .insert([payload]);
-
-      if (error) {
-        console.error(error);
-        setError("Neues Modul konnte nicht gespeichert werden.");
-        setSavingModule(false);
-        return;
-      }
-    }
-
-    resetForm();
-    await loadModules();
-    setSavingModule(false);
   }
 
-  // ✅ Löschen für Text/PDF/Video:
-  // - Text: nur DB
-  // - PDF/Video: best effort Storage entfernen (wenn file_url Supabase-Storage URL), dann DB
   async function handleDeleteModule(m: ContentModule) {
     const label =
       m.type === "text"
@@ -298,6 +361,7 @@ export default function AdminPage() {
 
     setSavingModule(true);
     setError(null);
+    setInfo(null);
 
     // 1) Storage-Datei löschen (nur bei pdf/video + Supabase URL)
     if ((m.type === "pdf" || m.type === "video") && m.file_url) {
@@ -309,12 +373,13 @@ export default function AdminPage() {
           .remove([parsed.path]);
 
         if (storageError) {
-          // Jetzt NICHT nur warnen, sondern anzeigen:
           console.error("Storage delete failed:", storageError);
           setError(
-            `Datei konnte nicht aus Storage gelöscht werden: ${storageError.message ?? "unknown error"}`,
+            `Datei konnte nicht aus Storage gelöscht werden: ${
+              storageError.message ?? "unknown error"
+            }`,
           );
-          // Wir versuchen trotzdem, den DB-Eintrag zu löschen
+          // wir versuchen trotzdem DB-Eintrag zu löschen
         }
       }
     }
@@ -328,7 +393,9 @@ export default function AdminPage() {
     if (delError) {
       console.error("DB delete failed:", delError);
       setError(
-        `DB-Eintrag konnte nicht gelöscht werden: ${delError.message ?? "unknown error"}`,
+        `DB-Eintrag konnte nicht gelöscht werden: ${
+          delError.message ?? "unknown error"
+        }`,
       );
       setSavingModule(false);
       return;
@@ -428,15 +495,23 @@ export default function AdminPage() {
             </div>
           </div>
 
+          {/* ✅ Text-Modul: Markdown Editor */}
           {form.type === "text" && (
             <div className="grid grid-cols-1 gap-3">
               <label className="text-emerald-900 font-semibold">
                 Textinhalt
               </label>
+
+              {loadingEdit && (
+                <div className="text-sm text-emerald-800">Lade Inhalt…</div>
+              )}
+
               <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <MdxTextEditor
-                  value={draftBodyMd}
-                  onChange={setDraftBodyMd}
+                  // ✅ remount erst, wenn Form schon frische Daten hat
+                  key={`${editingId ?? "new"}:${editorNonce}`}
+                  value={form.body_md}
+                  onChange={(v) => setField("body_md", v)}
                 />
               </div>
             </div>
@@ -567,7 +642,7 @@ export default function AdminPage() {
                       <div className="flex items-center gap-4">
                         <button
                           type="button"
-                          onClick={() => startEdit(m)}
+                          onClick={() => void startEdit(m)}
                           className="text-emerald-900 underline"
                           disabled={busy}
                         >

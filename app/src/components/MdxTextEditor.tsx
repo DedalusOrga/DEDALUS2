@@ -38,7 +38,7 @@ export default function MdxTextEditor({ value, onChange }: Props) {
               <BlockTypeSelect />
               <BoldItalicUnderlineToggles />
               <CreateLink />
-              <ListsToggle/>
+              <ListsToggle />
             </>
           ),
         }),
