@@ -74,8 +74,29 @@ export default function UmgangNebenwirkungenDetail() {
 
         {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
         {hasVideo && (
-          <div className="flex items-center justify-center">
-            <video src={videoUrl} controls className="w-full rounded-xl" />
+          <div className="mb-10 flex justify-center">
+            <div
+              className="
+        w-full
+        max-w-3xl
+        bg-white
+        rounded-3xl
+        shadow-sm
+        p-4
+        md:p-6
+      "
+            >
+              <video
+                src={videoUrl}
+                controls
+                className="
+          w-full
+          aspect-video
+          rounded-2xl
+          bg-black
+        "
+              />
+            </div>
           </div>
         )}
 
