@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import arztIcon from "@/assets/arzt.png";
+import thoraxImage from "../assets/thx-klinik.jpg";
 
 export default function Startseite() {
   const navigate = useNavigate();
@@ -11,9 +11,9 @@ export default function Startseite() {
         <div className="max-w-xl">
           {/* Überschrift */}
           <h1 className="text-6xl md:text-5xl font-bold text-green-900">
-            Willkommen zur
+            Willkommen bei
             <br />
-            DEDALUS App!
+            DEDALUS!
           </h1>
 
           {/* Beschreibung */}
@@ -29,11 +29,15 @@ export default function Startseite() {
             Anmelden
           </Link>
         </div>
-
-        {/* Bild Arzt */}
-        <div className="mt-10 md:mt-0">
-          <img src={arztIcon} alt="Arzt" className="w-80 md:w-[380px]" />
-        </div>
+    
+        {/* RECHTE SEITE */}
+      <div className="w-[520px] h-[520px] rounded-full overflow-hidden shadow-xl flex-shrink-0">
+        <img
+          src={thoraxImage}
+          alt="Thoraxklinik"
+          className="w-full h-full object-cover"
+        />
+      </div>
       </div>
     </div>
   );

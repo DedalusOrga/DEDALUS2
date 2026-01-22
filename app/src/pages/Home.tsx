@@ -77,14 +77,13 @@ export default function Home() {
       </div>
 
       {/* RECHTE SEITE */}
-      <div className="w-[520px] h-[520px] rounded-full overflow-hidden shadow-xl flex-shrink-0">
+      <div className="w-[500px] h-[500px] rounded-full overflow-hidden shadow-xl flex-shrink-0">
         <img
           src={thoraxImage}
           alt="Thoraxklinik"
           className="w-full h-full object-cover"
         />
       </div>
-
     </div>
   </div>
 );
