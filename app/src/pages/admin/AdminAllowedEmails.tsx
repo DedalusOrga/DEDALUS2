@@ -94,25 +94,57 @@ export default function AdminAllowedEmails() {
   }
 
   async function removeRow(row: AllowedEmailRow) {
-    const ok = window.confirm(`E-Mail wirklich entfernen?\n\n${row.email}`);
+    const ok = window.confirm(
+      `Account wirklich löschen?\n\n${row.email}\n\nHinweis: Wenn der Nutzer noch nicht registriert ist, wird nur die Whitelist-E-Mail entfernt.`,
+    );
     if (!ok) return;
 
     setSaving(true);
     setError(null);
 
-    const { error } = await supabase
-      .from(TABLE)
-      .delete()
-      .eq("email", row.email);
+    // 1) Try to delete AUTH user via Edge Function (works only if registered)
+    const { error: fnError } = await supabase.functions.invoke(
+      "admin-delete-user",
+      {
+        body: { target_email: row.email },
+      },
+    );
 
-    if (error) {
-      setError(error.message);
+    if (fnError) {
+      // If user not registered yet, we fallback to removing from whitelist only
+      const msg = (fnError as any)?.message ?? String(fnError);
+
+      const looksLikeNotFound =
+        msg.toLowerCase().includes("not found") || msg.includes("404");
+
+      if (!looksLikeNotFound) {
+        setError(msg);
+        setSaving(false);
+        return;
+      }
+
+      // 2) Fallback: remove from whitelist only
+      const { error: wlErr } = await supabase
+        .from(TABLE)
+        .delete()
+        .eq("email", row.email);
+      if (wlErr) {
+        setError(wlErr.message);
+        setSaving(false);
+        return;
+      }
+
       setSaving(false);
+      await loadRows();
+      alert("Nutzer war nicht registriert – Whitelist-Eintrag wurde entfernt.");
       return;
     }
 
+    // If Edge Function succeeded, it may already remove whitelist entry (depending on function code).
+    // But we reload to reflect current state.
     setSaving(false);
     await loadRows();
+    alert("Account gelöscht.");
   }
 
   return (
@@ -163,6 +195,15 @@ export default function AdminAllowedEmails() {
         <h2 className="text-lg font-semibold text-emerald-950 mb-4">
           Freigeschaltete E-Mails
         </h2>
+
+        <div className="mb-4">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Suche…"
+            className="w-full rounded-xl border border-slate-200 px-3 py-2"
+          />
+        </div>
 
         {rows.length === 0 ? (
           <div className="text-slate-600">Keine Einträge vorhanden.</div>
@@ -222,7 +263,7 @@ export default function AdminAllowedEmails() {
                     Admin entfernen
                   </button>
 
-                  {/* Löschen */}
+                  {/* Account löschen */}
                   <button
                     onClick={() => removeRow(r)}
                     className="rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50"
