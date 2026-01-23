@@ -22,6 +22,9 @@ import FrageboegenEntscheidung from "./pages/FrageboegenEntscheidung";
 import FragebogenFrage from "./pages/FragebogenFrage";
 import FragebogenFertig from "./pages/FragebogenFertig";
 
+import PlanungOverview from "./pages/PlanungOverview";
+import PlanungDetail from "./pages/PlanungDetail";
+
 import ArztgespraechOverview from "./pages/ArztgespraechOverview";
 import ArztgespraechDetail from "./pages/ArztgespraechDetail";
 
@@ -147,6 +150,16 @@ const router = createBrowserRouter(
         {
           path: "entscheidungen/fragebogen/:id/ergebnis",
           element: <FragebogenErgebnis />,
+        },
+
+        {
+          path: "entscheidungen/planung",
+          element: <PlanungOverview />,
+        },
+
+        {
+          path: "entscheidungen/planung/:slug",
+          element: <PlanungDetail />,
         },
 
         // Infos / Therapie
