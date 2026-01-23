@@ -9,8 +9,8 @@ import TargetIcon from "../assets/target.svg";
 import LeafIcon from "../assets/leaf.svg";
 import PlayIcon from "../assets/play.svg";
 import sunAndSyringeIcon from "../assets/sunAndSyringe.svg";
-import MoleculeIcon from "../assets/molecule.svg";
-import pillAndDNAIcon from "../assets/pillAndDNA.svg";
+import VirusAndSyringeIcon from "../assets/virusAndSyringe.svg";
+import pillAndSyringeIcon from "../assets/pillAndSyringe.svg";
 import arrowIcon from "../assets/arrow.svg";
 
 type Therapy = {
@@ -24,7 +24,7 @@ const THERAPIES: Therapy[] = [
   {
     id: "immun",
     name: "Immuntherapie",
-    icon: MoleculeIcon,
+    icon: VirusAndSyringeIcon,
     slug: "immuntherapie",
   },
   {
@@ -48,7 +48,7 @@ const THERAPIES: Therapy[] = [
   {
     id: "chemoimmun",
     name: "Chemoimmuntherapie",
-    icon: pillAndDNAIcon,
+    icon: pillAndSyringeIcon,
     slug: "chemoimmuntherapie",
   },
   {
@@ -133,15 +133,23 @@ export default function InformationenOverview() {
                 "
                 >
                   <div className="mx-auto flex flex-col items-center justify-center">
-                    <div className="h-14 w-14 flex items-center justify-center mx-auto">
-                      <img
-                        src={card.icon}
-                        alt=""
-                        className="h-full w-full object-contain"
-                        aria-hidden
-                      />
-                    </div>
-
+                    <div
+                        className={`
+                          flex items-center justify-center mx-auto
+                          ${
+                            card.id === "chemoimmun" || card.id === "radiochemo"
+                              ? "h-16 w-16 sm:h-20 sm:w-20"
+                              : "h-14 w-14"
+                          }
+                        `}
+                      >
+                        <img
+                          src={card.icon}
+                          alt=""
+                          className="h-full w-full object-contain"
+                          aria-hidden
+                        />
+                      </div>
                     <div
                       className="
                       mt-3 text-[15px] font-semibold leading-snug text-emerald-950
