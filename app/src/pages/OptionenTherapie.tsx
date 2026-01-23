@@ -111,12 +111,6 @@ export default function InformationenOverview() {
             Therapieoptionen
           </h1>
 
-          {/* Headline */}
-          <h1 className="mt-5 text-xl font-semibold leading-snug text-emerald-950 sm:mt-6 sm:text-2xl lg:text-3xl">
-            Hier finden Sie verständliche Informationen zu verschiedenen
-            Therapien.
-          </h1>
-
           {/* Grid */}
           <div className="mt-6 sm:mt-8">
             <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
