@@ -46,11 +46,6 @@ export default function FrageboegenEntscheidung() {
           Zurück
         </button>
 
-        <h1 className="text-2xl md:text-3xl font-semibold text-emerald-950 mb-10">
-          Hier finden Sie Fragebögen, die Sie dabei unterstützen, Ihre
-          Behandlung und wichtige Entscheidungen besser zu verstehen.
-        </h1>
-
         {loading && <p className="text-emerald-900">Lade...</p>}
         {error && <p className="text-red-700">Fehler: {error}</p>}
 
