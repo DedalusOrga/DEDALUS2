@@ -56,12 +56,10 @@ export default function UnterstuetzungsangeboteDetail() {
                 ? "Pflegeleistungen + ambulante Versorgung"
                 : "Unterstützungsangebote");
 
-  const text = useSimple
-    ? (module?.body_md_simple ??
+  const text = 
       module?.body_md ??
-      "Für diese Unterstützungsangebote sind noch keine Inhalte hinterlegt.")
-    : (module?.body_md ??
-      "Für diese Unterstützungsangebote sind noch keine Inhalte hinterlegt.");
+      "Für diese Unterstützungsangebote sind noch keine Inhalte hinterlegt.";
+    
 
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
@@ -75,14 +73,6 @@ export default function UnterstuetzungsangeboteDetail() {
 
         <div className="mb-8 flex items-center justify-between gap-4">
           <h1 className="text-3xl font-semibold text-emerald-800">{title}</h1>
-
-          <button
-            type="button"
-            onClick={() => setUseSimple((p) => !p)}
-            className="rounded-full bg-emerald-800 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-emerald-900"
-          >
-            {useSimple ? "Original" : "Vereinfachen"}
-          </button>
         </div>
 
         {(boundLoading || fallbackLoading) && (
