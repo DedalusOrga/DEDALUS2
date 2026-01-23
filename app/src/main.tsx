@@ -55,6 +55,7 @@ import AdminQuestionsPage from "./pages/admin/AdminQuestionsPage";
 import FragebogenErgebnis from "./pages/FragebogenErgebnis";
 
 import AdminGlossary from "./pages/admin/AdminGlossary";
+import AdminAllowedEmails from "./pages/admin/AdminAllowedEmails";
 
 // Basename sauber aus Vite ziehen (z.B. "/" lokal, "/DEDALUS2/" in Prod)
 const basename = import.meta.env.BASE_URL ?? "/";
@@ -98,6 +99,14 @@ const router = createBrowserRouter(
       element: (
         <AdminProtected>
           <AdminGlossary />
+        </AdminProtected>
+      ),
+    },
+    {
+      path: "/admin/whitelist",
+      element: (
+        <AdminProtected>
+          <AdminAllowedEmails />
         </AdminProtected>
       ),
     },
