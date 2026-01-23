@@ -28,9 +28,7 @@ export default function PlanungOverview() {
         {items.map((item) => (
           <button
             key={item.slug}
-            onClick={() =>
-              navigate(`/entscheidungen/planung/${item.slug}`)
-            }
+            onClick={() => navigate(`/entscheidungen/planung/${item.slug}`)}
             className="rounded-2xl p-8 shadow-sm bg-white hover:shadow-md hover:bg-emerald-50 transition"
           >
             <div className="text-xl font-semibold text-emerald-900 mb-3">

@@ -68,7 +68,7 @@ export default function PlanungDetail() {
       ? "Infos zur Entscheidungsfindung"
       : slug === "lebensplanung"
         ? "Planung für das Lebensende"
-            : "Planung und Entscheidung");
+        : "Planung und Entscheidung");
 
   const text = useSimple
     ? (module?.body_md_simple ??
@@ -107,7 +107,6 @@ export default function PlanungDetail() {
           <AudioPlayer audioUrl={activeAudioUrl} />
 
           <div className="flex gap-3">
-
             {isAdmin && canEditCurrentPage && (
               <button
                 type="button"
