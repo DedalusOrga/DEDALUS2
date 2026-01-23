@@ -73,7 +73,7 @@ export default function Home() {
             </button>
           </div>
         </div>
-
+      </div>
       {/* RECHTE SEITE */}
       <div className="w-[500px] h-[500px] rounded-full overflow-hidden shadow-xl flex-shrink-0">
         <img
