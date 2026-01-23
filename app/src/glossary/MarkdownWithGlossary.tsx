@@ -1,40 +1,68 @@
+import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import { GlossaryRichChildren } from "./GlossaryRichChildren";
 
-const SHOW_DEBUG = import.meta.env.DEV;
+type MarkdownWithGlossaryProps = {
+  text: string;
+};
 
-export function MarkdownWithGlossary({ text }: { text: string }) {
+function splitLiChildren(children: React.ReactNode) {
+  const flat = React.Children.toArray(children);
+  const textish: React.ReactNode[] = [];
+  const sublists: React.ReactNode[] = [];
+
+  for (const node of flat) {
+    if (React.isValidElement(node) && typeof node.type === "string") {
+      if (node.type === "ul" || node.type === "ol") {
+        sublists.push(node);
+        continue;
+      }
+    }
+    textish.push(node);
+  }
+
+  return { textish, sublists };
+}
+
+export const MarkdownWithGlossary: React.FC<MarkdownWithGlossaryProps> = ({
+  text,
+}) => {
   return (
-    <div className="relative">
-      {SHOW_DEBUG && (
-        <div className="absolute -top-3 right-0 z-10 text-[10px] px-2 py-1 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
-          MarkdownWithGlossary aktiv
-        </div>
-      )}
+    <div
+      className="
+        prose prose-sm max-w-none text-emerald-950
+        prose-ul:ml-4 prose-ol:ml-4 prose-li:my-1
+        prose-ul ul:ml-4 prose-ol ol:ml-4
+        prose-ul ol:ml-4 prose-ol ul:ml-4
+      "
+    >
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeSanitize]}
+        components={{
+          p: ({ children }) => (
+            <p>
+              <GlossaryRichChildren>{children}</GlossaryRichChildren>
+            </p>
+          ),
 
-      <div className="prose prose-sm max-w-none text-emerald-950">
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeSanitize]}
-          components={{
-            // Glossar nur im Fließtext anwenden
-            p: ({ children }) => (
-              <p>
-                <GlossaryRichChildren>{children}</GlossaryRichChildren>
-              </p>
-            ),
-            li: ({ children }) => (
+          li: ({ children }) => {
+            const { textish, sublists } = splitLiChildren(children);
+            return (
               <li>
-                <GlossaryRichChildren>{children}</GlossaryRichChildren>
+                {textish.length > 0 ? (
+                  <GlossaryRichChildren>{textish}</GlossaryRichChildren>
+                ) : null}
+                {sublists.length > 0 ? <>{sublists}</> : null}
               </li>
-            ),
-          }}
-        >
-          {text ?? ""}
-        </ReactMarkdown>
-      </div>
+            );
+          },
+        }}
+      >
+        {text}
+      </ReactMarkdown>
     </div>
   );
-}
+};

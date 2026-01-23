@@ -8,7 +8,7 @@ type Props = {
   children: ReactNode;
 };
 
-type TabKey = "content" | "questions" | "routing";
+type TabKey = "content" | "questions" | "routing" | "glossary" | "whitelist";
 
 export default function AdminLayout({ title, children }: Props) {
   const navigate = useNavigate();
@@ -19,6 +19,9 @@ export default function AdminLayout({ title, children }: Props) {
     const p = location.pathname;
     if (p.startsWith("/admin/questions")) return "questions";
     if (p.startsWith("/admin/decision-trees")) return "routing";
+    if (p.startsWith("/admin/glossary")) return "glossary";
+    if (p.startsWith("/admin/whitelist")) return "whitelist";
+
     return "content";
   }, [location.pathname]);
 
@@ -86,6 +89,23 @@ export default function AdminLayout({ title, children }: Props) {
               }`}
             >
               Fragebogen zusammenstellen
+            </button>
+
+            <button
+              onClick={() => navigate("/admin/glossary")}
+              className={`${tabBase} ${
+                activeTab === "glossary" ? tabActive : tabInactive
+              }`}
+            >
+              Glossar
+            </button>
+            <button
+              onClick={() => navigate("/admin/whitelist")}
+              className={`${tabBase} ${
+                activeTab === "whitelist" ? tabActive : tabInactive
+              }`}
+            >
+              Whitelist
             </button>
           </div>
         </div>

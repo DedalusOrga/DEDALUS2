@@ -28,6 +28,8 @@ export function useContentModulesLazy<T = unknown>(options: {
         body_md,
         body_md_simple,
         file_url,
+        audio_url,
+        audio_simple_url,
         status,
         data
       `,

@@ -4,7 +4,6 @@ import { useAuth } from "../hooks/AuthProvider";
 import { supabase } from "../infrastructure/supabase/client";
 import thoraxImage from "../assets/thx-klinik.jpg";
 
-
 export default function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -45,36 +44,35 @@ export default function Home() {
   }, [user]);
 
   return (
-  <div className="px-16 py-16">
-    <div className="flex items-start justify-between gap-16">
-      
-      {/* LINKE SEITE */}
-      <div className="max-w-xl">
-        <h1 className="text-5xl font-bold text-emerald-900 mb-10">
-          Willkommen bei DEDALUS
-        </h1>
+    <div className="px-16 py-16">
+      <div className="flex items-start justify-between gap-16">
+        {/* LINKE SEITE */}
+        <div className="max-w-xl">
+          <h1 className="text-5xl font-bold text-emerald-900 mb-10">
+            Willkommen bei DEDALUS
+          </h1>
 
-        <p className="text-lg text-emerald-800 mb-8">
-          In der Bedienhilfe finden Sie einfache Erklärungen und ein kurzes Video
-          zur Nutzung der WebApp.
-        </p>
+          <p className="text-lg text-emerald-800 mb-8">
+            In der Bedienhilfe finden Sie einfache Erklärungen und ein kurzes
+            Video zur Nutzung der WebApp.
+          </p>
 
-        <div className="flex gap-4">
-          <button
-            onClick={() => navigate("/bedienhilfe")}
-            className="px-6 py-3 rounded-full border border-emerald-700 text-emerald-700 hover:bg-emerald-100"
-          >
-            Zur Bedienhilfe
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={() => navigate("/fragen")}
+              className="px-6 py-3 rounded-full border border-emerald-700 text-emerald-700 hover:bg-emerald-100"
+            >
+              Zur Bedienhilfe
+            </button>
 
-          <button
-            onClick={() => navigate("/admin")}
-            className="px-6 py-3 rounded-full border border-purple-600 text-purple-600 hover:bg-purple-50"
-          >
-            Adminbereich öffnen
-          </button>
+            <button
+              onClick={() => navigate("/admin")}
+              className="px-6 py-3 rounded-full border border-purple-600 text-purple-600 hover:bg-purple-50"
+            >
+              Adminbereich öffnen
+            </button>
+          </div>
         </div>
-      </div>
 
       {/* RECHTE SEITE */}
       <div className="w-[500px] h-[500px] rounded-full overflow-hidden shadow-xl flex-shrink-0">
@@ -85,8 +83,5 @@ export default function Home() {
         />
       </div>
     </div>
-  </div>
-);
-
-
+  );
 }

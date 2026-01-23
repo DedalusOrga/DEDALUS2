@@ -19,7 +19,6 @@ import { AuthProvider } from "./hooks/AuthProvider";
 
 import EntscheidungenOverview from "./pages/EntscheidungenOverview";
 import FrageboegenEntscheidung from "./pages/FrageboegenEntscheidung";
-import FragebogenErgebnis from "./pages/FragebogenErgebnis";
 import FragebogenFrage from "./pages/FragebogenFrage";
 import FragebogenFertig from "./pages/FragebogenFertig";
 
@@ -53,8 +52,10 @@ import WeiterfuehrendeInfoDetail from "./pages/WeiterfuehrendeInfoDetail";
 
 import AdminDecisionTrees from "./pages/admin/AdminDecisionTrees";
 import AdminQuestionsPage from "./pages/admin/AdminQuestionsPage";
+import FragebogenErgebnis from "./pages/FragebogenErgebnis";
 
-import Bedienhilfe from "./pages/Bedienhilfe";
+import AdminGlossary from "./pages/admin/AdminGlossary";
+import AdminAllowedEmails from "./pages/admin/AdminAllowedEmails";
 
 // Basename sauber aus Vite ziehen (z.B. "/" lokal, "/DEDALUS2/" in Prod)
 const basename = import.meta.env.BASE_URL ?? "/";
@@ -93,6 +94,22 @@ const router = createBrowserRouter(
         </AdminProtected>
       ),
     },
+    {
+      path: "/admin/glossary",
+      element: (
+        <AdminProtected>
+          <AdminGlossary />
+        </AdminProtected>
+      ),
+    },
+    {
+      path: "/admin/whitelist",
+      element: (
+        <AdminProtected>
+          <AdminAllowedEmails />
+        </AdminProtected>
+      ),
+    },
 
     // 🔐 App-Bereich (alles darunter geschützt)
     {
@@ -106,10 +123,6 @@ const router = createBrowserRouter(
       ),
       children: [
         { path: "home", element: <Home /> },
-
-        { path: "bedienhilfe", element: <Bedienhilfe /> },
-
-        { path: "bedienhilfe/fragen", element: <QuestionsPage /> },
 
         { path: "entscheidungen", element: <EntscheidungenOverview /> },
 
@@ -151,7 +164,7 @@ const router = createBrowserRouter(
             <div className="p-6 text-lg">Einstellungen (Platzhalter)</div>
           ),
         },
-        
+        { path: "fragen", element: <QuestionsPage /> },
 
         // Krebsinformationen
         {
@@ -219,6 +232,10 @@ const router = createBrowserRouter(
         {
           path: "informationen/weiter/:slug",
           element: <WeiterfuehrendeInfoDetail />,
+        },
+        {
+          path: "glossary",
+          element: <AdminGlossary />,
         },
       ],
     },

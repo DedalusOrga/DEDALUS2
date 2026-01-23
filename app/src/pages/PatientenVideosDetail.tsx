@@ -1,37 +1,29 @@
-import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import { useBoundContent } from "../hooks/useBoundContent";
-import { makePageKey } from "../utils/pageKey";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import type { Module } from "../components/ModuleRenderer";
 import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
+import type { ContentModule } from "../types/ContentModule.ts";
 
 import MicrophoneIcon from "../assets/microphone.svg";
-import TextIcon from "../assets/text.svg";
 
 export default function PatientenVideosDetail() {
   const slug = "videos-audios";
 
   const navigate = useNavigate();
-  const location = useLocation();
-
   const [useSimple, setUseSimple] = useState(false);
 
-  // 🔑 pageKey für page_content_bindings
-  const pageKey = useMemo(
-    () => makePageKey(location.pathname),
-    [location.pathname],
-  );
+  // ✅ PageKey im selben Schema wie page_content_bindings
+  const pageKey = "informationen:nebenwirkungen:videos-audios";
 
-  // 1️⃣ Erst: gebundene Inhalte (page_content_bindings)
   const {
     module: boundModule,
     loading: boundLoading,
     error: boundError,
   } = useBoundContent(pageKey);
 
-  // 2️⃣ Fallback: direkt über slug aus content_modules
   const {
     module: fallbackModule,
     loading: fallbackLoading,
@@ -43,12 +35,13 @@ export default function PatientenVideosDetail() {
   });
 
   useEffect(() => {
-    if (!boundLoading && !boundModule && slug) {
-      loadModules();
-    }
+    if (!boundLoading && !boundModule && slug) loadModules();
   }, [boundLoading, boundModule, slug, loadModules]);
 
-  const module = (boundModule ?? fallbackModule) as Module | null | undefined;
+  const module = (boundModule ?? fallbackModule) as
+    | ContentModule
+    | null
+    | undefined;
 
   const title = module?.title ?? "Patientenperspektive I zu Nebenwirkungen";
 
@@ -59,6 +52,10 @@ export default function PatientenVideosDetail() {
     : (module?.body_md ??
       "Für diesen Inhalt sind noch keine Texte hinterlegt.");
 
+  // Video-URL aus data.video_url
+  const videoUrl = module?.data?.video_url;
+  const hasVideo = !!videoUrl;
+
   const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
     lang: "de-DE",
     rate: 1.0,
@@ -67,7 +64,6 @@ export default function PatientenVideosDetail() {
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
       <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
-        {/* Zurück */}
         <button
           onClick={() => navigate(-1)}
           className="flex items-center text-emerald-900 mb-6 hover:text-emerald-700"
@@ -76,14 +72,11 @@ export default function PatientenVideosDetail() {
           Zurück
         </button>
 
-        {/* Header: Titel + Aktionen */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          {/* Titel */}
           <h1 className="text-2xl md:text-3xl font-semibold text-emerald-800">
             {title}
           </h1>
 
-          {/* Buttons */}
           <div className="flex gap-3">
             <button
               type="button"
@@ -94,22 +87,37 @@ export default function PatientenVideosDetail() {
               <img src={MicrophoneIcon} alt="" className="w-5 h-5 mr-2" />
               {isSpeaking ? "Stopp" : "Vorlesen"}
             </button>
+
+            {/* Optional: wenn du wirklich vereinfachen willst, brauchst du auch einen Button dafür */}
+            {/* <button ... onClick={() => setUseSimple((p) => !p)}>...</button> */}
           </div>
         </div>
 
-        {/* Ladezustand */}
         {(boundLoading || fallbackLoading) && (
           <div className="mb-4 text-emerald-900">Inhalt wird geladen …</div>
         )}
 
-        {/* Fehler */}
         {(boundError || fallbackError) && (
           <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
         )}
+        {/* Weißer Content-Block: Text + optional Video */}
+        <div
+          className={
+            "bg-white rounded-3xl shadow-sm p-6 md:p-8 grid gap-8 " +
+            (hasVideo ? "md:grid-cols-2" : "md:grid-cols-1")
+          }
+        >
+          {/* Textbereich */}
+          <div className="text-sm md:text-base leading-relaxed text-emerald-950 whitespace-pre-line">
+            <MarkdownWithGlossary text={text} />
+          </div>
 
-        {/* Text */}
-        <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
-          <MarkdownWithGlossary text={text} />
+          {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
+          {hasVideo && (
+            <div className="flex items-center justify-center">
+              <video src={videoUrl} controls className="w-full rounded-xl" />
+            </div>
+          )}
         </div>
       </div>
     </div>
