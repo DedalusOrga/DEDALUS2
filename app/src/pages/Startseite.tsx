@@ -5,9 +5,9 @@ import thoraxImage from "../assets/thx-klinik.jpg";
 export default function Startseite() {
   const navigate = useNavigate();
   return (
-  <div className="min-h-screen flex items-center bg-emerald-50">
-    <div className="max-w-6xl mx-auto w-full">
-      <div className="flex flex-col md:flex-row items-center gap-8 px-10 md:px-20">
+    <div className="min-h-screen flex items-center bg-emerald-50">
+      <div className="max-w-6xl mx-auto w-full">
+        <div className="flex flex-col md:flex-row items-center gap-8 px-10 md:px-20">
           {/* Linker Bereich (Text) */}
           <div className="max-w-xl">
             {/* Überschrift */}
