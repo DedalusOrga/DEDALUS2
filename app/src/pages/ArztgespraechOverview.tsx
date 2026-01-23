@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import AerzteImage from "../assets/aerzte.jpg";
 
 export default function ArztgespraechOverview() {
   const navigate = useNavigate();
@@ -40,6 +41,14 @@ export default function ArztgespraechOverview() {
             </div>
           </button>
         ))}
+      </div>
+      {/* Bild unter den Karten */}
+      <div className="mt-12 flex justify-center">
+        <img
+          src={AerzteImage}
+          alt="Entscheidungen"
+          className="w-full max-w-4xl rounded-3xl shadow-sm"
+        />
       </div>
     </div>
   );
