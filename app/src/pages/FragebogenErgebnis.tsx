@@ -309,12 +309,6 @@ export default function FragebogenErgebnis() {
             {pageTitle}
           </h1>
           <p className="text-emerald-800 mt-2">{DEFAULT_INTRO}</p>
-
-          {recommendationWarning && (
-            <p className="text-amber-700 mt-3 text-sm">
-              Hinweis: {recommendationWarning}
-            </p>
-          )}
         </div>
 
         {/* Empfehlungstext */}
