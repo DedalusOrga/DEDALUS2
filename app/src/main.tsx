@@ -58,6 +58,8 @@ import AdminQuestionsPage from "./pages/admin/AdminQuestionsPage";
 import FragebogenErgebnis from "./pages/FragebogenErgebnis";
 
 import AdminGlossary from "./pages/admin/AdminGlossary";
+import AdminAllowedEmails from "./pages/admin/AdminAllowedEmails";
+import AdminCards from "./pages/admin/AdminCards";
 
 // Basename sauber aus Vite ziehen (z.B. "/" lokal, "/DEDALUS2/" in Prod)
 const basename = import.meta.env.BASE_URL ?? "/";
@@ -101,6 +103,22 @@ const router = createBrowserRouter(
       element: (
         <AdminProtected>
           <AdminGlossary />
+        </AdminProtected>
+      ),
+    },
+    {
+      path: "/admin/whitelist",
+      element: (
+        <AdminProtected>
+          <AdminAllowedEmails />
+        </AdminProtected>
+      ),
+    },
+    {
+      path: "/admin/cards",
+      element: (
+        <AdminProtected>
+          <AdminCards />
         </AdminProtected>
       ),
     },
@@ -200,7 +218,7 @@ const router = createBrowserRouter(
           element: <PatientenPerspektiveOverview />,
         },
         {
-          path: "informationen/patientenperspektive/videos-audios",
+          path: "/informationen/patientenperspektive/:slug",
           element: <PatientenVideosDetail />,
         },
         {

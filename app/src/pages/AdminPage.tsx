@@ -11,6 +11,11 @@ type ContentModule = {
   title: string;
   type: "text" | "pdf" | "video";
   body_md?: string | null;
+  body_md_simple?: string | null;
+
+  audio_url?: string | null;
+  audio_simple_url?: string | null;
+
   file_url?: string | null;
   status: string;
 };
@@ -19,7 +24,13 @@ type NewModuleFormState = {
   type: "text" | "pdf" | "video";
   title: string;
   slug: string;
+
   body_md: string;
+  body_md_simple: string;
+
+  audio_url: string;
+  audio_simple_url: string;
+
   file_url: string;
 };
 
@@ -28,7 +39,13 @@ type ContentModulePayload = {
   slug: string;
   type: "text" | "pdf" | "video";
   status: string;
+
   body_md: string | null;
+  body_md_simple: string | null;
+
+  audio_url: string | null;
+  audio_simple_url: string | null;
+
   file_url: string | null;
 };
 
@@ -42,13 +59,6 @@ function formatSbError(err: any) {
   ]
     .filter(Boolean)
     .join(" | ");
-}
-
-// Bucket je nach Modultyp auswählen
-function getBucketForType(type: "text" | "pdf" | "video") {
-  if (type === "pdf") return "PDF";
-  if (type === "video") return "videos";
-  return "Text";
 }
 
 /**
@@ -77,15 +87,39 @@ function parseSupabaseStorageObject(
   }
 }
 
+async function tryDeleteStorageObjectFromUrl(fileUrl: string) {
+  const parsed = parseSupabaseStorageObject(fileUrl);
+  if (!parsed)
+    return { ok: false as const, reason: "not-supabase-url" as const };
+
+  const { error } = await supabase.storage
+    .from(parsed.bucket)
+    .remove([parsed.path]);
+  if (error)
+    return { ok: false as const, reason: "delete-failed" as const, error };
+
+  return { ok: true as const };
+}
+
 const normText = (s: string | null | undefined) =>
   (s ?? "").replace(/\r\n/g, "\n").trimEnd();
+
+function normalizeSlug(raw: string) {
+  return raw.trim().toLowerCase().replace(/\s+/g, "-");
+}
+
+function safeNameFromSlug(rawSlug: string) {
+  return (rawSlug.trim() || "module")
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-_]/g, "");
+}
 
 export default function AdminPage() {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Tabs aktiv erkennen (aktuell nicht im JSX genutzt – gelassen wie bei dir)
   const isQuestions = location.pathname.startsWith("/admin/questions");
   const isRouting = location.pathname.startsWith("/admin/decision-trees");
   const isContent = !isQuestions && !isRouting;
@@ -99,29 +133,39 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
 
+  // ✅ Standard: immer Text (Video wird über file_url zusätzlich gepflegt)
   const [form, setForm] = useState<NewModuleFormState>({
     type: "text",
     title: "",
     slug: "",
+
     body_md: "",
+    body_md_simple: "",
+
+    audio_url: "",
+    audio_simple_url: "",
+
     file_url: "",
   });
 
-  const [draftBodyMd, setDraftBodyMd] = useSessionDraft("admin:text:draft", "");
+  const [activeVariant, setActiveVariant] = useState<
+    "video" | "text_normal" | "text_simple" | "audio_normal" | "audio_simple"
+  >("video");
 
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  // Edit-Mode
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // ✅ Schutz vor Race Conditions, wenn man schnell mehrfach "Bearbeiten" klickt
   const editReqRef = useRef(0);
-
-  // ✅ erzwingt Editor-Remount genau dann, wenn frische Daten da sind
   const [editorNonce, setEditorNonce] = useState(0);
 
   const busy = savingModule || uploading || loadingEdit;
+
+  const [search, setSearch] = useState("");
+
+  // ✅ Scroll-to-top beim Bearbeiten (ist schon drin)
+  const formTopRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     void loadModules();
@@ -134,7 +178,9 @@ export default function AdminPage() {
 
     const { data, error } = await supabase
       .from("content_modules")
-      .select("id, slug, title, type, body_md, file_url, status")
+      .select(
+        "id, slug, title, type, body_md, body_md_simple, audio_url, audio_simple_url, file_url, status",
+      )
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -148,7 +194,6 @@ export default function AdminPage() {
   }
 
   function resetForm() {
-    // laufende edit-requests invalidieren
     editReqRef.current++;
 
     setEditingId(null);
@@ -160,16 +205,20 @@ export default function AdminPage() {
       type: "text",
       title: "",
       slug: "",
+
       body_md: "",
+      body_md_simple: "",
+
+      audio_url: "",
+      audio_simple_url: "",
+
       file_url: "",
     });
 
-    // Editor sicher leeren
+    setActiveVariant("text_normal");
     setEditorNonce((n) => n + 1);
   }
 
-  // ✅ BUGFIX: editingId erst setzen NACHDEM der frische body_md da ist
-  // + Race Condition Schutz
   async function startEdit(m: ContentModule) {
     setError(null);
     setInfo(null);
@@ -180,11 +229,12 @@ export default function AdminPage() {
 
     const fresh = await supabase
       .from("content_modules")
-      .select("id, slug, title, type, body_md, file_url, status")
+      .select(
+        "id, slug, title, type, body_md, body_md_simple, audio_url, audio_simple_url, file_url, status",
+      )
       .eq("id", m.id)
       .single();
 
-    // wenn zwischenzeitlich ein anderer "Bearbeiten"-Klick kam: ignore
     if (reqId !== editReqRef.current) return;
 
     setLoadingEdit(false);
@@ -199,32 +249,31 @@ export default function AdminPage() {
 
     const row = fresh.data;
 
-    // 1) erst Form mit frischem Content setzen
     setForm({
-      type: row.type,
+      type: "text",
       title: row.title,
       slug: row.slug,
+
       body_md: row.body_md ?? "",
+      body_md_simple: row.body_md_simple ?? "",
+
+      audio_url: row.audio_url ?? "",
+      audio_simple_url: row.audio_simple_url ?? "",
+
       file_url: row.file_url ?? "",
     });
 
-    // 2) dann edit mode setzen (damit Editor erst jetzt remountet)
+    setActiveVariant("text_normal");
     setEditingId(row.id);
-
-    // 3) Editor remount erzwingen, damit wirklich der korrekte Text erscheint
     setEditorNonce((n) => n + 1);
-  }
 
-  function useSessionDraft(key: string, initial = "") {
-    const [value, setValue] = useState(() => {
-      return sessionStorage.getItem(key) ?? initial;
+    // ✅ beim Bearbeiten nach oben
+    requestAnimationFrame(() => {
+      formTopRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     });
-
-    useEffect(() => {
-      sessionStorage.setItem(key, value);
-    }, [key, value]);
-
-    return [value, setValue] as const;
   }
 
   function setField<K extends keyof NewModuleFormState>(
@@ -235,8 +284,12 @@ export default function AdminPage() {
   }
 
   async function handleFileUpload(file: File) {
-    if (form.type === "text") {
-      setUploadError("Dateiupload ist nur für PDF- und Video-Module möglich.");
+    // file_url ist bei uns ausschließlich für Video gedacht
+    const isMp4 =
+      file.type === "video/mp4" || file.name.toLowerCase().endsWith(".mp4");
+
+    if (!isMp4) {
+      setUploadError("Bitte nur MP4 hochladen.");
       return;
     }
 
@@ -246,29 +299,219 @@ export default function AdminPage() {
     setInfo(null);
 
     try {
-      const ext = file.name.split(".").pop() ?? "bin";
-      const safeSlug = (form.slug.trim() || "module")
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-_]/g, "");
+      // ✅ Replace: altes Video löschen (wenn vorhanden)
+      if (form.file_url.trim()) {
+        const del = await tryDeleteStorageObjectFromUrl(form.file_url.trim());
+        if (!del.ok && del.reason !== "not-supabase-url") {
+          console.warn("Old video delete failed:", del.error);
+          // nicht abbrechen – neues Video darf trotzdem hochladen
+        }
+      }
 
+      const ext = file.name.split(".").pop() ?? "mp4";
+      const safeSlug = safeNameFromSlug(form.slug);
       const filePath = `modules/${Date.now()}_${safeSlug}.${ext}`;
-      const bucket = getBucketForType(form.type);
+      const bucket = "videos";
 
       const { error: uploadErr } = await supabase.storage
         .from(bucket)
-        .upload(filePath, file, { cacheControl: "3600", upsert: false });
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type,
+        });
 
       if (uploadErr) {
         console.error("UPLOAD ERROR:", uploadErr);
         setUploadError(
-          uploadErr.message ?? "Datei konnte nicht hochgeladen werden.",
+          uploadErr.message ?? "Video konnte nicht hochgeladen werden.",
         );
         return;
       }
 
-      const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-      setForm((prev) => ({ ...prev, file_url: data.publicUrl }));
+      const TEN_YEARS = 60 * 60 * 24 * 365 * 10; // 10 Jahre
+
+      const signed = await supabase.storage
+        .from(bucket)
+        .createSignedUrl(filePath, TEN_YEARS);
+
+      if (signed.error || !signed.data?.signedUrl) {
+        console.error("SIGNED URL ERROR:", signed.error);
+        setUploadError(
+          signed.error?.message ??
+            "Signed URL konnte nicht erstellt werden (Bucket/Policy prüfen).",
+        );
+        return;
+      }
+
+      setForm((prev) => ({ ...prev, file_url: signed.data!.signedUrl }));
+      setInfo("Video erfolgreich hochgeladen (Signed URL – 10 Jahre gültig).");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleAudioUpload(file: File, variant: "normal" | "simple") {
+    const isMp3 =
+      file.type === "audio/mpeg" ||
+      file.name.toLowerCase().endsWith(".mp3") ||
+      file.name.toLowerCase().endsWith(".mpeg");
+    if (!isMp3) {
+      setUploadError("Bitte eine MP3-Datei hochladen.");
+      return;
+    }
+
+    setUploading(true);
+    setUploadError(null);
+    setError(null);
+    setInfo(null);
+
+    try {
+      // ✅ Replace: altes Audio löschen (wenn vorhanden)
+      const currentUrl =
+        variant === "normal"
+          ? form.audio_url.trim()
+          : form.audio_simple_url.trim();
+
+      if (currentUrl) {
+        const del = await tryDeleteStorageObjectFromUrl(currentUrl);
+        if (!del.ok && del.reason !== "not-supabase-url") {
+          console.warn("Old audio delete failed:", del.error);
+        }
+      }
+
+      const safeSlug = safeNameFromSlug(form.slug);
+      const folder = variant === "normal" ? "original" : "simple";
+      const path = `${folder}/${Date.now()}_${safeSlug}.mp3`;
+      const bucket = "audio";
+
+      const up = await supabase.storage.from(bucket).upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type,
+      });
+
+      if (up.error) {
+        console.error("AUDIO UPLOAD ERROR:", up.error);
+        setUploadError(
+          up.error.message ?? "Audio konnte nicht hochgeladen werden.",
+        );
+        return;
+      }
+
+      // ✅ auch Audio: 10 Jahre
+      const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
+
+      const signed = await supabase.storage
+        .from(bucket)
+        .createSignedUrl(path, TEN_YEARS);
+
+      if (signed.error || !signed.data?.signedUrl) {
+        console.error("SIGNED URL ERROR:", signed.error);
+        setUploadError(
+          signed.error?.message ??
+            "Signed URL konnte nicht erstellt werden (Bucket/Policy prüfen).",
+        );
+        return;
+      }
+
+      if (variant === "normal") setField("audio_url", signed.data.signedUrl);
+      else setField("audio_simple_url", signed.data.signedUrl);
+
+      setInfo("Audio erfolgreich hochgeladen (Signed URL – 10 Jahre).");
+    } finally {
+      setUploading(false);
+    }
+  }
+  async function handleClearVideo() {
+    const url = form.file_url.trim();
+    if (!url) return;
+
+    setUploading(true);
+    setUploadError(null);
+    setError(null);
+    setInfo(null);
+
+    try {
+      // ✅ wenn wir editieren: DB sofort leeren (damit kein toter Link stehen bleibt)
+      if (editingId) {
+        const { error: dbErr } = await supabase
+          .from("content_modules")
+          .update({ file_url: null })
+          .eq("id", editingId);
+
+        if (dbErr) {
+          setUploadError(
+            dbErr.message ?? "DB konnte nicht aktualisiert werden.",
+          );
+          return;
+        }
+
+        setField("file_url", "");
+        await loadModules();
+        setInfo("Video wurde entfernt.");
+      } else {
+        // Neues Modul (noch nicht gespeichert): nur lokal leeren
+        setField("file_url", "");
+        setInfo("Video wurde entfernt.");
+      }
+
+      // ✅ Danach: Storage-Datei löschen (best effort)
+      const del = await tryDeleteStorageObjectFromUrl(url);
+      if (!del.ok && del.reason !== "not-supabase-url") {
+        console.warn("Video storage delete failed:", del.error);
+        // nicht als harter Fehler – DB ist schon korrekt
+      }
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleClearAudio(variant: "normal" | "simple") {
+    const url = (
+      variant === "normal" ? form.audio_url : form.audio_simple_url
+    ).trim();
+    if (!url) return;
+
+    setUploading(true);
+    setUploadError(null);
+    setError(null);
+    setInfo(null);
+
+    try {
+      const dbField = variant === "normal" ? "audio_url" : "audio_simple_url";
+
+      // ✅ wenn wir editieren: DB sofort leeren
+      if (editingId) {
+        const { error: dbErr } = await supabase
+          .from("content_modules")
+          .update({ [dbField]: null } as any)
+          .eq("id", editingId);
+
+        if (dbErr) {
+          setUploadError(
+            dbErr.message ?? "DB konnte nicht aktualisiert werden.",
+          );
+          return;
+        }
+
+        if (variant === "normal") setField("audio_url", "");
+        else setField("audio_simple_url", "");
+
+        await loadModules();
+        setInfo("Audio wurde entfernt.");
+      } else {
+        // Neues Modul (noch nicht gespeichert): nur lokal leeren
+        if (variant === "normal") setField("audio_url", "");
+        else setField("audio_simple_url", "");
+        setInfo("Audio wurde entfernt.");
+      }
+
+      // ✅ Danach: Storage-Datei löschen (best effort)
+      const del = await tryDeleteStorageObjectFromUrl(url);
+      if (!del.ok && del.reason !== "not-supabase-url") {
+        console.warn("Audio storage delete failed:", del.error);
+      }
     } finally {
       setUploading(false);
     }
@@ -289,22 +532,35 @@ export default function AdminPage() {
         return;
       }
 
-      const normalizedSlug = slug.toLowerCase().replace(/\s+/g, "-");
+      const normalizedSlug = normalizeSlug(slug);
 
       const payload: ContentModulePayload = {
         title,
         slug: normalizedSlug,
-        type: form.type,
+        type: "text",
         status: "published",
-        body_md: null,
-        file_url: null,
-      };
 
-      if (form.type === "text") {
-        payload.body_md = normText(form.body_md);
-      } else {
-        payload.file_url = form.file_url ?? "";
-      }
+        body_md: normText(form.body_md),
+        body_md_simple: (() => {
+          const s = normText(form.body_md_simple);
+          return s.length ? s : null;
+        })(),
+
+        audio_url: (() => {
+          const s = (form.audio_url ?? "").trim();
+          return s.length ? s : null;
+        })(),
+        audio_simple_url: (() => {
+          const s = (form.audio_simple_url ?? "").trim();
+          return s.length ? s : null;
+        })(),
+
+        // file_url bleibt bei uns ausschließlich Video
+        file_url: (() => {
+          const s = (form.file_url ?? "").trim();
+          return s.length ? s : null;
+        })(),
+      };
 
       if (editingId) {
         const upd = await supabase
@@ -325,7 +581,9 @@ export default function AdminPage() {
       const res = await supabase
         .from("content_modules")
         .insert([payload])
-        .select("id, slug, title, type, body_md, file_url, status, updated_at")
+        .select(
+          "id, slug, title, type, body_md, body_md_simple, audio_url, audio_simple_url, file_url, status, updated_at",
+        )
         .single();
 
       if (res.error) {
@@ -349,42 +607,35 @@ export default function AdminPage() {
   }
 
   async function handleDeleteModule(m: ContentModule) {
-    const label =
-      m.type === "text"
-        ? "Text-Modul"
-        : m.type === "pdf"
-          ? "PDF-Modul"
-          : "Video-Modul";
-
-    const ok = window.confirm(`${label} „${m.title}“ wirklich löschen?`);
+    const ok = window.confirm(`Modul „${m.title}“ wirklich löschen?`);
     if (!ok) return;
 
     setSavingModule(true);
     setError(null);
     setInfo(null);
 
-    // 1) Storage-Datei löschen (nur bei pdf/video + Supabase URL)
-    if ((m.type === "pdf" || m.type === "video") && m.file_url) {
-      const parsed = parseSupabaseStorageObject(m.file_url);
+    const urlsToTry: string[] = [];
+    if (m.file_url) urlsToTry.push(m.file_url);
+    if (m.audio_url) urlsToTry.push(m.audio_url);
+    if (m.audio_simple_url) urlsToTry.push(m.audio_simple_url);
 
-      if (parsed) {
-        const { error: storageError } = await supabase.storage
-          .from(parsed.bucket)
-          .remove([parsed.path]);
+    for (const u of urlsToTry) {
+      const parsed = parseSupabaseStorageObject(u);
+      if (!parsed) continue;
 
-        if (storageError) {
-          console.error("Storage delete failed:", storageError);
-          setError(
-            `Datei konnte nicht aus Storage gelöscht werden: ${
-              storageError.message ?? "unknown error"
-            }`,
-          );
-          // wir versuchen trotzdem DB-Eintrag zu löschen
-        }
+      const { error: storageError } = await supabase.storage
+        .from(parsed.bucket)
+        .remove([parsed.path]);
+      if (storageError) {
+        console.error("Storage delete failed:", storageError);
+        setError(
+          `Datei konnte nicht aus Storage gelöscht werden: ${
+            storageError.message ?? "unknown error"
+          }`,
+        );
       }
     }
 
-    // 2) DB-Row löschen
     const { error: delError } = await supabase
       .from("content_modules")
       .delete()
@@ -411,6 +662,16 @@ export default function AdminPage() {
     navigate("/login", { replace: true });
   }
 
+  const filteredModules = modules.filter((m) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+
+    const title = (m.title ?? "").toLowerCase();
+    const slug = (m.slug ?? "").toLowerCase();
+
+    return title.includes(q) || slug.includes(q);
+  });
+
   return (
     <AdminLayout title="Admin">
       {(error || info) && (
@@ -429,7 +690,7 @@ export default function AdminPage() {
       )}
 
       {/* Create / Edit module */}
-      <div className="bg-white rounded-3xl shadow-sm p-6 mb-6">
+      <div ref={formTopRef} className="bg-white rounded-3xl shadow-sm p-6 mb-6">
         <div className="flex items-center justify-between gap-3 mb-4">
           <h2 className="text-xl font-semibold text-emerald-950">
             {editingId ? "Modul bearbeiten" : "Neues Modul"}
@@ -449,27 +710,16 @@ export default function AdminPage() {
 
         <form onSubmit={handleSaveModule} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-center">
-            <label className="text-emerald-900 font-semibold">Typ</label>
-            <div className="md:col-span-2">
-              <select
-                value={form.type}
-                onChange={(e) => setField("type", e.target.value as any)}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2"
-                disabled={busy}
-              >
-                <option value="text">Text</option>
-                <option value="pdf">PDF</option>
-                <option value="video">Video</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-center">
             <label className="text-emerald-900 font-semibold">Titel *</label>
             <div className="md:col-span-2">
               <input
                 value={form.title}
                 onChange={(e) => setField("title", e.target.value)}
+                onBlur={() => {
+                  if (!form.slug.trim() && form.title.trim()) {
+                    setField("slug", normalizeSlug(form.title));
+                  }
+                }}
                 className="w-full rounded-xl border border-slate-200 px-3 py-2"
                 disabled={busy}
                 required
@@ -477,80 +727,244 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:items-start">
-            <label className="text-emerald-900 font-semibold">
-              Kurzname *
-              <span className="block text-xs font-normal text-emerald-700">
-                Wird nur intern verwendet (z. B. „behandlungsinfo“)
-              </span>
-            </label>
-            <div className="md:col-span-2">
-              <input
-                value={form.slug}
-                onChange={(e) => setField("slug", e.target.value)}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2"
-                disabled={busy}
-                required
-              />
-            </div>
-          </div>
-
-          {/* ✅ Text-Modul: Markdown Editor */}
+          {/* ✅ Text-Modul: 4 Tabs + Editor/Audio */}
           {form.type === "text" && (
             <div className="grid grid-cols-1 gap-3">
-              <label className="text-emerald-900 font-semibold">
-                Textinhalt
-              </label>
+              <div className="flex items-end justify-between gap-3">
+                <label className="text-emerald-900 font-semibold">
+                  Inhalte (Text & Audio)
+                </label>
+
+                <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 flex-wrap gap-1">
+                  {[
+                    ["text_normal", "Originaltext"],
+                    ["text_simple", "Vereinfachter Text"],
+                    ["audio_normal", "Audio (Original)"],
+                    ["audio_simple", "Audio (Vereinfacht)"],
+                    ["video", "Video"],
+                  ].map(([key, label]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() =>
+                        setActiveVariant(key as typeof activeVariant)
+                      }
+                      className={
+                        "px-3 py-1.5 text-sm rounded-full transition " +
+                        (activeVariant === key
+                          ? "bg-white shadow-sm text-emerald-950"
+                          : "text-emerald-800 hover:bg-white/60")
+                      }
+                      disabled={busy}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               {loadingEdit && (
                 <div className="text-sm text-emerald-800">Lade Inhalt…</div>
               )}
 
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <MdxTextEditor
-                  // ✅ remount erst, wenn Form schon frische Daten hat
-                  key={`${editingId ?? "new"}:${editorNonce}`}
-                  value={form.body_md}
-                  onChange={(v) => setField("body_md", v)}
-                />
-              </div>
-            </div>
-          )}
+              {/* VIDEO */}
+              {activeVariant === "video" && (
+                <div className="grid gap-3">
+                  <div className="text-xs text-emerald-800">
+                    Hier bitte das <b>Video</b> einfügen
+                  </div>
 
-          {(form.type === "pdf" || form.type === "video") && (
-            <div className="grid grid-cols-1 gap-3">
-              <label className="text-emerald-900 font-semibold">
-                {form.type === "pdf" ? "PDF" : "Video"} (Upload oder URL)
-              </label>
+                  <input
+                    type="file"
+                    accept="video/mp4,.mp4"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) void handleFileUpload(f);
+                      // erlaubt, dieselbe Datei erneut zu wählen
+                      e.currentTarget.value = "";
+                    }}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+                    disabled={busy || !form.slug.trim()}
+                  />
 
-              <input
-                type="file"
-                accept={form.type === "pdf" ? "application/pdf" : "video/*"}
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) void handleFileUpload(f);
-                }}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
-                disabled={busy}
-              />
+                  {uploading && (
+                    <div className="text-sm text-emerald-800">
+                      Upload läuft…
+                    </div>
+                  )}
+                  {uploadError && (
+                    <div className="text-sm text-rose-800 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                      {uploadError}
+                    </div>
+                  )}
 
-              {uploading && (
-                <div className="text-sm text-emerald-800">Upload läuft…</div>
-              )}
-              {uploadError && (
-                <div className="text-sm text-rose-800 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
-                  {uploadError}
+                  {form.file_url && (
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => void handleClearVideo()}
+                        className="text-rose-700 underline"
+                        disabled={busy}
+                      >
+                        Video löschen
+                      </button>
+                      <span className="text-xs text-emerald-700">
+                        Video ist hinterlegt. Beim nächsten Upload wird es
+                        automatisch ersetzt.
+                      </span>
+                    </div>
+                  )}
+
+                  {!!form.file_url && (
+                    <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                      <video
+                        controls
+                        src={form.file_url}
+                        className="w-full rounded-xl"
+                      />
+                    </div>
+                  )}
                 </div>
               )}
 
-              <input
-                type="url"
-                value={form.file_url}
-                onChange={(e) => setField("file_url", e.target.value)}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2"
-                placeholder="oder URL einfügen…"
-                disabled={busy}
-              />
+              {/* TEXT: Original */}
+              {activeVariant === "text_normal" && (
+                <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  <MdxTextEditor
+                    key={`${editingId ?? "new"}:text_normal:${editorNonce}`}
+                    value={form.body_md}
+                    onChange={(v) => setField("body_md", v)}
+                  />
+                </div>
+              )}
+
+              {/* TEXT: Simplified */}
+              {activeVariant === "text_simple" && (
+                <>
+                  <div className="text-xs text-emerald-800">
+                    Wird angezeigt, wenn Nutzer:innen auf <b>„Vereinfachen“</b>{" "}
+                    klicken. Wenn leer, nutzt das Frontend automatisch den
+                    Originaltext.
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <MdxTextEditor
+                      key={`${editingId ?? "new"}:text_simple:${editorNonce}`}
+                      value={form.body_md_simple}
+                      onChange={(v) => setField("body_md_simple", v)}
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* AUDIO: Original */}
+              {activeVariant === "audio_normal" && (
+                <div className="grid gap-3">
+                  <div className="text-xs text-emerald-800">
+                    MP3 für den <b>Originaltext</b>.
+                  </div>
+
+                  <input
+                    type="file"
+                    accept="audio/mpeg,audio/mp3,.mp3"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) void handleAudioUpload(f, "normal");
+                      e.currentTarget.value = "";
+                    }}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+                    disabled={busy}
+                  />
+
+                  {uploading && (
+                    <div className="text-sm text-emerald-800">
+                      Upload läuft…
+                    </div>
+                  )}
+                  {uploadError && (
+                    <div className="text-sm text-rose-800 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                      {uploadError}
+                    </div>
+                  )}
+
+                  {form.audio_url && (
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => void handleClearAudio("normal")}
+                        className="text-rose-700 underline"
+                        disabled={busy}
+                      >
+                        Audio (Original) löschen
+                      </button>
+                      <span className="text-xs text-emerald-700">
+                        Audio ist hinterlegt. Beim nächsten Upload wird es
+                        automatisch ersetzt.
+                      </span>
+                    </div>
+                  )}
+
+                  {form.audio_url && (
+                    <audio controls src={form.audio_url} className="w-full" />
+                  )}
+                </div>
+              )}
+
+              {/* AUDIO: Simplified */}
+              {activeVariant === "audio_simple" && (
+                <div className="grid gap-3">
+                  <div className="text-xs text-emerald-800">
+                    MP3 für den <b>vereinfachten Text</b>.
+                  </div>
+
+                  <input
+                    type="file"
+                    accept="audio/mpeg,audio/mp3,.mp3"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) void handleAudioUpload(f, "simple");
+                      e.currentTarget.value = "";
+                    }}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+                    disabled={busy}
+                  />
+
+                  {uploading && (
+                    <div className="text-sm text-emerald-800">
+                      Upload läuft…
+                    </div>
+                  )}
+                  {uploadError && (
+                    <div className="text-sm text-rose-800 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                      {uploadError}
+                    </div>
+                  )}
+
+                  {form.audio_simple_url && (
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => void handleClearAudio("simple")}
+                        className="text-rose-700 underline"
+                        disabled={busy}
+                      >
+                        Audio (Vereinfacht) löschen
+                      </button>
+                      <span className="text-xs text-emerald-700">
+                        Audio ist hinterlegt. Beim nächsten Upload wird es
+                        automatisch ersetzt.
+                      </span>
+                    </div>
+                  )}
+
+                  {form.audio_simple_url && (
+                    <audio
+                      controls
+                      src={form.audio_simple_url}
+                      className="w-full"
+                    />
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -565,15 +979,6 @@ export default function AdminPage() {
                 : editingId
                   ? "Änderungen speichern"
                   : "Modul anlegen"}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => void loadModules()}
-              className="text-emerald-900 underline"
-              disabled={busy}
-            >
-              Aktualisieren
             </button>
 
             {!editingId && (
@@ -592,23 +997,39 @@ export default function AdminPage() {
 
       {/* List modules */}
       <div className="bg-white rounded-3xl shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
           <h2 className="text-xl font-semibold text-emerald-950">
             Bestehende Module
           </h2>
-          <button
-            onClick={() => void loadModules()}
-            className="text-emerald-900 underline"
-            disabled={busy}
-          >
-            Aktualisieren
-          </button>
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Suche nach Titel"
+              className="w-full sm:w-80 rounded-xl border border-slate-200 px-3 py-2"
+              disabled={busy}
+            />
+
+            <button
+              type="button"
+              onClick={() => void loadModules()}
+              className="text-emerald-900 underline"
+              disabled={busy}
+            >
+              Aktualisieren
+            </button>
+          </div>
         </div>
 
         {loadingModules ? (
           <div className="text-emerald-900">Lade…</div>
-        ) : modules.length === 0 ? (
-          <div className="text-emerald-900">Noch keine Module vorhanden.</div>
+        ) : filteredModules.length === 0 ? (
+          <div className="text-emerald-900">
+            {search.trim()
+              ? "Keine Module passen zur Suche."
+              : "Noch keine Module vorhanden."}
+          </div>
         ) : (
           <div className="border border-slate-100 rounded-2xl overflow-hidden">
             <table className="w-full text-sm">
@@ -617,8 +1038,7 @@ export default function AdminPage() {
                   <th className="text-left px-4 py-3 text-emerald-950">
                     Titel
                   </th>
-                  <th className="text-left px-4 py-3 text-emerald-950">Slug</th>
-                  <th className="text-left px-4 py-3 text-emerald-950">Typ</th>
+
                   <th className="text-left px-4 py-3 text-emerald-950">
                     Status
                   </th>
@@ -627,16 +1047,12 @@ export default function AdminPage() {
                   </th>
                 </tr>
               </thead>
+
               <tbody>
-                {modules.map((m) => (
+                {filteredModules.map((m) => (
                   <tr key={m.id} className="border-t border-slate-100">
                     <td className="px-4 py-3 text-emerald-950">{m.title}</td>
-                    <td className="px-4 py-3 text-emerald-800">{m.slug}</td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1 text-xs text-emerald-900">
-                        {m.type}
-                      </span>
-                    </td>
+
                     <td className="px-4 py-3 text-emerald-800">{m.status}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-4">

@@ -9,6 +9,12 @@ import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 import { AudioPlayer } from "../components/AudioPlayer";
 
+// ✅ Admin
+import CurrentPageEditorModal from "../components/CurrentPageEditorModal";
+import { useCurrentPageEditEligibility } from "../hooks/useCurrentPageEditEligibility";
+import { useIsAdmin } from "../hooks/useIsAdmin";
+import ArztFragenImage from "../assets/ArztFragen.jpg";
+
 export default function ArztgespraechDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -97,6 +103,19 @@ export default function ArztgespraechDetail() {
 
           <AudioPlayer audioUrl={activeAudioUrl} />
 
+        </div>
+
+        <div className="mt-8 bg-white rounded-3xl shadow-sm overflow-hidden">
+          <img
+            src={ArztFragenImage}
+            alt="Fragen für das Arztgespräch"
+            className="
+      w-full
+      object-cover
+      max-h-64
+      md:max-h-72
+    "
+          />
         </div>
 
         {loading && (
