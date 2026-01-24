@@ -5,8 +5,9 @@ export function useContentModulesLazy<T = unknown>(options: {
   id?: string;
   type?: string;
   slug?: string;
+  requireFileUrl?: boolean; // 👈 neu
 }) {
-  const { id, type, slug } = options;
+  const { id, type, slug, requireFileUrl } = options;
 
   const [modules, setModules] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
@@ -46,6 +47,9 @@ export function useContentModulesLazy<T = unknown>(options: {
     if (slug) {
       query = query.eq("slug", slug);
     }
+    if (requireFileUrl) {
+      query = query.not("file_url", "is", null);
+    }
 
     const { data, error } = await query;
 
@@ -59,7 +63,7 @@ export function useContentModulesLazy<T = unknown>(options: {
     }
 
     setLoading(false);
-  }, [id, type, slug]);
+  }, [id, type, slug, requireFileUrl]);
 
   const module = modules[0] ?? null;
 
