@@ -54,7 +54,7 @@ export default function FrageboegenEntscheidung() {
             <button
               key={fb.id}
               onClick={() => navigate(`/entscheidungen/fragebogen/${fb.code}`)}
-              className="bg-white rounded-3xl shadow-sm h-64 w-full sm:w-80 
+              className="bg-white rounded-3xl shadow-sm h-48 w-full sm:w-80 
                          flex flex-col items-center justify-center
                          hover:shadow-md hover:-translate-y-0.5 transition-all text-center"
             >
