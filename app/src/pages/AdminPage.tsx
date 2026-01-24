@@ -11,11 +11,6 @@ type ContentModule = {
   title: string;
   type: "text" | "pdf" | "video";
   body_md?: string | null;
-  body_md_simple?: string | null;
-
-  audio_url?: string | null;
-  audio_simple_url?: string | null;
-
   file_url?: string | null;
   status: string;
 };
@@ -24,13 +19,7 @@ type NewModuleFormState = {
   type: "text" | "pdf" | "video";
   title: string;
   slug: string;
-
   body_md: string;
-  body_md_simple: string;
-
-  audio_url: string;
-  audio_simple_url: string;
-
   file_url: string;
 };
 
@@ -39,13 +28,7 @@ type ContentModulePayload = {
   slug: string;
   type: "text" | "pdf" | "video";
   status: string;
-
   body_md: string | null;
-  body_md_simple: string | null;
-
-  audio_url: string | null;
-  audio_simple_url: string | null;
-
   file_url: string | null;
 };
 
@@ -61,7 +44,19 @@ function formatSbError(err: any) {
     .join(" | ");
 }
 
-// Bucket je nach Modultyp auswählen (für PDF/Video wie gehabt)
+function useSessionDraft(key: string, initial = "") {
+    const [value, setValue] = useState(() => {
+      return sessionStorage.getItem(key) ?? initial;
+    });
+
+    useEffect(() => {
+      sessionStorage.setItem(key, value);
+    }, [key, value]);
+
+    return [value, setValue] as const;
+  }
+
+// Bucket je nach Modultyp auswählen
 function getBucketForType(type: "text" | "pdf" | "video") {
   if (type === "pdf") return "PDF";
   if (type === "video") return "videos";
@@ -97,17 +92,6 @@ function parseSupabaseStorageObject(
 const normText = (s: string | null | undefined) =>
   (s ?? "").replace(/\r\n/g, "\n").trimEnd();
 
-function normalizeSlug(raw: string) {
-  return raw.trim().toLowerCase().replace(/\s+/g, "-");
-}
-
-function safeNameFromSlug(rawSlug: string) {
-  return (rawSlug.trim() || "module")
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-_]/g, "");
-}
-
 export default function AdminPage() {
   const { signOut } = useAuth();
   const navigate = useNavigate();
@@ -131,20 +115,15 @@ export default function AdminPage() {
     type: "text",
     title: "",
     slug: "",
-
     body_md: "",
-    body_md_simple: "",
-
-    audio_url: "",
-    audio_simple_url: "",
-
     file_url: "",
   });
 
-  // ✅ 4 Reiter: 2x Text + 2x Audio
-  const [activeVariant, setActiveVariant] = useState<
-    "text_normal" | "text_simple" | "audio_normal" | "audio_simple"
-  >("text_normal");
+  const [draftBody, setDraftBody] = useSessionDraft(
+  "admin:text:draft",
+  "",
+);
+
 
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -155,12 +134,7 @@ export default function AdminPage() {
   // ✅ Schutz vor Race Conditions, wenn man schnell mehrfach "Bearbeiten" klickt
   const editReqRef = useRef(0);
 
-  // ✅ erzwingt Editor-Remount genau dann, wenn frische Daten da sind
-  const [editorNonce, setEditorNonce] = useState(0);
-
   const busy = savingModule || uploading || loadingEdit;
-
-  const [search, setSearch] = useState("");
 
   useEffect(() => {
     void loadModules();
@@ -173,9 +147,7 @@ export default function AdminPage() {
 
     const { data, error } = await supabase
       .from("content_modules")
-      .select(
-        "id, slug, title, type, body_md, body_md_simple, audio_url, audio_simple_url, file_url, status",
-      )
+      .select("id, slug, title, type, body_md, file_url, status")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -189,6 +161,7 @@ export default function AdminPage() {
   }
 
   function resetForm() {
+    // laufende edit-requests invalidieren
     editReqRef.current++;
 
     setEditingId(null);
@@ -200,20 +173,17 @@ export default function AdminPage() {
       type: "text",
       title: "",
       slug: "",
-
       body_md: "",
-      body_md_simple: "",
-
-      audio_url: "",
-      audio_simple_url: "",
-
       file_url: "",
     });
 
-    setActiveVariant("text_normal");
-    setEditorNonce((n) => n + 1);
+    sessionStorage.removeItem("admin:text:draft");
+    setDraftBody("");
+
   }
 
+  // ✅ BUGFIX: editingId erst setzen NACHDEM der frische body_md da ist
+  // + Race Condition Schutz
   async function startEdit(m: ContentModule) {
     setError(null);
     setInfo(null);
@@ -224,12 +194,11 @@ export default function AdminPage() {
 
     const fresh = await supabase
       .from("content_modules")
-      .select(
-        "id, slug, title, type, body_md, body_md_simple, audio_url, audio_simple_url, file_url, status",
-      )
+      .select("id, slug, title, type, body_md, file_url, status")
       .eq("id", m.id)
       .single();
 
+    // wenn zwischenzeitlich ein anderer "Bearbeiten"-Klick kam: ignore
     if (reqId !== editReqRef.current) return;
 
     setLoadingEdit(false);
@@ -243,24 +212,23 @@ export default function AdminPage() {
     }
 
     const row = fresh.data;
+    const body = row.body_md ?? "";
 
+    // 1) erst Form mit frischem Content setzen
     setForm({
       type: row.type,
       title: row.title,
       slug: row.slug,
-
       body_md: row.body_md ?? "",
-      body_md_simple: row.body_md_simple ?? "",
-
-      audio_url: row.audio_url ?? "",
-      audio_simple_url: row.audio_simple_url ?? "",
-
       file_url: row.file_url ?? "",
     });
 
-    setActiveVariant("text_normal");
+    setDraftBody(body);
+    sessionStorage.setItem("admin:text:draft", body); 
+
+    // 2) dann edit mode setzen (damit Editor erst jetzt remountet)
     setEditingId(row.id);
-    setEditorNonce((n) => n + 1);
+
   }
 
   function setField<K extends keyof NewModuleFormState>(
@@ -283,7 +251,11 @@ export default function AdminPage() {
 
     try {
       const ext = file.name.split(".").pop() ?? "bin";
-      const safeSlug = safeNameFromSlug(form.slug);
+      const safeSlug = (form.slug.trim() || "module")
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-_]/g, "");
+
       const filePath = `modules/${Date.now()}_${safeSlug}.${ext}`;
       const bucket = getBucketForType(form.type);
 
@@ -306,81 +278,6 @@ export default function AdminPage() {
     }
   }
 
-  /**
-   * ✅ Audio Upload:
-   * - Bucket: "audio"
-   * - Pfade: audio/original/<file>, audio/simple/<file>
-   * - Danach signed URL generieren und in audio_url / audio_simple_url speichern
-   */
-  async function handleAudioUpload(file: File, variant: "normal" | "simple") {
-    if (form.type !== "text") {
-      setUploadError("Audio ist nur für Text-Module vorgesehen.");
-      return;
-    }
-
-    // simple Validierung
-    const isMp3 =
-      file.type === "audio/mpeg" ||
-      file.name.toLowerCase().endsWith(".mp3") ||
-      file.name.toLowerCase().endsWith(".mpeg");
-    if (!isMp3) {
-      setUploadError("Bitte eine MP3-Datei hochladen.");
-      return;
-    }
-
-    setUploading(true);
-    setUploadError(null);
-    setError(null);
-    setInfo(null);
-
-    try {
-      const safeSlug = safeNameFromSlug(form.slug);
-      const folder = variant === "normal" ? "original" : "simple";
-      const ext = "mp3";
-      const path = `${folder}/${Date.now()}_${safeSlug}.${ext}`;
-      const bucket = "audio";
-
-      const up = await supabase.storage
-        .from(bucket)
-        .upload(path, file, { cacheControl: "3600", upsert: false });
-
-      if (up.error) {
-        console.error("AUDIO UPLOAD ERROR:", up.error);
-        setUploadError(
-          up.error.message ?? "Audio konnte nicht hochgeladen werden.",
-        );
-        return;
-      }
-
-      // Signed URL (Bucket ist bei dir offenbar private)
-      // expiresIn in Sekunden — hier z.B. 1 Jahr:
-      const expiresIn = 60 * 60 * 24 * 365;
-
-      const signed = await supabase.storage
-        .from(bucket)
-        .createSignedUrl(path, expiresIn);
-
-      if (signed.error || !signed.data?.signedUrl) {
-        console.error("SIGNED URL ERROR:", signed.error);
-        setUploadError(
-          signed.error?.message ??
-            "Signed URL konnte nicht erstellt werden (Bucket/Policy prüfen).",
-        );
-        return;
-      }
-
-      if (variant === "normal") {
-        setField("audio_url", signed.data.signedUrl);
-      } else {
-        setField("audio_simple_url", signed.data.signedUrl);
-      }
-
-      setInfo("Audio erfolgreich hochgeladen.");
-    } finally {
-      setUploading(false);
-    }
-  }
-
   async function handleSaveModule(e: React.FormEvent) {
     e.preventDefault();
     setSavingModule(true);
@@ -396,34 +293,21 @@ export default function AdminPage() {
         return;
       }
 
-      const normalizedSlug = normalizeSlug(slug);
+      const normalizedSlug = slug.toLowerCase().replace(/\s+/g, "-");
 
       const payload: ContentModulePayload = {
         title,
         slug: normalizedSlug,
         type: form.type,
         status: "published",
-
         body_md: null,
-        body_md_simple: null,
-
-        audio_url: null,
-        audio_simple_url: null,
-
         file_url: null,
       };
 
       if (form.type === "text") {
         payload.body_md = normText(form.body_md);
-        const simpleText = normText(form.body_md_simple);
-        payload.body_md_simple = simpleText.length ? simpleText : null;
-
-        const a1 = (form.audio_url ?? "").trim();
-        const a2 = (form.audio_simple_url ?? "").trim();
-        payload.audio_url = a1.length ? a1 : null;
-        payload.audio_simple_url = a2.length ? a2 : null;
       } else {
-        payload.file_url = (form.file_url ?? "").trim();
+        payload.file_url = form.file_url ?? "";
       }
 
       if (editingId) {
@@ -445,9 +329,7 @@ export default function AdminPage() {
       const res = await supabase
         .from("content_modules")
         .insert([payload])
-        .select(
-          "id, slug, title, type, body_md, body_md_simple, audio_url, audio_simple_url, file_url, status, updated_at",
-        )
+        .select("id, slug, title, type, body_md, file_url, status, updated_at")
         .single();
 
       if (res.error) {
@@ -468,6 +350,7 @@ export default function AdminPage() {
     } finally {
       setSavingModule(false);
     }
+
   }
 
   async function handleDeleteModule(m: ContentModule) {
@@ -485,37 +368,28 @@ export default function AdminPage() {
     setError(null);
     setInfo(null);
 
-    // Storage delete best effort:
-    // - pdf/video -> file_url
-    // - text -> audio_url / audio_simple_url (falls Supabase-Storage URLs)
-    const urlsToTry: string[] = [];
+    // 1) Storage-Datei löschen (nur bei pdf/video + Supabase URL)
+    if ((m.type === "pdf" || m.type === "video") && m.file_url) {
+      const parsed = parseSupabaseStorageObject(m.file_url);
 
-    if ((m.type === "pdf" || m.type === "video") && m.file_url)
-      urlsToTry.push(m.file_url);
-    if (m.type === "text") {
-      if (m.audio_url) urlsToTry.push(m.audio_url);
-      if (m.audio_simple_url) urlsToTry.push(m.audio_simple_url);
-    }
+      if (parsed) {
+        const { error: storageError } = await supabase.storage
+          .from(parsed.bucket)
+          .remove([parsed.path]);
 
-    for (const u of urlsToTry) {
-      const parsed = parseSupabaseStorageObject(u);
-      if (!parsed) continue;
-
-      const { error: storageError } = await supabase.storage
-        .from(parsed.bucket)
-        .remove([parsed.path]);
-
-      if (storageError) {
-        console.error("Storage delete failed:", storageError);
-        // Nicht abbrechen – DB trotzdem löschen versuchen
-        setError(
-          `Datei konnte nicht aus Storage gelöscht werden: ${
-            storageError.message ?? "unknown error"
-          }`,
-        );
+        if (storageError) {
+          console.error("Storage delete failed:", storageError);
+          setError(
+            `Datei konnte nicht aus Storage gelöscht werden: ${
+              storageError.message ?? "unknown error"
+            }`,
+          );
+          // wir versuchen trotzdem DB-Eintrag zu löschen
+        }
       }
     }
 
+    // 2) DB-Row löschen
     const { error: delError } = await supabase
       .from("content_modules")
       .delete()
@@ -541,16 +415,6 @@ export default function AdminPage() {
     await signOut();
     navigate("/login", { replace: true });
   }
-
-  const filteredModules = modules.filter((m) => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-
-    const title = (m.title ?? "").toLowerCase();
-    const slug = (m.slug ?? "").toLowerCase();
-
-    return title.includes(q) || slug.includes(q);
-  });
 
   return (
     <AdminLayout title="Admin">
@@ -636,175 +500,29 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* ✅ Text-Modul: 4 Tabs + Editor/Audio */}
+          {/* ✅ Text-Modul: Markdown Editor */}
           {form.type === "text" && (
             <div className="grid grid-cols-1 gap-3">
-              <div className="flex items-end justify-between gap-3">
-                <label className="text-emerald-900 font-semibold">
-                  Inhalte (Text & Audio)
-                </label>
-
-                {/* Segment Control: 4 Reiter */}
-                <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 flex-wrap gap-1">
-                  {[
-                    ["text_normal", "Originaltext"],
-                    ["text_simple", "Vereinfachter Text"],
-                    ["audio_normal", "Audio (Original)"],
-                    ["audio_simple", "Audio (Vereinfacht)"],
-                  ].map(([key, label]) => (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() =>
-                        setActiveVariant(key as typeof activeVariant)
-                      }
-                      className={
-                        "px-3 py-1.5 text-sm rounded-full transition " +
-                        (activeVariant === key
-                          ? "bg-white shadow-sm text-emerald-950"
-                          : "text-emerald-800 hover:bg-white/60")
-                      }
-                      disabled={busy}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <label className="text-emerald-900 font-semibold">
+                Textinhalt
+              </label>
 
               {loadingEdit && (
                 <div className="text-sm text-emerald-800">Lade Inhalt…</div>
               )}
 
-              {/* TEXT: Original */}
-              {activeVariant === "text_normal" && (
-                <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                  <MdxTextEditor
-                    key={`${editingId ?? "new"}:text_normal:${editorNonce}`}
-                    value={form.body_md}
-                    onChange={(v) => setField("body_md", v)}
-                  />
-                </div>
-              )}
-
-              {/* TEXT: Simple */}
-              {activeVariant === "text_simple" && (
-                <>
-                  <div className="text-xs text-emerald-800">
-                    Wird angezeigt, wenn Nutzer:innen auf <b>„Vereinfachen“</b>{" "}
-                    klicken. Wenn leer, nutzt das Frontend automatisch den
-                    Originaltext.
-                  </div>
-                  <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                    <MdxTextEditor
-                      key={`${editingId ?? "new"}:text_simple:${editorNonce}`}
-                      value={form.body_md_simple}
-                      onChange={(v) => setField("body_md_simple", v)}
-                    />
-                  </div>
-                </>
-              )}
-
-              {/* AUDIO: Original */}
-              {activeVariant === "audio_normal" && (
-                <div className="grid gap-3">
-                  <div className="text-xs text-emerald-800">
-                    MP3 für den <b>Originaltext</b>.
-                  </div>
-
-                  <input
-                    type="file"
-                    accept="audio/mpeg,audio/mp3,.mp3"
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) void handleAudioUpload(f, "normal");
-                    }}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
-                    disabled={busy}
-                  />
-
-                  {uploading && (
-                    <div className="text-sm text-emerald-800">
-                      Upload läuft…
-                    </div>
-                  )}
-                  {uploadError && (
-                    <div className="text-sm text-rose-800 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
-                      {uploadError}
-                    </div>
-                  )}
-
-                  <input
-                    type="url"
-                    value={form.audio_url}
-                    onChange={(e) => setField("audio_url", e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2"
-                    placeholder="oder Audio-URL einfügen…"
-                    disabled={busy}
-                  />
-
-                  {form.audio_url && (
-                    <audio controls src={form.audio_url} className="w-full" />
-                  )}
-                </div>
-              )}
-
-              {/* AUDIO: Simple */}
-              {activeVariant === "audio_simple" && (
-                <div className="grid gap-3">
-                  <div className="text-xs text-emerald-800">
-                    MP3 für den <b>vereinfachten Text</b> (wird genutzt, wenn
-                    Nutzer:innen auf „Vereinfachen“ klicken). Wenn leer, könnt
-                    ihr optional die Original-Audio nutzen (je nach
-                    Frontend-Logik).
-                  </div>
-
-                  <input
-                    type="file"
-                    accept="audio/mpeg,audio/mp3,.mp3"
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) void handleAudioUpload(f, "simple");
-                    }}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
-                    disabled={busy}
-                  />
-
-                  {uploading && (
-                    <div className="text-sm text-emerald-800">
-                      Upload läuft…
-                    </div>
-                  )}
-                  {uploadError && (
-                    <div className="text-sm text-rose-800 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
-                      {uploadError}
-                    </div>
-                  )}
-
-                  <input
-                    type="url"
-                    value={form.audio_simple_url}
-                    onChange={(e) =>
-                      setField("audio_simple_url", e.target.value)
-                    }
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2"
-                    placeholder="oder Audio-URL einfügen…"
-                    disabled={busy}
-                  />
-
-                  {form.audio_simple_url && (
-                    <audio
-                      controls
-                      src={form.audio_simple_url}
-                      className="w-full"
-                    />
-                  )}
-                </div>
-              )}
+              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <MdxTextEditor
+                  value={draftBody}
+                  onChange={(v) => {
+                    setDraftBody(v);
+                    setField("body_md", v);
+                  }}
+                />
+              </div>
             </div>
           )}
 
-          {/* PDF/Video */}
           {(form.type === "pdf" || form.type === "video") && (
             <div className="grid grid-cols-1 gap-3">
               <label className="text-emerald-900 font-semibold">
@@ -879,41 +597,24 @@ export default function AdminPage() {
       </div>
 
       {/* List modules */}
-      {/* List modules */}
       <div className="bg-white rounded-3xl shadow-sm p-6">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-emerald-950">
             Bestehende Module
           </h2>
-
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Suche nach Titel oder Slug…"
-              className="w-full sm:w-80 rounded-xl border border-slate-200 px-3 py-2"
-              disabled={busy}
-            />
-
-            <button
-              type="button"
-              onClick={() => void loadModules()}
-              className="text-emerald-900 underline"
-              disabled={busy}
-            >
-              Aktualisieren
-            </button>
-          </div>
+          <button
+            onClick={() => void loadModules()}
+            className="text-emerald-900 underline"
+            disabled={busy}
+          >
+            Aktualisieren
+          </button>
         </div>
 
         {loadingModules ? (
           <div className="text-emerald-900">Lade…</div>
-        ) : filteredModules.length === 0 ? (
-          <div className="text-emerald-900">
-            {search.trim()
-              ? "Keine Module passen zur Suche."
-              : "Noch keine Module vorhanden."}
-          </div>
+        ) : modules.length === 0 ? (
+          <div className="text-emerald-900">Noch keine Module vorhanden.</div>
         ) : (
           <div className="border border-slate-100 rounded-2xl overflow-hidden">
             <table className="w-full text-sm">
@@ -932,9 +633,8 @@ export default function AdminPage() {
                   </th>
                 </tr>
               </thead>
-
               <tbody>
-                {filteredModules.map((m) => (
+                {modules.map((m) => (
                   <tr key={m.id} className="border-t border-slate-100">
                     <td className="px-4 py-3 text-emerald-950">{m.title}</td>
                     <td className="px-4 py-3 text-emerald-800">{m.slug}</td>
