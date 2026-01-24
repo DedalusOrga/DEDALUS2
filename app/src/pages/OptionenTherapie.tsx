@@ -3,11 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 import SunIcon from "../assets/sun.svg";
 import SyringeIcon from "../assets/syringe.svg";
-import HospitalIcon from "../assets/hospital.svg";
-import ShieldIcon from "../assets/shield.svg";
 import TargetIcon from "../assets/target.svg";
 import LeafIcon from "../assets/leaf.svg";
-import PlayIcon from "../assets/play.svg";
 import sunAndSyringeIcon from "../assets/sunAndSyringe.svg";
 import VirusAndSyringeIcon from "../assets/virusAndSyringe.svg";
 import pillAndSyringeIcon from "../assets/pillAndSyringe.svg";
