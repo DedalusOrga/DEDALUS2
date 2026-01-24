@@ -36,10 +36,10 @@ const DECISION: Decision[] = [
   export default function InformationenOverview() {
     const navigate = useNavigate();
   
-    const therapies = useMemo(() => DECISION, []);
+    const decisions = useMemo(() => DECISION, []);
   
     const handleCardClick = (slug: string) => {
-      navigate(`/informationen/${slug}`);
+      navigate(`/entscheidungen/${slug}`);
     };
 
   return (
@@ -52,7 +52,7 @@ const DECISION: Decision[] = [
       {/* Grid */}
           <div className="mt-6 sm:mt-8">
             <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-              {therapies.map((card) => (
+              {decisions.map((card) => (
                 <button
                   key={card.id}
                   onClick={() => handleCardClick(card.slug)}

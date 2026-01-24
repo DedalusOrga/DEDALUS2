@@ -37,7 +37,6 @@ export default function PlanungDetail() {
     slug,
   });
 
-  // Wie TherapieDetail: nur wenn Binding nichts liefert -> slug-Fallback laden
   useEffect(() => {
     if (!boundLoading && !boundModule && slug) {
       loadModules();
