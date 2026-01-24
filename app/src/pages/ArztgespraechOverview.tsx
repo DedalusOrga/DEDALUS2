@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import AerzteImage from "../assets/aerzte.jpg";
+import AerzteImage from "../assets/Aerzte.jpg";
 
 export default function ArztgespraechOverview() {
   const navigate = useNavigate();
