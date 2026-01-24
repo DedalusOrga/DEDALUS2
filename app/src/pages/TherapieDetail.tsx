@@ -81,8 +81,8 @@ export default function TherapieDetail() {
     ? (module?.audio_simple_url ?? module?.audio_url ?? null)
     : (module?.audio_url ?? null);
 
-  // Video-URL aus data.video_url
-  const videoUrl = module?.data?.video_url;
+  // Video-URL aus file_url, fallback auf data.video_url
+  const videoUrl = module?.file_url ?? module?.data?.video_url;
   const hasVideo = !!videoUrl;
 
   return (
@@ -126,22 +126,19 @@ export default function TherapieDetail() {
         )}
 
         {/* Content */}
-        <div
-          className={
-            "bg-white rounded-3xl shadow-sm p-6 md:p-8 grid gap-8 " +
-            (hasVideo ? "md:grid-cols-2" : "md:grid-cols-1")
-          }
-        >
-          {/* Textbereich */}
-          <div className="text-sm md:text-base leading-relaxed text-emerald-950 ">
-            <MarkdownWithGlossary text={text} />
-          </div>
-
+        <div className="grid gap-8">
           {hasVideo && (
-            <div className="flex items-center justify-center">
+            <div className="mx-auto w-full max-w-2xl bg-white rounded-3xl shadow-sm p-6 md:p-8">
               <video src={videoUrl} controls className="w-full rounded-xl" />
             </div>
           )}
+
+          {/* Textbereich */}
+          <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
+            <div className="text-sm md:text-base leading-relaxed text-emerald-950">
+              <MarkdownWithGlossary text={text} />
+            </div>
+          </div>
         </div>
       </div>
     </div>
