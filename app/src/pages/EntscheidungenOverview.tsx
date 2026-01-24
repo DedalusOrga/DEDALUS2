@@ -1,32 +1,46 @@
 import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
 import ChatIcon from "../assets/token_chat.svg";
 import SignpostIcon from "../assets/signpost.svg";
 import ClipboardIcon from "../assets/clipboard.svg";
 import EntscheidungenImage from "../assets/entscheidungen.jpg";
 
-export default function EntscheidungenOverview() {
-  const navigate = useNavigate();
+type Decision = {
+  id: string;
+  name: string;
+  icon: string;
+  slug: string;
+};
 
-  const cards = [
+const DECISION: Decision[] = [
     {
       id: "arzt",
-      title: "Fragen für das Arztgespräch",
+      name: "Fragen für das Arztgespräch",
       icon: ChatIcon,
-      path: "/entscheidungen/arztgespraech",
+      slug: "arztgespraech",
     },
     {
       id: "planung",
-      title: "Planung und Entscheidung",
+      name: "Planung und Entscheidung",
       icon: SignpostIcon,
-      path: "/entscheidungen/planung",
+      slug: "planung",
     },
     {
       id: "frageboegen",
-      title: "Fragebögen zu Entscheidungen",
+      name: "Fragebögen zu Entscheidungen",
       icon: ClipboardIcon,
-      path: "/entscheidungen/frageboegen",
+      slug: "frageboegen",
     },
   ];
+
+  export default function InformationenOverview() {
+    const navigate = useNavigate();
+  
+    const therapies = useMemo(() => DECISION, []);
+  
+    const handleCardClick = (slug: string) => {
+      navigate(`/informationen/${slug}`);
+    };
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 md:px-8 md:py-10">
@@ -35,22 +49,49 @@ export default function EntscheidungenOverview() {
         Entscheidungen
       </h1>
 
-      {/* Karten */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cards.map((card) => (
-          <button
-            key={card.id}
-            onClick={() => navigate(card.path)}
-            className="bg-white rounded-3xl shadow-sm h-48 flex flex-col items-center justify-center
-                       hover:shadow-md hover:-translate-y-0.5 transition-all"
-          >
-            <img src={card.icon} alt={card.title} className="w-12 h-12 mb-4" />
-            <div className="text-lg font-medium text-emerald-900 text-center px-4">
-              {card.title}
+      {/* Grid */}
+          <div className="mt-6 sm:mt-8">
+            <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+              {therapies.map((card) => (
+                <button
+                  key={card.id}
+                  onClick={() => handleCardClick(card.slug)}
+                  className="
+                  group flex flex-col items-start rounded-3xl bg-white
+                  p-4 sm:p-5
+                  text-left shadow-sm transition
+                  hover:shadow-md active:scale-[0.99]
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400
+                "
+                >
+                  <div
+                    className={`
+                      flex items-center justify-center
+                      ${card.id}
+                    `}
+                  >
+                    <img
+                      src={card.icon}
+                      alt=""
+                      className="h-10 w-10 object-contain sm:h-12 sm:w-12"
+                      aria-hidden
+                    />
+                  </div>
+                  <div
+                    className="
+                    mt-3 text-[15px] font-semibold leading-snug text-emerald-950
+                    sm:text-base lg:text-[17px]
+                    break-words [hyphens:auto]
+                    overflow-hidden
+                    [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]
+                  "
+                  >
+                    {card.name}
+                  </div>
+                </button>
+              ))}
             </div>
-          </button>
-        ))}
-      </div>
+          </div>
 
       {/* Bild unter den Karten */}
       <div className="mt-12 flex justify-center">
