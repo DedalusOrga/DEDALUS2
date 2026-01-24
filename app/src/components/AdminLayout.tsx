@@ -8,7 +8,13 @@ type Props = {
   children: ReactNode;
 };
 
-type TabKey = "content" | "questions" | "routing" | "glossary" | "whitelist";
+type TabKey =
+  | "content"
+  | "questions"
+  | "routing"
+  | "glossary"
+  | "whitelist"
+  | "cards";
 
 export default function AdminLayout({ title, children }: Props) {
   const navigate = useNavigate();
@@ -21,6 +27,7 @@ export default function AdminLayout({ title, children }: Props) {
     if (p.startsWith("/admin/decision-trees")) return "routing";
     if (p.startsWith("/admin/glossary")) return "glossary";
     if (p.startsWith("/admin/whitelist")) return "whitelist";
+    if (p.startsWith("/admin/cards")) return "cards";
 
     return "content";
   }, [location.pathname]);
@@ -106,6 +113,12 @@ export default function AdminLayout({ title, children }: Props) {
               }`}
             >
               Whitelist
+            </button>
+            <button
+              onClick={() => navigate("/admin/cards")}
+              className={`${tabBase} ${activeTab === "cards" ? tabActive : tabInactive}`}
+            >
+              Patientenperspektive – Einträge verwalten
             </button>
           </div>
         </div>
