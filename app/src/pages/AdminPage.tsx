@@ -45,16 +45,16 @@ function formatSbError(err: any) {
 }
 
 function useSessionDraft(key: string, initial = "") {
-    const [value, setValue] = useState(() => {
-      return sessionStorage.getItem(key) ?? initial;
-    });
+  const [value, setValue] = useState(() => {
+    return sessionStorage.getItem(key) ?? initial;
+  });
 
-    useEffect(() => {
-      sessionStorage.setItem(key, value);
-    }, [key, value]);
+  useEffect(() => {
+    sessionStorage.setItem(key, value);
+  }, [key, value]);
 
-    return [value, setValue] as const;
-  }
+  return [value, setValue] as const;
+}
 
 // Bucket je nach Modultyp auswählen
 function getBucketForType(type: "text" | "pdf" | "video") {
@@ -119,11 +119,7 @@ export default function AdminPage() {
     file_url: "",
   });
 
-  const [draftBody, setDraftBody] = useSessionDraft(
-  "admin:text:draft",
-  "",
-);
-
+  const [draftBody, setDraftBody] = useSessionDraft("admin:text:draft", "");
 
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -179,7 +175,6 @@ export default function AdminPage() {
 
     sessionStorage.removeItem("admin:text:draft");
     setDraftBody("");
-
   }
 
   // ✅ BUGFIX: editingId erst setzen NACHDEM der frische body_md da ist
@@ -224,11 +219,10 @@ export default function AdminPage() {
     });
 
     setDraftBody(body);
-    sessionStorage.setItem("admin:text:draft", body); 
+    sessionStorage.setItem("admin:text:draft", body);
 
     // 2) dann edit mode setzen (damit Editor erst jetzt remountet)
     setEditingId(row.id);
-
   }
 
   function setField<K extends keyof NewModuleFormState>(
@@ -350,7 +344,6 @@ export default function AdminPage() {
     } finally {
       setSavingModule(false);
     }
-
   }
 
   async function handleDeleteModule(m: ContentModule) {
