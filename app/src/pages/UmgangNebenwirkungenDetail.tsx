@@ -52,8 +52,8 @@ export default function UmgangNebenwirkungenDetail() {
       "Für diesen Inhalt sind noch keine Texte hinterlegt.")
     : (module?.body_md ??
       "Für diesen Inhalt sind noch keine Texte hinterlegt.");
-  // Video-URL aus data.video_url
-  const videoUrl = module?.data?.video_url;
+  // Video-URL aus file_url, fallback auf data.video_url
+  const videoUrl = module?.file_url ?? module?.data?.video_url;
   const hasVideo = !!videoUrl;
 
   const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
@@ -71,34 +71,6 @@ export default function UmgangNebenwirkungenDetail() {
           <span className="text-2xl mr-2">←</span>
           Zurück
         </button>
-
-        {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
-        {hasVideo && (
-          <div className="mb-10 flex justify-center">
-            <div
-              className="
-        w-full
-        max-w-3xl
-        bg-white
-        rounded-3xl
-        shadow-sm
-        p-4
-        md:p-6
-      "
-            >
-              <video
-                src={videoUrl}
-                controls
-                className="
-          w-full
-          aspect-video
-          rounded-2xl
-          bg-black
-        "
-              />
-            </div>
-          </div>
-        )}
 
         {/* Header: Titel + Aktionen */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -135,6 +107,17 @@ export default function UmgangNebenwirkungenDetail() {
 
         {(boundError || fallbackError) && (
           <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
+        )}
+
+        {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
+        {hasVideo && (
+          <div className="mb-10 mx-auto w-full max-w-2xl bg-white rounded-3xl shadow-sm p-4 md:p-6">
+            <video
+              src={videoUrl}
+              controls
+              className="w-full aspect-video rounded-2xl bg-black"
+            />
+          </div>
         )}
 
         <div

@@ -108,7 +108,7 @@ export default function PatientenVideosDetail() {
           }
         >
           {/* Textbereich */}
-          <div className="text-sm md:text-base leading-relaxed text-emerald-950 whitespace-pre-line">
+          <div className="text-sm md:text-base leading-relaxed text-emerald-950">
             <MarkdownWithGlossary text={text} />
           </div>
 
