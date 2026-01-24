@@ -1,30 +1,25 @@
 import TextModule from "./TextModule";
-import PdfModule from "./PdfModule";
 import VideoModule from "./VideoModule";
 
 export type Module = {
   id: string;
   title: string;
-  type: "text" | "pdf" | "video";
+  type: "text";
   body_md?: string | null;
   body_md_simple?: string | null;
   file_url?: string | null;
 };
 
 export default function ModuleRenderer({ module }: { module: Module }) {
-  switch (module.type) {
-    case "text":
-      return <TextModule title={module.title} body={module.body_md ?? ""} />;
+  const hasFile = !!module.file_url?.trim();
 
-    case "pdf":
-      return <PdfModule title={module.title} fileUrl={module.file_url ?? ""} />;
-
-    case "video":
-      return (
+  // Hauptfall: Textmodul, optional mit Video
+  return (
+    <div className="flex flex-col gap-6">
+      {hasFile && (
         <VideoModule title={module.title} fileUrl={module.file_url ?? ""} />
-      );
-
-    default:
-      return <div>Unbekannter Modultyp: {module.type}</div>;
-  }
+      )}
+      <TextModule title={module.title} body={module.body_md ?? ""} />
+    </div>
+  );
 }

@@ -81,8 +81,8 @@ export default function TherapieDetail() {
     ? (module?.audio_simple_url ?? module?.audio_url ?? null)
     : (module?.audio_url ?? null);
 
-  // Video-URL aus file_url, fallback auf data.video_url
-  const videoUrl = module?.file_url ?? module?.data?.video_url;
+  // Video-URL aus data.video_url
+  const videoUrl = module?.file_url ?? null;
   const hasVideo = !!videoUrl;
 
   return (

@@ -52,8 +52,8 @@ export default function UmgangNebenwirkungenDetail() {
       "Für diesen Inhalt sind noch keine Texte hinterlegt.")
     : (module?.body_md ??
       "Für diesen Inhalt sind noch keine Texte hinterlegt.");
-  // Video-URL aus file_url, fallback auf data.video_url
-  const videoUrl = module?.file_url ?? module?.data?.video_url;
+  // Video-URL aus data.video_url
+  const videoUrl = module?.file_url ?? null;
   const hasVideo = !!videoUrl;
 
   const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
