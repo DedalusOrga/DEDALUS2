@@ -83,7 +83,7 @@ export default function TherapieDetail() {
     : (module?.audio_url ?? null);
 
   // Video-URL aus data.video_url
-  const videoUrl = module?.data?.video_url;
+  const videoUrl = module?.file_url ?? null;
   const hasVideo = !!videoUrl;
 
   return (

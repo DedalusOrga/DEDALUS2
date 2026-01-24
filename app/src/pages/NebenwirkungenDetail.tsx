@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import { useBoundContent } from "../hooks/useBoundContent";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
@@ -9,15 +9,18 @@ import type { ContentModule } from "../types/ContentModule";
 
 import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
+import { makePageKey } from "../utils/pageKey";
 
 export default function NebenwirkungenDetail() {
-  const slug = "nebenwirkungen-detail";
-
+  const location = useLocation();
   const navigate = useNavigate();
   const [useSimple, setUseSimple] = useState(false);
 
   // ✅ PageKey im selben Schema wie page_content_bindings
-  const pageKey = "informationen:nebenwirkungen";
+  const pageKey = makePageKey(location.pathname);
+
+  const slug = makePageKey(location.pathname); // z.B. "informationen:nebenwirkungen"
+  const fallbackSlug = pageKey.replaceAll(":", "-"); // oder dein DB-Format
 
   // 1) Erst: gebundene Inhalte (page_content_bindings)
   const {
@@ -47,6 +50,7 @@ export default function NebenwirkungenDetail() {
     | undefined;
 
   const title = module?.title ?? "Nebenwirkungen";
+  useContentModulesLazy({ type: "text", slug: fallbackSlug });
 
   const text = useSimple
     ? (module?.body_md_simple ??
@@ -56,7 +60,7 @@ export default function NebenwirkungenDetail() {
       "Für diesen Inhalt sind noch keine Texte hinterlegt.");
 
   // Video-URL aus data.video_url
-  const videoUrl = module?.data?.video_url;
+  const videoUrl = module?.file_url ?? null;
   const hasVideo = !!videoUrl;
 
   const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
@@ -120,12 +124,8 @@ export default function NebenwirkungenDetail() {
               <video
                 src={videoUrl}
                 controls
-                className="
-          w-full
-          aspect-video
-          rounded-2xl
-          bg-black
-        "
+                preload="metadata"
+                className="w-full aspect-video rounded-2xl bg-black"
               />
             </div>
           </div>

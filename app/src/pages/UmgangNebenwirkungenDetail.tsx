@@ -53,7 +53,7 @@ export default function UmgangNebenwirkungenDetail() {
     : (module?.body_md ??
       "Für diesen Inhalt sind noch keine Texte hinterlegt.");
   // Video-URL aus data.video_url
-  const videoUrl = module?.data?.video_url;
+  const videoUrl = module?.file_url ?? null;
   const hasVideo = !!videoUrl;
 
   const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {

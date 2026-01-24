@@ -53,7 +53,7 @@ export default function PatientenVideosDetail() {
       "Für diesen Inhalt sind noch keine Texte hinterlegt.");
 
   // Video-URL aus data.video_url
-  const videoUrl = module?.data?.video_url;
+  const videoUrl = module?.file_url;
   const hasVideo = !!videoUrl;
 
   const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
