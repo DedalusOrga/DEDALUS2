@@ -9,11 +9,6 @@ import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 import { AudioPlayer } from "../components/AudioPlayer";
 
-// Admin
-import CurrentPageEditorModal from "../components/CurrentPageEditorModal";
-import { useCurrentPageEditEligibility } from "../hooks/useCurrentPageEditEligibility";
-import { useIsAdmin } from "../hooks/useIsAdmin";
-
 export default function ArztgespraechDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -56,11 +51,6 @@ export default function ArztgespraechDetail() {
     | ContentModule
     | null
     | undefined;
-
-  // Admin eligibility
-  const { canEditCurrentPage } = useCurrentPageEditEligibility();
-  const { user } = useIsAdmin();
-  const isAdmin = !!user;
 
   const title =
     module?.title ??
@@ -107,19 +97,6 @@ export default function ArztgespraechDetail() {
 
           <AudioPlayer audioUrl={activeAudioUrl} />
 
-          <div className="flex gap-3">
-
-            {isAdmin && canEditCurrentPage && (
-              <button
-                type="button"
-                onClick={() => setEditOpen(true)}
-                className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5
-                           text-sm md:text-base font-semibold text-emerald-900 shadow-md hover:bg-emerald-50 border border-emerald-200"
-              >
-                Bearbeiten
-              </button>
-            )}
-          </div>
         </div>
 
         {loading && (
@@ -145,15 +122,6 @@ export default function ArztgespraechDetail() {
           </div>
         )}
       </div>
-
-      {/* ✅ Modal */}
-      {isAdmin && (
-        <CurrentPageEditorModal
-          open={editOpen}
-          onClose={() => setEditOpen(false)}
-          pageKey={pageKey}
-        />
-      )}
     </div>
   );
 }
