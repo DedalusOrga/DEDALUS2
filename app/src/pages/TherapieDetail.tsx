@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import type { ContentModule } from "../types/ContentModule";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
-import MicrophoneIcon from "../assets/microphone.svg";
 import TextIcon from "../assets/text.svg";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import { useBoundContent } from "../hooks/useBoundContent";
