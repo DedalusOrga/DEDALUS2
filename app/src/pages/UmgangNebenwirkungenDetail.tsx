@@ -140,7 +140,7 @@ export default function UmgangNebenwirkungenDetail() {
         <div
           className="bg-white rounded-3xl shadow-sm p-6 md:p-8
                       text-sm md:text-base leading-relaxed
-                      text-emerald-950 whitespace-pre-line"
+                      text-emerald-950"
         >
           <MarkdownWithGlossary text={text} />
         </div>
