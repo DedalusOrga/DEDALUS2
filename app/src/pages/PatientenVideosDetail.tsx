@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import { useBoundContent } from "../hooks/useBoundContent";
+import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 import type { ContentModule } from "../types/ContentModule.ts";
 import { makePageKey } from "../utils/pageKey";
-import { AudioPlayer } from "../components/AudioPlayer";
+
+import MicrophoneIcon from "../assets/microphone.svg";
 
 export default function PatientenVideosDetail() {
   const navigate = useNavigate();
@@ -55,13 +57,13 @@ export default function PatientenVideosDetail() {
     : (module?.body_md ??
       "Für diesen Inhalt sind noch keine Texte hinterlegt.");
 
-  // ✅ Audio wie in TherapieDetail: je nach Vereinfachung andere Audio-Quelle
-  const activeAudioUrl = useSimple
-    ? (module?.audio_simple_url ?? module?.audio_url ?? null)
-    : (module?.audio_url ?? null);
-
-  const videoUrl = module?.file_url ?? null;
+  const videoUrl = module?.file_url;
   const hasVideo = !!videoUrl;
+
+  const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
+    lang: "de-DE",
+    rate: 1.0,
+  });
 
   // ✅ Sauberer Fehler, falls jemand die Route ohne slug aufruft
   if (!slug) {
@@ -95,29 +97,23 @@ export default function PatientenVideosDetail() {
           Zurück
         </button>
 
-        {/* Header: Titel -> Video -> Buttons */}
-        <div className="mb-8">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl md:text-3xl font-semibold text-emerald-800">
             {title}
           </h1>
 
-          {/* Video direkt nach dem Titel, über den Buttons, vor dem Text */}
-          {hasVideo && (
-            <div className="mt-4 flex items-center justify-center">
-              <video
-                src={videoUrl ?? undefined}
-                controls
-                className="w-full max-w-4xl rounded-xl"
-              />
-            </div>
-          )}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={toggleSpeak}
+              className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-5 py-2.5
+                       text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900"
+            >
+              <img src={MicrophoneIcon} alt="" className="w-5 h-5 mr-2" />
+              {isSpeaking ? "Stopp" : "Vorlesen"}
+            </button>
 
-          {/* ✅ Buttons (Vorlesen jetzt wie in TherapieDetail über AudioPlayer) */}
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <AudioPlayer audioUrl={activeAudioUrl} />
-
-            {/* Optional: Vereinfachen-Button – aktuell nicht aktiv.
-                Wenn du ihn brauchst, sag kurz Bescheid, dann setze ich ihn passend mit hasSimpleText-Logik ein. */}
+            {/* Optional: wenn du wirklich vereinfachen willst, brauchst du auch einen Button dafür */}
             {/* <button ... onClick={() => setUseSimple((p) => !p)}>...</button> */}
           </div>
         </div>
@@ -130,8 +126,18 @@ export default function PatientenVideosDetail() {
           <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
         )}
 
-        {/* Textbereich */}
+        {hasVideo && (
+          <div className="mx-auto w-full max-w-2xl bg-white rounded-3xl shadow-sm p-6 md:p-8 mb-6">
+            <video
+              src={videoUrl ?? undefined}
+              controls
+              className="w-full rounded-xl"
+            />
+          </div>
+        )}
+
         <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
+          {/* Textbereich */}
           <div className="text-sm md:text-base leading-relaxed text-emerald-950">
             <MarkdownWithGlossary text={text} />
           </div>
