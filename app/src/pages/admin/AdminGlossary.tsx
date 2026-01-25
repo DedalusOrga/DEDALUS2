@@ -313,14 +313,15 @@ export default function AdminGlossary() {
                   <button
                     type="button"
                     onClick={() => startEdit(r)}
-                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-50"
+                    className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     Bearbeiten
                   </button>
+
                   <button
                     type="button"
                     onClick={() => remove(r)}
-                    className="rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50"
+                    className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-800 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     Löschen
                   </button>

@@ -429,6 +429,8 @@ export default function AdminDecisionTrees() {
     setInfo("Nächste Frage wurde gespeichert.");
     setBusy(false);
   }
+  const actionBtn =
+    "inline-flex items-center justify-center rounded-full border px-5 py-2 text-sm font-semibold min-w-[140px] disabled:opacity-60 disabled:cursor-not-allowed";
 
   return (
     <AdminLayout title="Fragebogen zusammenstellen">
@@ -499,7 +501,7 @@ export default function AdminDecisionTrees() {
                   selectedQuestionnaire && openEditModal(selectedQuestionnaire)
                 }
                 disabled={!selectedQuestionnaire || busy}
-                className="rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 font-semibold text-emerald-900 hover:bg-emerald-100 disabled:opacity-60"
+                className={`${actionBtn} border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100`}
               >
                 Bearbeiten
               </button>
@@ -508,7 +510,7 @@ export default function AdminDecisionTrees() {
                 <button
                   onClick={() => void toggleActive(false)}
                   disabled={!selectedQuestionnaire || busy}
-                  className="rounded-full border border-amber-200 bg-amber-50 px-5 py-2 font-semibold text-amber-900 hover:bg-amber-100 disabled:opacity-60"
+                  className={`${actionBtn} border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100`}
                 >
                   Deaktivieren
                 </button>
@@ -516,7 +518,7 @@ export default function AdminDecisionTrees() {
                 <button
                   onClick={() => void toggleActive(true)}
                   disabled={!selectedQuestionnaire || busy}
-                  className="rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 font-semibold text-emerald-900 hover:bg-emerald-100 disabled:opacity-60"
+                  className={`${actionBtn} border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100`}
                 >
                   Aktivieren
                 </button>
@@ -525,7 +527,7 @@ export default function AdminDecisionTrees() {
               <button
                 onClick={() => void deleteQuestionnaire()}
                 disabled={!selectedQuestionnaire || busy}
-                className="rounded-full border border-rose-200 bg-rose-50 px-5 py-2 font-semibold text-rose-800 hover:bg-rose-100 disabled:opacity-60"
+                className={`${actionBtn} border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100`}
               >
                 Löschen
               </button>

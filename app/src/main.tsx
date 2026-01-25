@@ -5,7 +5,7 @@ import "./index.css";
 
 import App from "./App";
 import Startseite from "./pages/Startseite";
-import AdminPage from "./pages/AdminPage";
+import AdminPage from "./pages/admin/AdminPage";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Register from "./pages/Register";

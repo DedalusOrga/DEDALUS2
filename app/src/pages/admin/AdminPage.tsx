@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { supabase } from "../infrastructure/supabase/client";
-import { useAuth } from "../hooks/AuthProvider";
-import AdminLayout from "../components/AdminLayout";
-import MdxTextEditor from "../components/MdxTextEditor";
+import { supabase } from "../../infrastructure/supabase/client";
+import { useAuth } from "../../hooks/AuthProvider";
+import AdminLayout from "../../components/AdminLayout";
+import MdxTextEditor from "../../components/MdxTextEditor";
 
 type ContentModule = {
   id: string;
@@ -1055,12 +1055,12 @@ export default function AdminPage() {
 
                     <td className="px-4 py-3 text-emerald-800">{m.status}</td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
                         <button
                           type="button"
                           onClick={() => void startEdit(m)}
-                          className="text-emerald-900 underline"
                           disabled={busy}
+                          className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           Bearbeiten
                         </button>
@@ -1068,8 +1068,8 @@ export default function AdminPage() {
                         <button
                           type="button"
                           onClick={() => void handleDeleteModule(m)}
-                          className="text-rose-700 underline"
                           disabled={busy}
+                          className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-800 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           Löschen
                         </button>

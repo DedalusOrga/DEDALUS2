@@ -453,7 +453,7 @@ export default function AdminCards() {
                         <button
                           type="button"
                           onClick={() => startEdit(r)}
-                          className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-50 disabled:opacity-60"
+                          className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
                           disabled={busy}
                         >
                           Bearbeiten
@@ -463,7 +463,7 @@ export default function AdminCards() {
                           type="button"
                           onClick={() => void togglePublish(r)}
                           className={
-                            "rounded-xl px-3 py-2 text-sm font-semibold border disabled:opacity-60 " +
+                            "rounded-full px-4 py-2 text-sm font-semibold border disabled:cursor-not-allowed disabled:opacity-60 " +
                             (r.status === "published"
                               ? "border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100"
                               : "border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100")
@@ -478,7 +478,7 @@ export default function AdminCards() {
                         <button
                           type="button"
                           onClick={() => void remove(r)}
-                          className="rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-60"
+                          className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-800 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
                           disabled={busy}
                         >
                           Löschen
