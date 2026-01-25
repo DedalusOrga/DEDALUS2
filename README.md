@@ -1,4 +1,4 @@
-# DEDALUS 2 – Patienteninformations-Web-App
+# DEDALUS – Patienteninformations-Web-App
 
 **Projektteam:** InnoHealth Solutions  
 **Technologien:** React 19 · TypeScript · Vite · Tailwind CSS · Supabase (EU-Hosting)  
@@ -18,39 +18,54 @@ Die Anwendung basiert auf einem React-Frontend, nutzt Tailwind CSS für responsi
 
 ```
 DEDALUS2/
-├─ app/                    → React-Frontend (Codebasis)
-│   └─ src/
-│       ├─ components/     → UI-Bausteine
-│       ├─ pages/          → Seiten & Routen
-│       ├─ assets/         → Bilder, Icons, Fonts
-│       ├─ hooks/          → Eigene React-Hooks
-│       ├─ config/         → Supabase-Client, API-Konfiguration
-│       ├─ index.css       → Tailwind-Setup
-│       ├─ main.tsx        → App-Startpunkt
-│       └─ App.tsx         → Haupteinstieg der App
+├─ .github/
+│  └─ workflows/        → CI/CD-Pipelines (Build, Test, Deploy)
 │
-├─ infrastructure/          → Technische Infrastruktur
-│   ├─ supabase/            → Verbindung, Skripte, SQL-Schema, Supabase-Client
-│   └─ deploy/              → Deployment-/Build-Skripte
+├─ app/
+│  └─ src/
+│     ├─ assets/        → Statische Ressourcen (Icons, Bilder, Medien)
 │
-├─ docs/                    → Projektdokumentation
-│   ├─ kunden/              → Dokumente für Auftraggeber
-│   └─ it/                  → Technische Doku, Übergabe, QA
+│     ├─ components/    → Wiederverwendbare UI-Komponenten
+│     │  └─ admin/      → Admin-spezifische Layouts, Guards & Module
 │
-├─ public/                  → Statische Dateien (index.html, Logo, PDFs)
+│     ├─ pages/         → Routen & Seiten der Anwendung
+│     │  ├─ admin/      → Admin-Oberflächen (Inhalte, Glossar, Entscheidungsbäume, Fragen)
+│     │  ├─ Entscheidungen/
+│     │  │   └─ Frageboegen/ → Entscheidungslogik & Fragebogen-Flows
+│     │  └─ Informationen/  → Medizinische & erklärende Inhalte für Patient:innen
 │
-├─ .github/                 → GitHub Workflows (CI/CD)
-│   └─ workflows/           → z. B. ci.yml / deploy.yml
+│     ├─ glossary/      → Glossar-Logik (Markdown-Erweiterung, Kontext, Rendering)
 │
-├─ .env                     → Lokale Umgebungsvariablen (nicht committen)
-├─ .env.example             → Muster-Datei für Teammitglieder
-├─ .gitignore               → Ignorierte Dateien (node_modules, .env, etc.)
-├─ package.json             → Projekt-Abhängigkeiten & Skripte
-├─ vite.config.ts           → Vite-Konfiguration
-├─ tailwind.config.js       → Tailwind-Konfiguration
-├─ postcss.config.js        → PostCSS-Pipeline
-├─ tsconfig.json            → TypeScript-Einstellungen
-└─ README.md                → Diese Datei
+│     ├─ data/          → Statische oder semistatische Daten (z. B. Glossarbegriffe)
+│
+│     ├─ hooks/         → Custom React Hooks (Auth, Rollen, Content-Binding, TTS)
+│
+│     ├─ infrastructure/
+│     │  ├─ api/        → API-nahe Logik (z. B. Login-Handling)
+│     │  └─ supabase/   → Supabase-Client & Datenbankanbindung
+│
+│     ├─ types/         → Zentrale TypeScript-Typen & Interfaces
+│
+│     ├─ utils/         → Kleine Hilfsfunktionen & Konstanten
+│
+│     ├─ App.tsx        → Zentrales Routing & App-Setup
+│     └─ main.tsx       → Einstiegspunkt (React + Vite)
+│
+├─ test/
+│  ├─ mocks/            → Test-Mocks (z. B. File-Uploads, externe Abhängigkeiten)
+│  ├─ *.test.tsx        → UI- & Seiten-Tests (Auth, Navigation, Admin)
+│  └─ jest.setup.ts    → Globale Testkonfiguration
+│
+├─ node_modules/        → Abhängigkeiten (auto-generiert)
+│
+├─ .env                 → Lokale Umgebungsvariablen
+├─ .env.example         → Vorlage für Environment-Setup
+│
+├─ package.json         → Abhängigkeiten & Skripte
+├─ vite.config.ts       → Build- & Dev-Server-Konfiguration
+├─ tailwind.config.js   → Styling-Konfiguration
+├─ tsconfig.json        → TypeScript-Setup
+└─ README.md            → Projektübersicht & Einstieg
 ```
 
 ---
@@ -133,11 +148,6 @@ App läuft unter: [http://localhost:5173](http://localhost:5173)
   `main` (Release) · `develop` (Integration) · `feature/*` (Entwicklung)
 - **CI:**  
   GitHub Actions prüfen Build, Lint & Test bei jedem Push.
-- **Dokumentation:**  
-  Detaillierte Kundendoku & technische Übergabe unter `docs/`.
-- **Abnahme:**  
-  Kriterien & Checklisten in `docs/it/qa/`.
-
 ---
 
 ## Kontakt
@@ -146,11 +156,3 @@ App läuft unter: [http://localhost:5173](http://localhost:5173)
 Universität / Hochschule: HKA  
 Betreuer: _[wird ergänzt]_  
 E-Mail: _[wird ergänzt]_
-
-## Supabase
-
-User:
-user@test.com
-
-Passwort:
-1234
