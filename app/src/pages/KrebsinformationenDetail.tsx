@@ -10,6 +10,7 @@ export default function KrebsinformationenDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const [useSimple, setUseSimple] = useState(false);
 
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
@@ -61,9 +62,17 @@ export default function KrebsinformationenDetail() {
           Zurück
         </button>
 
-        <h1 className="text-2xl md:text-3xl font-semibold text-emerald-800 mb-6">
-          {title}
-        </h1>
+        <div className="mb-8 flex items-center justify-between gap-4">
+          <h1 className="text-3xl font-semibold text-emerald-800">{title}</h1>
+
+          <button
+            type="button"
+            onClick={() => setUseSimple((p) => !p)}
+            className="rounded-full bg-emerald-800 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-emerald-900"
+          >
+            {useSimple ? "Original" : "Vereinfachen"}
+          </button>
+        </div>
 
         {(boundLoading || fallbackLoading) && (
           <div className="mb-4 text-emerald-900">Inhalt wird geladen …</div>

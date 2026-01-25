@@ -41,7 +41,7 @@ export default function PatientenNeueInhalteDetail() {
           <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
         )}
 
-        <div className="rounded-3xl bg-white p-8 shadow-sm text-emerald-950 whitespace-pre-line">
+        <div className="rounded-3xl bg-white p-8 shadow-sm text-emerald-950">
           <MarkdownWithGlossary text={text} />
         </div>
       </div>

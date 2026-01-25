@@ -72,34 +72,6 @@ export default function UmgangNebenwirkungenDetail() {
           Zurück
         </button>
 
-        {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
-        {hasVideo && (
-          <div className="mb-10 flex justify-center">
-            <div
-              className="
-        w-full
-        max-w-3xl
-        bg-white
-        rounded-3xl
-        shadow-sm
-        p-4
-        md:p-6
-      "
-            >
-              <video
-                src={videoUrl}
-                controls
-                className="
-          w-full
-          aspect-video
-          rounded-2xl
-          bg-black
-        "
-              />
-            </div>
-          </div>
-        )}
-
         {/* Header: Titel + Aktionen */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl md:text-3xl font-semibold text-emerald-800">
@@ -137,10 +109,21 @@ export default function UmgangNebenwirkungenDetail() {
           <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
         )}
 
+        {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
+        {hasVideo && (
+          <div className="mb-10 mx-auto w-full max-w-2xl bg-white rounded-3xl shadow-sm p-4 md:p-6">
+            <video
+              src={videoUrl}
+              controls
+              className="w-full aspect-video rounded-2xl bg-black"
+            />
+          </div>
+        )}
+
         <div
           className="bg-white rounded-3xl shadow-sm p-6 md:p-8
                       text-sm md:text-base leading-relaxed
-                      text-emerald-950 whitespace-pre-line"
+                      text-emerald-950"
         >
           <MarkdownWithGlossary text={text} />
         </div>

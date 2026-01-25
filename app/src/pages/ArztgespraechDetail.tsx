@@ -8,11 +8,6 @@ import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 
 import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 import { AudioPlayer } from "../components/AudioPlayer";
-
-// ✅ Admin
-import CurrentPageEditorModal from "../components/CurrentPageEditorModal";
-import { useCurrentPageEditEligibility } from "../hooks/useCurrentPageEditEligibility";
-import { useIsAdmin } from "../hooks/useIsAdmin";
 import ArztFragenImage from "../assets/ArztFragen.jpg";
 
 export default function ArztgespraechDetail() {
@@ -21,10 +16,6 @@ export default function ArztgespraechDetail() {
   const location = useLocation();
 
   const [useSimple, setUseSimple] = useState(false);
-
-  // ✅ Admin Modal
-  const [editOpen, setEditOpen] = useState(false);
-
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
     [location.pathname],
@@ -58,11 +49,6 @@ export default function ArztgespraechDetail() {
     | null
     | undefined;
 
-  // Admin eligibility
-  const { canEditCurrentPage } = useCurrentPageEditEligibility();
-  const { user } = useIsAdmin();
-  const isAdmin = !!user;
-
   const title =
     module?.title ??
     (slug === "checkliste"
@@ -75,12 +61,9 @@ export default function ArztgespraechDetail() {
             ? "Fragen zu Nebenwirkungen"
             : "Fragen für das Arztgespräch");
 
-  const text = useSimple
-    ? (module?.body_md_simple ??
-      module?.body_md ??
-      "Für diese Fragen zum Arztgespräch sind noch keine Inhalte hinterlegt.")
-    : (module?.body_md ??
-      "Für diese Fragen zum Arztgespräch sind noch keine Inhalte hinterlegt.");
+  const text =
+    module?.body_md ??
+    "Für diese Fragen zum Arztgespräch sind noch keine Inhalte hinterlegt.";
 
   const activeAudioUrl = useSimple
     ? (module?.audio_simple_url ?? module?.audio_url ?? null)
@@ -110,31 +93,9 @@ export default function ArztgespraechDetail() {
           </h1>
 
           <AudioPlayer audioUrl={activeAudioUrl} />
-
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setUseSimple((prev) => !prev)}
-              className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-5 py-2.5
-                         text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900"
-            >
-              {useSimple ? "Original" : "Vereinfachen"}
-            </button>
-
-            {isAdmin && canEditCurrentPage && (
-              <button
-                type="button"
-                onClick={() => setEditOpen(true)}
-                className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5
-                           text-sm md:text-base font-semibold text-emerald-900 shadow-md hover:bg-emerald-50 border border-emerald-200"
-              >
-                Bearbeiten
-              </button>
-            )}
-          </div>
         </div>
 
-        <div className="mt-8 bg-white rounded-3xl shadow-sm overflow-hidden">
+        <div className="mt-8 mb-3 bg-white rounded-3xl shadow-sm overflow-hidden">
           <img
             src={ArztFragenImage}
             alt="Fragen für das Arztgespräch"
@@ -170,15 +131,10 @@ export default function ArztgespraechDetail() {
           </div>
         )}
       </div>
-
-      {/* ✅ Modal */}
-      {isAdmin && (
-        <CurrentPageEditorModal
-          open={editOpen}
-          onClose={() => setEditOpen(false)}
-          pageKey={pageKey}
-        />
-      )}
+      <p className="mt-2 text-xs text-center text-emerald-900 opacity-70">
+        © Krebsinformationsdienst, Deutsches Krebsforschungszentrum, Fotograf
+        Tobias Schwerdt, Wiesenbach
+      </p>
     </div>
   );
 }

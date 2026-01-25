@@ -61,12 +61,9 @@ export default function WeiterfuehrendeInfoDetail() {
               ? "Deutsche Krebshilfe + -gesellschaft"
               : "Weiterführende Informationen");
 
-  const text = useSimple
-    ? (module?.body_md_simple ??
-      module?.body_md ??
-      "Für diese weiterführenden Informationen sind noch keine Inhalte hinterlegt.")
-    : (module?.body_md ??
-      "Für diese weiterführenden Informationen sind noch keine Inhalte hinterlegt.");
+  const text =
+    module?.body_md ??
+    "Für diese weiterführenden Informationen sind noch keine Inhalte hinterlegt.";
 
   const activeAudioUrl = useSimple
     ? (module?.audio_simple_url ?? module?.audio_url ?? null)
@@ -95,16 +92,7 @@ export default function WeiterfuehrendeInfoDetail() {
 
           <AudioPlayer audioUrl={activeAudioUrl} />
 
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setUseSimple((p) => !p)}
-              className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-5 py-2.5
-                         text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900"
-            >
-              {useSimple ? "Original" : "Vereinfachen"}
-            </button>
-          </div>
+          <div className="flex gap-3"></div>
         </div>
 
         {loading && (
