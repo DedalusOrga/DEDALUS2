@@ -126,26 +126,21 @@ export default function PatientenVideosDetail() {
           <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
         )}
 
-        <div
-          className={
-            "bg-white rounded-3xl shadow-sm p-6 md:p-8 grid gap-8 " +
-            (hasVideo ? "md:grid-cols-2" : "md:grid-cols-1")
-          }
-        >
+        {hasVideo && (
+          <div className="mx-auto w-full max-w-2xl bg-white rounded-3xl shadow-sm p-6 md:p-8 mb-6">
+            <video
+              src={videoUrl ?? undefined}
+              controls
+              className="w-full rounded-xl"
+            />
+          </div>
+        )}
+
+        <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
           {/* Textbereich */}
           <div className="text-sm md:text-base leading-relaxed text-emerald-950">
             <MarkdownWithGlossary text={text} />
           </div>
-
-          {hasVideo && (
-            <div className="flex items-center justify-center">
-              <video
-                src={videoUrl ?? undefined}
-                controls
-                className="w-full rounded-xl"
-              />
-            </div>
-          )}
         </div>
       </div>
     </div>
