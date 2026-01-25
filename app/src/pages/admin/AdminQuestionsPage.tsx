@@ -420,7 +420,7 @@ export default function AdminQuestionsPage() {
         >
           {questionnaires.map((q) => (
             <option key={q.id} value={q.id}>
-              {q.code} – {q.title}
+              {q.title} ({q.code})
             </option>
           ))}
         </select>

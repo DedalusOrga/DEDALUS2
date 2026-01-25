@@ -29,8 +29,15 @@ function label(text: string, max = 60) {
   if (!t) return "";
   return t.length > max ? t.slice(0, max) + "…" : t;
 }
+
+/**
+ * Slugify für "code" (stabil, technisch).
+ * - deutsche Umlaute/ß sinnvoll ersetzen
+ * - nur [a-z0-9-]
+ * - Mehrfach-"-" kollabieren
+ */
 function slugify(input: string): string {
-  return input
+  return (input ?? "")
     .trim()
     .toLowerCase()
     .normalize("NFKD")
@@ -44,11 +51,18 @@ function slugify(input: string): string {
     .replace(/-{2,}/g, "-");
 }
 
+/**
+ * Erzeugt einen eindeutigen code:
+ * - base = slugify(title)
+ * - wenn base belegt -> base-2, base-3, ...
+ *
+ * Hinweis: Das ist "best effort" im Frontend.
+ * Für 100% Race-Condition-Sicherheit brauchst du DB-Trigger/Unique-Handling.
+ */
 async function generateUniqueCodeFromTitle(title: string): Promise<string> {
   const base = slugify(title);
   if (!base) throw new Error("Titel ist leer/ungültig.");
 
-  // lade existierende codes, die mit base beginnen
   const { data, error } = await supabase
     .from("questionnaires")
     .select("code")
@@ -255,14 +269,9 @@ export default function AdminDecisionTrees() {
 
   // ---------- CRUD QUESTIONNAIRES ----------
   async function createQuestionnaire() {
-    const code = formCode.trim();
     const title = formTitle.trim();
     const description = formDescription.trim() || null;
 
-    if (!code) {
-      setError("Bitte einen internen Namen angeben (z. B. immun_v1).");
-      return;
-    }
     if (!title) {
       setError("Bitte einen Titel angeben.");
       return;
@@ -272,42 +281,45 @@ export default function AdminDecisionTrees() {
     setError(null);
     setInfo(null);
 
-    const { data, error } = await supabase
-      .from("questionnaires")
-      .insert({
-        code,
-        title,
-        description,
-        is_active: true,
-        start_question_id: null,
-      })
-      .select("id, code, title, description, is_active, start_question_id")
-      .single();
+    try {
+      const code = await generateUniqueCodeFromTitle(title);
 
-    if (error) {
-      console.error(error);
-      setError(error.message);
+      const { data, error } = await supabase
+        .from("questionnaires")
+        .insert({
+          code,
+          title,
+          description,
+          is_active: true,
+          start_question_id: null,
+        })
+        .select("id, code, title, description, is_active, start_question_id")
+        .single();
+
+      if (error) {
+        console.error(error);
+        setError(error.message);
+        setBusy(false);
+        return;
+      }
+
+      setInfo("Fragebogen wurde angelegt.");
+      closeModals();
+      await loadQuestionnaires(data?.id);
+    } catch (e: any) {
+      console.error(e);
+      setError(e?.message ?? "Fragebogen konnte nicht angelegt werden.");
+    } finally {
       setBusy(false);
-      return;
     }
-
-    setInfo("Fragebogen wurde angelegt.");
-    closeModals();
-    await loadQuestionnaires(data?.id);
-    setBusy(false);
   }
 
   async function updateQuestionnaire() {
     if (!activeQuestionnaire) return;
 
-    const code = formCode.trim();
     const title = formTitle.trim();
     const description = formDescription.trim() || null;
 
-    if (!code) {
-      setError("Bitte einen internen Namen angeben.");
-      return;
-    }
     if (!title) {
       setError("Bitte einen Titel angeben.");
       return;
@@ -320,7 +332,6 @@ export default function AdminDecisionTrees() {
     const { error } = await supabase
       .from("questionnaires")
       .update({
-        code,
         title,
         description,
         is_active: formIsActive,
@@ -672,7 +683,7 @@ export default function AdminDecisionTrees() {
         </div>
       </div>
 
-      {/* CREATE MODAL (wie Questions-Modal) */}
+      {/* CREATE MODAL */}
       {createModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="w-full max-w-xl rounded-3xl bg-white shadow-lg p-6">
@@ -681,10 +692,6 @@ export default function AdminDecisionTrees() {
                 <h3 className="text-xl font-semibold text-emerald-950">
                   Neuer Fragebogen
                 </h3>
-                <div className="text-sm text-emerald-900">
-                  Interner Name sollte eindeutig sein (z. B.{" "}
-                  <span className="font-semibold">immun_v1</span>).
-                </div>
               </div>
               <button
                 onClick={closeModals}
@@ -697,19 +704,6 @@ export default function AdminDecisionTrees() {
             </div>
 
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-emerald-900 mb-2">
-                  Interner Name *
-                </label>
-                <input
-                  value={formCode}
-                  onChange={(e) => setFormCode(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                  placeholder="z. B. immun_v1"
-                  disabled={busy}
-                />
-              </div>
-
               <div>
                 <label className="block text-sm font-semibold text-emerald-900 mb-2">
                   Titel *
@@ -758,7 +752,7 @@ export default function AdminDecisionTrees() {
         </div>
       )}
 
-      {/* EDIT MODAL (wie Questions-Modal) */}
+      {/* EDIT MODAL */}
       {editModalOpen && activeQuestionnaire && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="w-full max-w-xl rounded-3xl bg-white shadow-lg p-6">
@@ -767,9 +761,6 @@ export default function AdminDecisionTrees() {
                 <h3 className="text-xl font-semibold text-emerald-950">
                   Fragebogen bearbeiten
                 </h3>
-                <div className="text-sm text-emerald-900">
-                  Änderungen wirken sofort in der Verwaltung.
-                </div>
               </div>
               <button
                 onClick={closeModals}
@@ -782,18 +773,6 @@ export default function AdminDecisionTrees() {
             </div>
 
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-emerald-900 mb-2">
-                  Interner Name *
-                </label>
-                <input
-                  value={formCode}
-                  onChange={(e) => setFormCode(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                  disabled={busy}
-                />
-              </div>
-
               <div>
                 <label className="block text-sm font-semibold text-emerald-900 mb-2">
                   Titel *
