@@ -65,7 +65,9 @@ body {
 /* Editor Content */
 .mdx-editor-content {
   min-height: 260px;
+  max-height: 60vh;
   padding: 16px;
   font-size: 15px;
   line-height: 1.7;
+  overflow-y: auto;
 }
