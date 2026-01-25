@@ -67,12 +67,12 @@ export default function Home() {
                 Zur Bedienhilfe
               </button>
 
-              <button
+              {/* <button
                 onClick={() => navigate("/admin")}
                 className="px-6 py-3 rounded-full border border-purple-600 text-purple-600 hover:bg-purple-50"
               >
                 Adminbereich öffnen
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
