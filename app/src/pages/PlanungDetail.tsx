@@ -71,6 +71,7 @@ export default function PlanungDetail() {
   const error = boundError || fallbackError;
 
   const showMissingState = !loading && !error && !module;
+  const hasSimpleText = !!module?.body_md_simple;
 
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
@@ -92,15 +93,19 @@ export default function PlanungDetail() {
           <AudioPlayer audioUrl={activeAudioUrl} />
 
           <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setUseSimple((prev) => !prev)}
-              className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-5 py-2.5
-                         text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900"
-            >
-              <img src={TextIcon} alt="" className="w-5 h-5 mr-2" />
-              {useSimple ? "Original" : "Vereinfachen"}
-            </button>
+            <div className="flex gap-3">
+              {hasSimpleText && (
+                <button
+                  type="button"
+                  onClick={() => setUseSimple((prev) => !prev)}
+                  className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-5 py-2.5
+                 text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900"
+                >
+                  <img src={TextIcon} alt="" className="w-5 h-5 mr-2" />
+                  {useSimple ? "Original" : "Vereinfachen"}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
