@@ -185,6 +185,11 @@ export default function AdminPage() {
     void loadModules();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  useEffect(() => {
+    return () => {
+      resetForm();
+    };
+  }, []);
 
   useEffect(() => {
     const raw = localStorage.getItem(DRAFT_KEY);
@@ -653,6 +658,8 @@ export default function AdminPage() {
 
         await loadModules();
         setInfo("Änderungen gespeichert.");
+        resetForm();
+        await loadModules();
         return;
       }
 
