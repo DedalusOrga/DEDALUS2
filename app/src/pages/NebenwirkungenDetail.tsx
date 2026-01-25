@@ -2,12 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import { useBoundContent } from "../hooks/useBoundContent";
-import { useTextToSpeech } from "../hooks/useTextToSpeech";
-import type { Module } from "../components/ModuleRenderer";
 import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 import type { ContentModule } from "../types/ContentModule";
-
-import MicrophoneIcon from "../assets/microphone.svg";
+import { AudioPlayer } from "../components/AudioPlayer";
 import TextIcon from "../assets/text.svg";
 import { makePageKey } from "../utils/pageKey";
 
@@ -16,20 +13,16 @@ export default function NebenwirkungenDetail() {
   const navigate = useNavigate();
   const [useSimple, setUseSimple] = useState(false);
 
-  // ✅ PageKey im selben Schema wie page_content_bindings
   const pageKey = makePageKey(location.pathname);
+  const slug = makePageKey(location.pathname);
+  const fallbackSlug = pageKey.replaceAll(":", "-");
 
-  const slug = makePageKey(location.pathname); // z.B. "informationen:nebenwirkungen"
-  const fallbackSlug = pageKey.replaceAll(":", "-"); // oder dein DB-Format
-
-  // 1) Erst: gebundene Inhalte (page_content_bindings)
   const {
     module: boundModule,
     loading: boundLoading,
     error: boundError,
   } = useBoundContent(pageKey);
 
-  // 2) Fallback: direkt über slug aus content_modules
   const {
     module: fallbackModule,
     loading: fallbackLoading,
@@ -50,6 +43,7 @@ export default function NebenwirkungenDetail() {
     | undefined;
 
   const title = module?.title ?? "Nebenwirkungen";
+
   useContentModulesLazy({ type: "text", slug: fallbackSlug });
 
   const text = useSimple
@@ -59,14 +53,14 @@ export default function NebenwirkungenDetail() {
     : (module?.body_md ??
       "Für diesen Inhalt sind noch keine Texte hinterlegt.");
 
-  // Video-URL aus data.video_url
+  // ✅ Audio wie bei UmgangNebenwirkungenDetail
+  const activeAudioUrl = useSimple
+    ? (module?.audio_simple_url ?? module?.audio_url ?? null)
+    : (module?.audio_url ?? null);
+
   const videoUrl = module?.file_url ?? null;
   const hasVideo = !!videoUrl;
-
-  const { isSpeaking, toggleSpeak } = useTextToSpeech(text, {
-    lang: "de-DE",
-    rate: 1.0,
-  });
+  const hasSimpleText = !!module?.body_md_simple;
 
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
@@ -79,47 +73,42 @@ export default function NebenwirkungenDetail() {
           Zurück
         </button>
 
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Header */}
+        <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-semibold text-emerald-800">
             {title}
           </h1>
 
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={toggleSpeak}
-              className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-5 py-2.5
-                       text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900"
-            >
-              <img src={MicrophoneIcon} alt="" className="w-5 h-5 mr-2" />
-              {isSpeaking ? "Stopp" : "Vorlesen"}
-            </button>
+          {/* ✅ Video direkt nach Titel */}
+          {hasVideo && (
+            <div className="mt-4 mb-6 mx-auto w-full max-w-4xl bg-white rounded-3xl shadow-sm p-4 md:p-6">
+              <video
+                src={videoUrl ?? undefined}
+                controls
+                preload="metadata"
+                className="w-full aspect-video rounded-2xl bg-black"
+              />
+            </div>
+          )}
 
-            <button
-              type="button"
-              onClick={() => setUseSimple((prev) => !prev)}
-              className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-5 py-2.5
-                       text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900"
-            >
-              <img src={TextIcon} alt="" className="w-5 h-5 mr-2" />
-              {useSimple ? "Original" : "Vereinfachen"}
-            </button>
+          {/* ✅ Aktionen: AudioPlayer + Vereinfachen */}
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <AudioPlayer audioUrl={activeAudioUrl} />
+
+            {hasSimpleText && (
+              <button
+                type="button"
+                onClick={() => setUseSimple((prev) => !prev)}
+                className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-5 py-2.5
+                         text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900"
+              >
+                <img src={TextIcon} alt="" className="w-5 h-5 mr-2" />
+                {useSimple ? "Original" : "Vereinfachen"}
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Videobereich – nur, wenn wirklich ein Video hinterlegt ist */}
-        {hasVideo && (
-          <div className="mb-10 mx-auto w-full max-w-2xl bg-white rounded-3xl shadow-sm p-4 md:p-6">
-            <video
-              src={videoUrl}
-              controls
-              preload="metadata"
-              className="w-full aspect-video rounded-2xl bg-black"
-            />
-          </div>
-        )}
-
-        {/* Ladezustand */}
         {(boundLoading || fallbackLoading) && (
           <div className="mb-4 text-emerald-900">Inhalt wird geladen …</div>
         )}
@@ -128,10 +117,10 @@ export default function NebenwirkungenDetail() {
           <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
         )}
 
+        {/* Text */}
         <div
           className="bg-white rounded-3xl shadow-sm p-6 md:p-8
-                      text-sm md:text-base leading-relaxed
-                      text-emerald-950"
+                      text-sm md:text-base leading-relaxed text-emerald-950"
         >
           <MarkdownWithGlossary text={text} />
         </div>
