@@ -26,7 +26,8 @@ export default function QuestionsPage() {
           </summary>
           <p className="mt-2 text-sm text-slate-700">
             Nutzen Sie die Hauptnavigation oben auf der Seite. Die Inhalte sind
-            thematisch in die Bereiche „Informationen“ und „Entscheidungen“ gegliedert.
+            thematisch in die Bereiche „Informationen“ und „Entscheidungen“
+            gegliedert.
           </p>
         </details>
 
@@ -58,8 +59,7 @@ export default function QuestionsPage() {
           <p className="mt-2 text-sm text-slate-700">
             Der Bereich „Entscheidungen“ unterstützt Sie dabei, wichtige
             Entscheidungen rund um Ihre Behandlung vorzubereiten. Dort finden
-            Sie Fragen für das Arztgespräch, Entscheidungshilfen und
-            Fragebögen.
+            Sie Fragen für das Arztgespräch, Entscheidungshilfen und Fragebögen.
           </p>
         </details>
 
