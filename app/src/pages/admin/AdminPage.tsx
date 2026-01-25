@@ -164,6 +164,20 @@ export default function AdminPage() {
 
   const [search, setSearch] = useState("");
 
+  const DRAFT_KEY = "dedalus.admin.content.draft.v1";
+
+  function hasDraftData(f: NewModuleFormState) {
+    return Boolean(
+      f.title.trim() ||
+      f.slug.trim() ||
+      f.body_md.trim() ||
+      f.body_md_simple.trim() ||
+      (f.audio_url ?? "").trim() ||
+      (f.audio_simple_url ?? "").trim() ||
+      (f.file_url ?? "").trim(),
+    );
+  }
+
   // ✅ Scroll-to-top beim Bearbeiten (ist schon drin)
   const formTopRef = useRef<HTMLDivElement | null>(null);
 
@@ -171,6 +185,69 @@ export default function AdminPage() {
     void loadModules();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw) as {
+        form?: Partial<NewModuleFormState>;
+        activeVariant?: string;
+        editingId?: string | null;
+      };
+
+      if (!parsed.form) return;
+      if (editingId) return;
+      if (hasDraftData(form)) return;
+
+      setForm((prev) => ({
+        ...prev,
+        ...parsed.form,
+      }));
+
+      const allowedVariants = new Set([
+        "video",
+        "text_normal",
+        "text_simple",
+        "audio_normal",
+        "audio_simple",
+      ]);
+
+      if (parsed.activeVariant && allowedVariants.has(parsed.activeVariant)) {
+        setActiveVariant(parsed.activeVariant as typeof activeVariant);
+      }
+
+      setInfo("Entwurf wiederhergestellt.");
+    } catch {
+      // Ignoriere kaputte Drafts.
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!hasDraftData(form)) {
+      localStorage.removeItem(DRAFT_KEY);
+      return;
+    }
+
+    const handle = window.setTimeout(() => {
+      try {
+        localStorage.setItem(
+          DRAFT_KEY,
+          JSON.stringify({
+            form,
+            activeVariant,
+            editingId,
+          }),
+        );
+      } catch {
+        // LocalStorage kann voll sein; dann still abbrechen.
+      }
+    }, 250);
+
+    return () => window.clearTimeout(handle);
+  }, [form, activeVariant, editingId]);
 
   async function loadModules() {
     setLoadingModules(true);
@@ -200,6 +277,7 @@ export default function AdminPage() {
     setUploadError(null);
     setError(null);
     setInfo(null);
+    localStorage.removeItem(DRAFT_KEY);
 
     setForm({
       type: "text",
