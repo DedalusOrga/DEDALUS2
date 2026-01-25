@@ -1,47 +1,45 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+// app/src/pages/Startseite.tsx
+import { Link } from "react-router-dom";
 import thoraxImage from "../assets/thx-klinik.jpg";
 
 export default function Startseite() {
-  const navigate = useNavigate();
   return (
-    <div className="min-h-screen flex items-center bg-emerald-50">
-      <div className="max-w-6xl mx-auto w-full">
-        <div className="flex flex-col md:flex-row items-center gap-8 px-10 md:px-20">
-          {/* Linker Bereich (Text) */}
-          <div className="max-w-xl">
-            {/* Überschrift */}
-            <h1 className="text-6xl md:text-5xl font-bold text-green-900">
+    <div className="min-h-screen bg-emerald-50">
+      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-4 py-10 sm:px-6 md:px-10">
+        <div className="flex w-full flex-col items-center gap-8 md:gap-12">
+          {/* Text */}
+          <div className="w-full max-w-xl text-center md:text-left">
+            <h1 className="text-4xl font-bold leading-tight text-green-900 sm:text-5xl md:text-6xl">
               Willkommen bei
               <br />
               DEDALUS!
             </h1>
 
-            {/* Beschreibung */}
-            <p className="text-lg text-green-900 mt-12">
+            <p className="mt-5 text-base text-green-900 sm:text-lg md:mt-8">
               Hier können Sie sich registrieren, um die Web-App zu nutzen.
             </p>
 
-            {/* ➜ Der Button führt zu /register */}
-            <Link
-              to="/Login"
-              className="inline-block bg-green-900 text-white px-10 py-3 rounded-full text-lg font-semibold mt-10"
-            >
-              Anmelden
-            </Link>
+            <div className="mt-7 md:mt-10">
+              <Link
+                to="/Login"
+                className="inline-flex w-full items-center justify-center rounded-full bg-green-900 px-8 py-3 text-base font-semibold text-white shadow-sm transition hover:opacity-95 sm:w-auto sm:text-lg"
+              >
+                Anmelden
+              </Link>
+            </div>
           </div>
 
-          {/* RECHTE SEITE */}
-          <div className="w-[520px] flex-shrink-0 flex flex-col items-center md:self-end">
-            <div className="w-[520px] h-[520px] rounded-full overflow-hidden shadow-xl">
+          {/* Image – immer unten */}
+          <div className="flex w-full flex-col items-center">
+            <div className="h-[260px] w-[260px] overflow-hidden rounded-full shadow-xl sm:h-[360px] sm:w-[360px] md:h-[520px] md:w-[520px]">
               <img
                 src={thoraxImage}
                 alt="Thoraxklinik"
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover"
               />
             </div>
 
-            <p className="mt-3 text-xs text-center text-emerald-900 opacity-70 max-w-md md:max-w-none md:whitespace-nowrap md:text-right">
+            <p className="mt-3 max-w-sm text-center text-xs text-emerald-900/70">
               © Krebsinformationsdienst, Deutsches Krebsforschungszentrum,
               Fotograf Tobias Schwerdt, Wiesenbach
             </p>
