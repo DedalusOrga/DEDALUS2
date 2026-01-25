@@ -169,12 +169,12 @@ export default function AdminPage() {
   function hasDraftData(f: NewModuleFormState) {
     return Boolean(
       f.title.trim() ||
-        f.slug.trim() ||
-        f.body_md.trim() ||
-        f.body_md_simple.trim() ||
-        (f.audio_url ?? "").trim() ||
-        (f.audio_simple_url ?? "").trim() ||
-        (f.file_url ?? "").trim(),
+      f.slug.trim() ||
+      f.body_md.trim() ||
+      f.body_md_simple.trim() ||
+      (f.audio_url ?? "").trim() ||
+      (f.audio_simple_url ?? "").trim() ||
+      (f.file_url ?? "").trim(),
     );
   }
 
