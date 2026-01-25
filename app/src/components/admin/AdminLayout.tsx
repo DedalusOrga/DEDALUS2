@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
@@ -21,6 +21,13 @@ export default function AdminLayout({ title, children }: Props) {
   const location = useLocation();
   const { user, signOut } = useAuth();
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Beim Routenwechsel Menü schließen (mobile)
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
   const activeTab: TabKey = useMemo(() => {
     const p = location.pathname;
     if (p.startsWith("/admin/questions")) return "questions";
@@ -37,40 +44,144 @@ export default function AdminLayout({ title, children }: Props) {
   const tabActive = "bg-emerald-900 text-white";
   const tabInactive = "text-emerald-900 hover:bg-emerald-50";
 
+  const mobileItemBase =
+    "w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition";
+  const mobileItemActive = "bg-emerald-900 text-white";
+  const mobileItemInactive = "text-emerald-900 hover:bg-emerald-50";
+
   async function handleLogout() {
     await signOut();
     navigate("/login", { replace: true });
   }
 
+  function go(path: string) {
+    navigate(path);
+    setMobileMenuOpen(false);
+  }
+
   return (
-    <div className="min-h-screen bg-emerald-50 px-4 md:px-10 py-10">
+    <div className="min-h-screen bg-emerald-50 px-4 sm:px-6 lg:px-10 py-10">
       <div className="max-w-6xl mx-auto">
         {/* Top bar */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-start justify-between gap-3 mb-6">
           <button
             onClick={() => navigate("/home")}
-            className="flex items-center text-emerald-900 hover:text-emerald-700"
+            className="flex items-center text-emerald-900 hover:text-emerald-700 shrink-0"
           >
             <span className="text-2xl mr-2">←</span> Zurück
           </button>
 
-          <div className="text-center">
+          <div className="text-center flex-1">
             <div className="text-emerald-950 font-semibold">Admin</div>
-            <div className="text-xs text-emerald-800">{user?.email ?? ""}</div>
+            <div className="text-xs text-emerald-800 break-all">
+              {user?.email ?? ""}
+            </div>
           </div>
 
-          <button onClick={handleLogout} className="text-emerald-900 underline">
+          <button
+            onClick={handleLogout}
+            className="text-emerald-900 underline shrink-0"
+          >
             Logout
           </button>
         </div>
 
-        {/* Title + Tabs */}
+        {/* Title + Tabs / Burger */}
         <div className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-semibold text-emerald-950 mb-4">
-            {title}
-          </h1>
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="text-2xl md:text-3xl font-semibold text-emerald-950">
+              {title}
+            </h1>
 
-          <div className="inline-flex bg-white rounded-full shadow-sm p-1 border border-slate-100 gap-1">
+            {/* Burger: sichtbar bis <lg */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              className="lg:hidden inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-3 py-2 shadow-sm"
+              aria-label="Menü öffnen"
+              aria-expanded={mobileMenuOpen}
+            >
+              <span className="text-emerald-900 text-xl leading-none">
+                {mobileMenuOpen ? "✕" : "☰"}
+              </span>
+            </button>
+          </div>
+
+          {/* MOBILE MENU: sichtbar bis <lg */}
+          <div className="lg:hidden mt-4">
+            {mobileMenuOpen && (
+              <div className="bg-white border border-slate-100 shadow-sm rounded-2xl p-2">
+                <button
+                  onClick={() => go("/admin")}
+                  className={`${mobileItemBase} ${
+                    activeTab === "content"
+                      ? mobileItemActive
+                      : mobileItemInactive
+                  }`}
+                >
+                  Inhalte anlegen
+                </button>
+
+                <button
+                  onClick={() => go("/admin/questions")}
+                  className={`${mobileItemBase} ${
+                    activeTab === "questions"
+                      ? mobileItemActive
+                      : mobileItemInactive
+                  }`}
+                >
+                  Fragen anlegen
+                </button>
+
+                <button
+                  onClick={() => go("/admin/decision-trees")}
+                  className={`${mobileItemBase} ${
+                    activeTab === "routing"
+                      ? mobileItemActive
+                      : mobileItemInactive
+                  }`}
+                >
+                  Fragebogen zusammenstellen
+                </button>
+
+                <button
+                  onClick={() => go("/admin/glossary")}
+                  className={`${mobileItemBase} ${
+                    activeTab === "glossary"
+                      ? mobileItemActive
+                      : mobileItemInactive
+                  }`}
+                >
+                  Glossar
+                </button>
+
+                <button
+                  onClick={() => go("/admin/whitelist")}
+                  className={`${mobileItemBase} ${
+                    activeTab === "whitelist"
+                      ? mobileItemActive
+                      : mobileItemInactive
+                  }`}
+                >
+                  Whitelist
+                </button>
+
+                <button
+                  onClick={() => go("/admin/cards")}
+                  className={`${mobileItemBase} ${
+                    activeTab === "cards"
+                      ? mobileItemActive
+                      : mobileItemInactive
+                  }`}
+                >
+                  Patientenperspektive – Einträge verwalten
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* DESKTOP TABS: erst ab lg */}
+          <div className="hidden lg:inline-flex bg-white rounded-full shadow-sm p-1 border border-slate-100 gap-1 mt-4">
             <button
               onClick={() => navigate("/admin")}
               className={`${tabBase} ${
@@ -106,6 +217,7 @@ export default function AdminLayout({ title, children }: Props) {
             >
               Glossar
             </button>
+
             <button
               onClick={() => navigate("/admin/whitelist")}
               className={`${tabBase} ${
@@ -114,9 +226,12 @@ export default function AdminLayout({ title, children }: Props) {
             >
               Whitelist
             </button>
+
             <button
               onClick={() => navigate("/admin/cards")}
-              className={`${tabBase} ${activeTab === "cards" ? tabActive : tabInactive}`}
+              className={`${tabBase} ${
+                activeTab === "cards" ? tabActive : tabInactive
+              }`}
             >
               Patientenperspektive – Einträge verwalten
             </button>

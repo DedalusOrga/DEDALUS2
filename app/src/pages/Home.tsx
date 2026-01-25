@@ -44,52 +44,62 @@ export default function Home() {
   }, [user]);
 
   return (
-    <div className="px-16 py-16">
-      <div className="flex items-start justify-between gap-16">
-        {/* LINKE SEITE */}
-        <div className="max-w-xl flex flex-col">
-          <h1 className="text-5xl font-bold text-emerald-900">
-            Willkommen bei DEDALUS
-          </h1>
+    <div className="px-4 py-8 sm:px-8 sm:py-12 lg:px-16 lg:py-16">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
+          {/* LINKE SEITE */}
+          <div className="max-w-xl flex flex-col">
+            <h1 className="text-3xl font-bold text-emerald-900 sm:text-4xl lg:text-5xl">
+              Willkommen bei DEDALUS
+            </h1>
 
-          {/* TEXT + BUTTONS */}
-          <div className="mt-24">
-            <p className="text-lg text-emerald-800 mb-8 max-w-md">
-              In der Bedienhilfe finden Sie einfache Erklärungen und ein kurzes
-              Video zur Nutzung der WebApp.
-            </p>
+            {/* TEXT + BUTTONS */}
+            <div className="mt-6 sm:mt-10 lg:mt-24">
+              <p className="text-base text-emerald-800 mb-6 max-w-md sm:text-lg sm:mb-8">
+                In der Bedienhilfe finden Sie einfache Erklärungen und ein
+                kurzes Video zur Nutzung der WebApp.
+              </p>
 
-            <div className="flex gap-4">
-              <button
-                onClick={() => navigate("/fragen")}
-                className="px-6 py-3 rounded-full border border-emerald-700 text-emerald-700 hover:bg-emerald-100"
-              >
-                Zur Bedienhilfe
-              </button>
+              <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+                <button
+                  onClick={() => navigate("/fragen")}
+                  className="w-full px-7 py-4 rounded-full border-2 border-emerald-700 
+             text-emerald-800 font-semibold text-base
+             bg-emerald-50
+             hover:bg-emerald-100
+             active:scale-[0.98]
+             transition sm:w-auto"
+                >
+                  Zur Bedienhilfe
+                </button>
 
-              {/* <button
+                {/* <button
                 onClick={() => navigate("/admin")}
                 className="px-6 py-3 rounded-full border border-purple-600 text-purple-600 hover:bg-purple-50"
               >
                 Adminbereich öffnen
               </button> */}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* RECHTE SEITE */}
-        <div className="w-[500px] flex-shrink-0 flex flex-col items-center md:self-end">
-          <div className="h-[500px] rounded-full overflow-hidden shadow-xl">
-            <img
-              src={thoraxImage}
-              alt="Gebäude des Deutschen Krebsforschungszentrums"
-              className="w-full h-full object-cover"
-            />
+          {/* RECHTE SEITE */}
+          <div className="w-full flex flex-col items-center lg:w-[500px] lg:flex-shrink-0 lg:items-end md:self-end">
+            <div className="w-full max-w-[320px] sm:max-w-[400px] lg:max-w-none">
+              <div className="aspect-square w-full rounded-full overflow-hidden shadow-xl lg:h-[500px] lg:w-[500px]">
+                <img
+                  src={thoraxImage}
+                  alt="Gebäude des Deutschen Krebsforschungszentrums"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+
+            <p className="mt-3 text-xs text-center text-emerald-900 opacity-70 lg:text-right md:whitespace-nowrap">
+              © Krebsinformationsdienst, Deutsches Krebsforschungszentrum,
+              Fotograf Tobias Schwerdt, Wiesenbach
+            </p>
           </div>
-          <p className="mt-2 text-xs text-center text-emerald-900 opacity-70 md:whitespace-nowrap md:text-right">
-            © Krebsinformationsdienst, Deutsches Krebsforschungszentrum,
-            Fotograf Tobias Schwerdt, Wiesenbach
-          </p>
         </div>
       </div>
     </div>
