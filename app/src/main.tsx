@@ -1,310 +1,272 @@
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import App from "./App";
-import Startseite from "./pages/Startseite";
-import AdminPage from "./pages/AdminPage";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
-import Register from "./pages/Register";
-import EntscheidungenOverview from "./pages/EntscheidungenOverview";
-import FrageboegenEntscheidung from "./pages/FrageboegenEntscheidung";
-import FragebogenFrage from "./pages/FragebogenFrage";
-import FragebogenFertig from "./pages/FragebogenFertig";
-import ForgotPassword from "./pages/ForgotPassword";
-import Protected from "./components/Protected";
-import AdminProtected from "./components/AdminProtected";
-import { AuthProvider } from "./hooks/AuthProvider";
-
-
-
-import ArztgespraechOverview from "./pages/ArztgespraechOverview";
-import OptionenTherapie from "./pages/OptionenTherapie";
-import TherapieDetail from "./pages/TherapieDetail";
-import QuestionsPage from "./pages/QuestionsPage";
-import InformationOverview from "./pages/InformationOverview";
-import KrebsinformationenOverview from "./pages/KrebsinformationenOverview";
-import KrebsinformationenDetail from "./pages/KrebsinformationenDetail";
-import NebenwirkungenOverview from "./pages/NebenwirkungenOverview";
-import NebenwirkungenDetail from "./pages/NebenwirkungenDetail";
-import UmgangNebenwirkungenDetail from "./pages/UmgangNebenwirkungenDetail";
-import PatientenPerspektiveOverview from "./pages/PatientenPerspektiveOverview";
-import PatientenVideosDetail from "./pages/PatientenVideosDetail";
-import ZusatzoptionenOverview from "./pages/ZusatzoptionenOverview";
-import ZusatzoptionenDetail from "./pages/ZusatzoptionenDetail";
-import PatientenNeueInhalteDetail from "./pages/PatientenNeueInhalteDetail";
-import UnterstuetzungsangeboteOverview from "./pages/UnterstuetzungsangeboteOverview";
-import UnterstuetzungsangeboteDetail from "./pages/UnterstuetzungsangeboteDetail";
-import WeiterfuehrendeInfoOverview from "./pages/WeiterfuehrendeInfoOverview";
-import WeiterfuehrendeInfoDetail from "./pages/WeiterfuehrendeInfoDetail";
-
-
-
-
-
-
-
-
 
 import "./index.css";
 
-const router = createBrowserRouter([
-  // 🔓 Public Routes (ohne Login)
-  { path: "/", element: <Startseite /> },
-  { path: "/login", element: <Login /> },
-  { path: "/register", element: <Register /> },
-  { path: "/auth/forgot", element: <ForgotPassword /> },
+import App from "./App";
+import Startseite from "./pages/Startseite";
+import AdminPage from "./pages/admin/AdminPage";
+import Login from "./pages/Login";
+import Home from "./pages/Home";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
-  // Admin ganz oben – nur geschützt, aber NICHT in der App-Navigation
-  {
-    path: "/admin",
-    element: (
-      <AdminProtected>
-        <AdminPage />
-      </AdminProtected>
-    ),
-  },
+import { GlossaryProvider } from "./glossary/GlossaryProvider";
+import Protected from "./components/Protected";
+import AdminProtected from "./components/admin/AdminProtected";
+import { AuthProvider } from "./hooks/AuthProvider";
 
-  // 🔐 Alle übrigen Routen nur mit Login erreichbar
-  {
-    path: "/",
-    element: (
-      <Protected>
-        <App />
-      </Protected>
-    ),
-    children: [
-      { path: "/home", element: <Home /> },
+import EntscheidungenOverview from "./pages/Entscheidungen/EntscheidungenOverview";
+import FrageboegenEntscheidung from "./pages/Entscheidungen/Frageboegen/FrageboegenEntscheidung";
+import FragebogenFrage from "./pages/Entscheidungen/Frageboegen/FragebogenFrage";
+import FragebogenFertig from "./pages/Entscheidungen/Frageboegen/FragebogenFertig";
 
-      { path: "/entscheidungen", element: <EntscheidungenOverview /> },
+import PlanungOverview from "./pages/Entscheidungen/PlanungOverview";
+import PlanungDetail from "./pages/Entscheidungen/PlanungDetail";
 
-      { path: "/entscheidungen/arztgespraech", element: <ArztgespraechOverview /> },
+import ArztgespraechOverview from "./pages/Entscheidungen/ArztgespraechOverview";
+import ArztgespraechDetail from "./pages/Entscheidungen/ArztgespraechDetail";
 
-      { path: "/entscheidungen/frageboegen-entscheidung", element: <FrageboegenEntscheidung /> },
+import OptionenTherapie from "./pages/Informationen/OptionenTherapie";
+import TherapieDetail from "./pages/Informationen/TherapieDetail";
+import QuestionsPage from "./pages/QuestionsPage";
+import InformationOverview from "./pages/Informationen/InformationOverview";
 
-      { path: "/entscheidungen/fragebogen/:id", element: <FragebogenFrage /> },
+import KrebsinformationenOverview from "./pages/Informationen/KrebsinformationenOverview";
+import KrebsinformationenDetail from "./pages/Informationen/KrebsinformationenDetail";
 
-      { path: "/entscheidungen/fragebogen/:id/fertig", element: <FragebogenFertig /> },
+import NebenwirkungenOverview from "./pages/Informationen/NebenwirkungenOverview";
+import NebenwirkungenDetail from "./pages/Informationen/NebenwirkungenDetail";
+import UmgangNebenwirkungenDetail from "./pages/Informationen/UmgangNebenwirkungenDetail";
 
+import PatientenPerspektiveOverview from "./pages/Informationen/PatientenPerspektiveOverview";
+import PatientenVideosDetail from "./pages/Informationen/PatientenVideosDetail";
+import PatientenNeueInhalteDetail from "./pages/PatientenNeueInhalteDetail";
 
-{
-      path: "/informationen/optionentherapie",
+import ZusatzoptionenOverview from "./pages/Informationen/ZusatzoptionenOverview";
+import ZusatzoptionenDetail from "./pages/Informationen/ZusatzoptionenDetail";
+
+import UnterstuetzungsangeboteOverview from "./pages/Informationen/UnterstuetzungsangeboteOverview";
+import UnterstuetzungsangeboteDetail from "./pages/Informationen/UnterstuetzungsangeboteDetail";
+
+import WeiterfuehrendeInfoOverview from "./pages/Informationen/WeiterfuehrendeInfoOverview";
+import WeiterfuehrendeInfoDetail from "./pages/Informationen/WeiterfuehrendeInfoDetail";
+
+import AdminDecisionTrees from "./pages/admin/AdminDecisionTrees";
+import AdminQuestionsPage from "./pages/admin/AdminQuestionsPage";
+import FragebogenErgebnis from "./pages/Entscheidungen/Frageboegen/FragebogenErgebnis";
+
+import AdminGlossary from "./pages/admin/AdminGlossary";
+import AdminAllowedEmails from "./pages/admin/AdminAllowedEmails";
+import AdminCards from "./pages/admin/AdminCards";
+
+// Basename sauber aus Vite ziehen (z.B. "/" lokal, "/DEDALUS2/" in Prod)
+const basename = import.meta.env.BASE_URL ?? "/";
+
+const router = createBrowserRouter(
+  [
+    // 🔓 Public Routes (ohne Login)
+    { path: "/", element: <Startseite /> },
+    { path: "/login", element: <Login /> },
+    { path: "/register", element: <Register /> },
+    { path: "/auth/forgot", element: <ForgotPassword /> },
+    { path: "/auth/reset", element: <ResetPassword /> },
+
+    // 🔒 Admin (separat)
+    {
+      path: "/admin",
+      element: (
+        <AdminProtected>
+          <AdminPage />
+        </AdminProtected>
+      ),
+    },
+    {
+      path: "/admin/decision-trees",
+      element: (
+        <AdminProtected>
+          <AdminDecisionTrees />
+        </AdminProtected>
+      ),
+    },
+    {
+      path: "/admin/questions",
+      element: (
+        <AdminProtected>
+          <AdminQuestionsPage />
+        </AdminProtected>
+      ),
+    },
+    {
+      path: "/admin/glossary",
+      element: (
+        <AdminProtected>
+          <AdminGlossary />
+        </AdminProtected>
+      ),
+    },
+    {
+      path: "/admin/whitelist",
+      element: (
+        <AdminProtected>
+          <AdminAllowedEmails />
+        </AdminProtected>
+      ),
+    },
+    {
+      path: "/admin/cards",
+      element: (
+        <AdminProtected>
+          <AdminCards />
+        </AdminProtected>
+      ),
+    },
+
+    // 🔐 App-Bereich (alles darunter geschützt)
+    {
+      path: "/",
       element: (
         <Protected>
-          <OptionenTherapie />
+          <GlossaryProvider>
+            <App />
+          </GlossaryProvider>
         </Protected>
-  ),
-},
+      ),
+      children: [
+        { path: "home", element: <Home /> },
 
-      { path: "/informationen/:slug", element: <TherapieDetail /> },
+        { path: "entscheidungen", element: <EntscheidungenOverview /> },
 
-      {
-        path: "/einstellungen",
-        element: <div className="p-6 text-lg">Einstellungen (Platzhalter)</div>,
-      },
-      
-      {
-       path: "/fragen",
-       element: (
-          <Protected>
-            <QuestionsPage />
-          </Protected>
-  ),
-},
-// -------------------------------------------
-// 📌 INFORMATIONEN → ÜBERSICHTSSEITE
-// (7 Kacheln: allgemeine Krebsinformationen,
-//  Therapieoptionen, Nebenwirkungsmanagement,
-//  Patient*innen-Perspektive, zusätzliche Therapien,
-//  Unterstützungsangebote, weiterführende Infos)
-// -------------------------------------------
-  {
-      path: "/informationen-uebersicht",
-      element: (
-        <Protected>
-          <InformationOverview />
-        </Protected>
-  ),
-},
-  // -------------------------------------------
-  // 📌 KREBS-INFORMATIONEN -> ZWISCHENÜBERSICHT
-  // (2 Kacheln: Stadienübersicht + Stadium III vs. IV)
-  // -------------------------------------------
-{
-  path: "/informationen/allgemein",
-  element: (
-    <Protected>
-      <KrebsinformationenOverview />
-    </Protected>
-  ),
-},
-// -------------------------------------------
-    // 📌 KREBS-INFORMATIONEN -> DETAILSEITEN
-    // /informationen/allgemein/stadienuebersicht
-    // /informationen/allgemein/stadium-vergleich
-    // -------------------------------------------
-{
-  path: "/informationen/allgemein/:slug",
-  element: (
-    <Protected>
-      <KrebsinformationenDetail />
-    </Protected>
-  ),
-},
-// -------------------------------------------
-// 📌 INFORMATIONEN → NEBENWIRKUNGSMANAGEMENT (Übersicht)
-// Zeigt die 2 Kacheln: Nebenwirkungen / Umgang mit Nebenwirkungen
-// -------------------------------------------
-{
-  path: "/informationen/nebenwirkungen",
-  element: (
-    <Protected>
-      <NebenwirkungenOverview />
-    </Protected>
-  ),
-},
+        {
+          path: "entscheidungen/arztgespraech",
+          element: <ArztgespraechOverview />,
+        },
+        {
+          path: "entscheidungen/arztgespraech/:slug",
+          element: <ArztgespraechDetail />,
+        },
 
-// -------------------------------------------
-// 📌 INFORMATIONEN → NEBENWIRKUNGEN DETAIL
-// -------------------------------------------
-{
-  path: "/informationen/nebenwirkungen/nebenwirkungen-detail",
-  element: (
-    <Protected>
-      <NebenwirkungenDetail />
-    </Protected>
-  ),
-},
+        {
+          path: "entscheidungen/frageboegen",
+          element: <FrageboegenEntscheidung />,
+        },
+        { path: "entscheidungen/fragebogen/:id", element: <FragebogenFrage /> },
+        {
+          path: "entscheidungen/fragebogen/:id/fertig",
+          element: <FragebogenFertig />,
+        },
+        {
+          path: "entscheidungen/fragebogen/:id/ergebnis",
+          element: <FragebogenErgebnis />,
+        },
 
-// -------------------------------------------
-// 📌 INFORMATIONEN → UMGANG MIT NEBENWIRKUNGEN DETAIL
-// -------------------------------------------
-{
-  path: "/informationen/nebenwirkungen/umgang-nebenwirkungen",
-  element: (
-    <Protected>
-      <UmgangNebenwirkungenDetail />
-    </Protected>
-  ),
-},
-// -------------------------------------------
-// 📌 INFORMATIONEN → PATIENT*INNEN-PERSPEKTIVE (Übersicht)
-// 2 Kacheln: Videos/Audios & neue Inhalte (Platzhalter)
-// -------------------------------------------
-{
-  path: "/informationen/patientenperspektive",
-  element: (
-    <Protected>
-      <PatientenPerspektiveOverview />
-    </Protected>
-  ),
-},
+        {
+          path: "entscheidungen/planung",
+          element: <PlanungOverview />,
+        },
 
-// -------------------------------------------
-// 📌 PATIENT*INNEN-PERSPEKTIVE → Videos/Audios
-// -------------------------------------------
-{
-  path: "/informationen/patientenperspektive/videos-audios",
-  element: (
-    <Protected>
-      <PatientenVideosDetail />
-    </Protected>
-  ),
-},
+        {
+          path: "entscheidungen/planung/:slug",
+          element: <PlanungDetail />,
+        },
 
-// -------------------------------------------
-// 📌 PATIENT*INNEN-PERSPEKTIVE → neue Inhalte (Platzhalter)
-// -------------------------------------------
-{
-  path: "/informationen/patientenperspektive/neue-inhalte",
-  element: (
-    <Protected>
-      <PatientenNeueInhalteDetail />
-    </Protected>
-  ),
-},
-// -------------------------------------------
-// 📌 INFORMATIONEN → ZUSÄTZLICHE THERAPIEOPTIONEN (Übersicht)
-// -------------------------------------------
-{
-  path: "/informationen/zusaetzlich",
-  element: (
-    <Protected>
-      <ZusatzoptionenOverview />
-    </Protected>
-  ),
-},
+        // Infos / Therapie
+        { path: "informationen-uebersicht", element: <InformationOverview /> },
+        {
+          path: "informationen/optionentherapie",
+          element: <OptionenTherapie />,
+        },
+        { path: "informationen/:slug", element: <TherapieDetail /> },
 
-// -------------------------------------------
-// 📌 INFORMATIONEN → ZUSÄTZLICHE THERAPIEOPTIONEN (Details)
-// -------------------------------------------
-{
-  path: "/informationen/zusaetzlich/:slug",
-  element: (
-    <Protected>
-      <ZusatzoptionenDetail />
-    </Protected>
-  ),
-},
-// -------------------------------------------
-// 📌 INFORMATIONEN → UNTERSTÜTZUNGSANGEBOTE (Übersicht)
-// -------------------------------------------
-{
-  path: "/informationen/unterstuetzung",
-  element: (
-    <Protected>
-      <UnterstuetzungsangeboteOverview />
-    </Protected>
-  ),
-},
+        // Sonstiges
+        {
+          path: "einstellungen",
+          element: (
+            <div className="p-6 text-lg">Einstellungen (Platzhalter)</div>
+          ),
+        },
+        { path: "fragen", element: <QuestionsPage /> },
 
-// -------------------------------------------
-// 📌 INFORMATIONEN → UNTERSTÜTZUNGSANGEBOTE (Details)
-// Beispiel-URLs:
-// /informationen/unterstuetzung/sozialdienst
-// /informationen/unterstuetzung/selbsthilfegruppen
-// -------------------------------------------
-{
-  path: "/informationen/unterstuetzung/:slug",
-  element: (
-    <Protected>
-      <UnterstuetzungsangeboteDetail />
-    </Protected>
-  ),
-},
-// -------------------------------------------
-// 📌 INFORMATIONEN → WEITERFÜHRENDE INFORMATIONEN (Übersicht)
-// -------------------------------------------
-{
-  path: "/informationen/weiter",
-  element: (
-    <Protected>
-      <WeiterfuehrendeInfoOverview />
-    </Protected>
-  ),
-},
+        // Krebsinformationen
+        {
+          path: "informationen/allgemein",
+          element: <KrebsinformationenOverview />,
+        },
+        {
+          path: "informationen/allgemein/:slug",
+          element: <KrebsinformationenDetail />,
+        },
 
-// -------------------------------------------
-// 📌 INFORMATIONEN → WEITERFÜHRENDE INFORMATIONEN (Details)
-// -------------------------------------------
-{
-  path: "/informationen/weiter/:slug",
-  element: (
-    <Protected>
-      <WeiterfuehrendeInfoDetail />
-    </Protected>
-  ),
-},
+        // Nebenwirkungen
+        {
+          path: "informationen/nebenwirkungen",
+          element: <NebenwirkungenOverview />,
+        },
+        {
+          path: "informationen/nebenwirkungen/nebenwirkungen-detail",
+          element: <NebenwirkungenDetail />,
+        },
+        {
+          path: "informationen/nebenwirkungen/umgang-nebenwirkungen",
+          element: <UmgangNebenwirkungenDetail />,
+        },
 
+        // Patientenperspektive
+        {
+          path: "informationen/patientenperspektive",
+          element: <PatientenPerspektiveOverview />,
+        },
+        {
+          path: "/informationen/patientenperspektive/:slug",
+          element: <PatientenVideosDetail />,
+        },
+        {
+          path: "informationen/patientenperspektive/neue-inhalte",
+          element: <PatientenNeueInhalteDetail />,
+        },
 
+        // Zusatzoptionen
+        {
+          path: "informationen/zusaetzlich",
+          element: <ZusatzoptionenOverview />,
+        },
+        {
+          path: "informationen/zusaetzlich/:slug",
+          element: <ZusatzoptionenDetail />,
+        },
 
+        // Unterstützungsangebote
+        {
+          path: "informationen/unterstuetzung",
+          element: <UnterstuetzungsangeboteOverview />,
+        },
+        {
+          path: "informationen/unterstuetzung/:slug",
+          element: <UnterstuetzungsangeboteDetail />,
+        },
 
-    ],
-  },
-]);
-
+        // Weiterführende Infos
+        {
+          path: "informationen/weiter",
+          element: <WeiterfuehrendeInfoOverview />,
+        },
+        {
+          path: "informationen/weiter/:slug",
+          element: <WeiterfuehrendeInfoDetail />,
+        },
+        {
+          path: "glossary",
+          element: <AdminGlossary />,
+        },
+      ],
+    },
+  ],
+  { basename },
+);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <AuthProvider>
     <RouterProvider router={router} />
-  </AuthProvider>
+  </AuthProvider>,
 );

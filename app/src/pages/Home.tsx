@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/AuthProvider";
 import { supabase } from "../infrastructure/supabase/client";
+import thoraxImage from "../assets/thx-klinik.jpg";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export default function Home() {
       setIsAdmin(false);
       return;
     }
+    const userId = user.id;
 
     let cancelled = false;
 
@@ -21,7 +23,7 @@ export default function Home() {
       const { data, error } = await supabase
         .from("profiles")
         .select("is_admin")
-        .eq("user_id", user.id)
+        .eq("user_id", user?.id)
         .single();
 
       if (cancelled) return;
@@ -42,76 +44,64 @@ export default function Home() {
   }, [user]);
 
   return (
-    <div className="mx-auto max-w-6xl">
-      {/* Zurück-Link oben */}
-      <button
-        type="button"
-        onClick={() => navigate(-1)}
-        className="mt-4 mb-4 inline-flex items-center gap-2 text-sm font-medium text-emerald-800 hover:underline"
-      >
-        <span className="text-lg">←</span>
-        Zurück
-      </button>
+    <div className="px-4 py-8 sm:px-8 sm:py-12 lg:px-16 lg:py-16">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
+          {/* LINKE SEITE */}
+          <div className="max-w-xl flex flex-col">
+            <h1 className="text-3xl font-bold text-emerald-900 sm:text-4xl lg:text-5xl">
+              Willkommen bei DEDALUS
+            </h1>
 
-      {/* großer Bereich wie im Mock */}
-      <section className="rounded-b-2xl bg-emerald-100 pt-6 pb-10">
-        {/* Überschrift-Zeile */}
-        <div className="px-8 md:px-12 pb-8 border-b border-emerald-50">
-          <h1 className="text-3xl md:text-4xl font-extrabold leading-snug text-emerald-900 max-w-3xl">
-            Hier finden Sie einfache Erklärungen und Videos zur Nutzung der
-            WebApp.
-          </h1>
-        </div>
-
-        {/* Text + Video-Placeholder */}
-        <div className="px-8 md:px-12 pt-8">
-          <div className="grid gap-8 md:grid-cols-2 items-stretch rounded-2xl bg-white p-6 md:p-8 shadow-sm">
-            <div className="text-base leading-relaxed text-slate-800">
-              <p className="mb-4">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur.
+            {/* TEXT + BUTTONS */}
+            <div className="mt-6 sm:mt-10 lg:mt-24">
+              <p className="text-base text-emerald-800 mb-6 max-w-md sm:text-lg sm:mb-8">
+                In der Bedienhilfe finden Sie einfache Erklärungen und ein
+                kurzes Video zur Nutzung der WebApp.
               </p>
-              <p>
-                Excepteur sint occaecat cupidatat non proident, sunt in culpa
-                qui officia deserunt mollit anim id est laborum.
-              </p>
-            </div>
 
-            {/* Video-Platzhalter – hier später echtes Video einbauen */}
-            <div className="flex items-center justify-center">
-              <div className="relative w-full aspect-video max-w-xl rounded-xl bg-slate-200 flex items-center justify-center shadow-inner">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full border-2 border-white/80">
-                  <div className="ml-1 w-0 h-0 border-t-[10px] border-b-[10px] border-l-[16px] border-t-transparent border-b-transparent border-l-white/90" />
-                </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+                <button
+                  onClick={() => navigate("/fragen")}
+                  className="w-full px-7 py-4 rounded-full border-2 border-emerald-700 
+             text-emerald-800 font-semibold text-base
+             bg-emerald-50
+             hover:bg-emerald-100
+             active:scale-[0.98]
+             transition sm:w-auto"
+                >
+                  Zur Bedienhilfe
+                </button>
+
+                {/* <button
+                onClick={() => navigate("/admin")}
+                className="px-6 py-3 rounded-full border border-purple-600 text-purple-600 hover:bg-purple-50"
+              >
+                Adminbereich öffnen
+              </button> */}
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Button zu Fragen/Antworten + Admin-Button */}
-        <div className="px-8 md:px-12 pt-10 flex flex-col gap-4 md:flex-row md:items-center md:gap-6">
-          <Link
-            to="/fragen"
-            className="inline-flex items-center rounded-full border border-emerald-700 px-6 py-3 text-lg font-semibold text-emerald-800 hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-700"
-          >
-            Zu den Fragen/Antworten
-          </Link>
+          {/* RECHTE SEITE */}
+          <div className="w-full flex flex-col items-center lg:w-[500px] lg:flex-shrink-0 lg:items-end md:self-end">
+            <div className="w-full max-w-[320px] sm:max-w-[400px] lg:max-w-none">
+              <div className="aspect-square w-full rounded-full overflow-hidden shadow-xl lg:h-[500px] lg:w-[500px]">
+                <img
+                  src={thoraxImage}
+                  alt="Gebäude des Deutschen Krebsforschungszentrums"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
 
-          {isAdmin && (
-            <button
-              type="button"
-              onClick={() => navigate("/admin")}
-              className="inline-flex items-center rounded-full border border-purple-700 px-6 py-3 text-lg font-semibold text-purple-800 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-700"
-            >
-              Adminbereich öffnen
-            </button>
-          )}
+            <p className="mt-3 text-xs text-center text-emerald-900 opacity-70 lg:text-right md:whitespace-nowrap">
+              © Krebsinformationsdienst, Deutsches Krebsforschungszentrum,
+              Fotograf Tobias Schwerdt, Wiesenbach
+            </p>
+          </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
