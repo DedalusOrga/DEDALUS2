@@ -62,8 +62,8 @@ export default function ArztgespraechDetail() {
             : "Fragen für das Arztgespräch");
 
   const text =
-  module?.body_md ??
-  "Für diese Fragen zum Arztgespräch sind noch keine Inhalte hinterlegt.";
+    module?.body_md ??
+    "Für diese Fragen zum Arztgespräch sind noch keine Inhalte hinterlegt.";
 
   const activeAudioUrl = useSimple
     ? (module?.audio_simple_url ?? module?.audio_url ?? null)
@@ -93,10 +93,9 @@ export default function ArztgespraechDetail() {
           </h1>
 
           <AudioPlayer audioUrl={activeAudioUrl} />
-
         </div>
 
-        <div className="mt-8 bg-white rounded-3xl shadow-sm overflow-hidden">
+        <div className="mt-8 mb-3 bg-white rounded-3xl shadow-sm overflow-hidden">
           <img
             src={ArztFragenImage}
             alt="Fragen für das Arztgespräch"
@@ -132,6 +131,10 @@ export default function ArztgespraechDetail() {
           </div>
         )}
       </div>
+      <p className="mt-2 text-xs text-center text-emerald-900 opacity-70">
+                  © Krebsinformationsdienst, Deutsches Krebsforschungszentrum,
+                  Fotograf Tobias Schwerdt, Wiesenbach
+                </p>
     </div>
   );
 }

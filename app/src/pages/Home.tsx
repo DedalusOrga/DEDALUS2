@@ -78,7 +78,7 @@ export default function Home() {
         </div>
 
         {/* RECHTE SEITE */}
-        <div className="w-[500px] flex-shrink-0">
+        <div className="w-[500px] flex-shrink-0 flex flex-col items-center md:self-end">
           <div className="h-[500px] rounded-full overflow-hidden shadow-xl">
             <img
               src={thoraxImage}
@@ -86,7 +86,7 @@ export default function Home() {
               className="w-full h-full object-cover"
             />
           </div>
-          <p className="mt-2 text-xs text-center text-emerald-900 opacity-70">
+          <p className="mt-2 text-xs text-center text-emerald-900 opacity-70 md:whitespace-nowrap md:text-right">
             © Krebsinformationsdienst, Deutsches Krebsforschungszentrum,
             Fotograf Tobias Schwerdt, Wiesenbach
           </p>
