@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { supabase } from "../infrastructure/supabase/client";
-import { makePageKey } from "../utils/pageKey";
+import { supabase } from "../../infrastructure/supabase/client";
+import { makePageKey } from "../../utils/pageKey";
 
 type ModuleOption = {
   id: string;
