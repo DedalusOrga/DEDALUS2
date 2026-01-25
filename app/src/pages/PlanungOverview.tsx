@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import AerzteImage from "../assets/Aerzte.jpg";
 
 export default function PlanungOverview() {
   const navigate = useNavigate();
@@ -37,6 +38,18 @@ export default function PlanungOverview() {
           </button>
         ))}
       </div>
+      {/* Bild unter den Karten */}
+      <div className="mt-12 flex justify-center">
+        <img
+          src={AerzteImage}
+          alt="Entscheidungen"
+          className="w-full max-w-4xl rounded-3xl shadow-sm"
+        />
+      </div>
+      <p className="mt-2 text-xs text-center text-emerald-900 opacity-70">
+        © Krebsinformationsdienst, Deutsches Krebsforschungszentrum, Fotograf
+        Tobias Schwerdt, Wiesenbach
+      </p>
     </div>
   );
 }
