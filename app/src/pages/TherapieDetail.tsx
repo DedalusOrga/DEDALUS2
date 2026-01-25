@@ -1,26 +1,20 @@
-// app/src/pages/TherapieDetail.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import type { ContentModule } from "../types/ContentModule";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import TextIcon from "../assets/text.svg";
-import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
 import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 import { AudioPlayer } from "../components/AudioPlayer";
-
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeSanitize from "rehype-sanitize";
 
 export default function TherapieDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [useSimple, setUseSimple] = useState(false);
 
   const navigate = useNavigate();
-
   const location = useLocation();
+
   const pageKey = useMemo(
     () => makePageKey(location.pathname),
     [location.pathname],
@@ -33,10 +27,8 @@ export default function TherapieDetail() {
   } = useBoundContent(pageKey);
 
   const {
-    modules,
     module: fallbackModule,
     loading: fallbackLoading,
-    loadedOnce: fallbackLoadedOnce,
     error: fallbackError,
     loadModules,
   } = useContentModulesLazy<ContentModule>({
@@ -52,7 +44,6 @@ export default function TherapieDetail() {
 
   const module = boundModule ?? fallbackModule;
 
-  // Fallback-Titel auf Basis des Slugs, falls in der DB noch nichts steht
   const title =
     module?.title ??
     (slug === "strahlentherapie"
@@ -69,7 +60,6 @@ export default function TherapieDetail() {
                 ? "Palliativmedizin"
                 : "Therapie");
 
-  // Text aus body_md, sonst Fallback
   const text = useSimple
     ? (module?.body_md_simple ??
       module?.body_md ??
@@ -81,7 +71,6 @@ export default function TherapieDetail() {
     ? (module?.audio_simple_url ?? module?.audio_url ?? null)
     : (module?.audio_url ?? null);
 
-  // Video-URL aus data.video_url
   const videoUrl = module?.file_url ?? null;
   const hasVideo = !!videoUrl;
 
@@ -97,14 +86,27 @@ export default function TherapieDetail() {
           Zurück
         </button>
 
-        {/* Header: Titel + Aktionen (wie NebenwirkungenDetail) */}
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Titel */}
+        <div className="mb-6">
           <h1 className="text-2xl md:text-3xl font-semibold text-emerald-800">
             {title}
           </h1>
-          <AudioPlayer audioUrl={activeAudioUrl} />
 
-          <div className="flex gap-3">
+          {/* ✅ Video direkt nach dem Titel */}
+          {hasVideo && (
+            <div className="mt-4 flex justify-center">
+              <video
+                src={videoUrl}
+                controls
+                className="w-full max-w-4xl rounded-3xl shadow-sm"
+              />
+            </div>
+          )}
+
+          {/* Buttons unter dem Video */}
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <AudioPlayer audioUrl={activeAudioUrl} />
+
             <button
               type="button"
               onClick={() => setUseSimple((prev) => !prev)}
@@ -125,19 +127,10 @@ export default function TherapieDetail() {
           <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
         )}
 
-        {/* Content */}
-        <div className="grid gap-8">
-          {hasVideo && (
-            <div className="mx-auto w-full max-w-2xl bg-white rounded-3xl shadow-sm p-6 md:p-8">
-              <video src={videoUrl} controls className="w-full rounded-xl" />
-            </div>
-          )}
-
-          {/* Textbereich */}
-          <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
-            <div className="text-sm md:text-base leading-relaxed text-emerald-950">
-              <MarkdownWithGlossary text={text} />
-            </div>
+        {/* Text */}
+        <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
+          <div className="text-sm md:text-base leading-relaxed text-emerald-950">
+            <MarkdownWithGlossary text={text} />
           </div>
         </div>
       </div>
