@@ -176,7 +176,7 @@ export default function AdminLayout({ title, children }: Props) {
                       : mobileItemInactive
                   }`}
                 >
-                  Patientenperspektive – Einträge verwalten
+                  Patientenperspektive
                 </button>
               </div>
             )}
@@ -244,7 +244,7 @@ export default function AdminLayout({ title, children }: Props) {
                 activeTab === "cards" ? tabActive : tabInactive
               }`}
             >
-              Patientenperspektive – Einträge verwalten
+              Patientenperspektive
             </button>
           </div>
         </div>
