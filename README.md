@@ -148,6 +148,7 @@ App läuft unter: [http://localhost:5173](http://localhost:5173)
   `main` (Release) · `develop` (Integration) · `feature/*` (Entwicklung)
 - **CI:**  
   GitHub Actions prüfen Build, Lint & Test bei jedem Push.
+
 ---
 
 ## Kontakt
