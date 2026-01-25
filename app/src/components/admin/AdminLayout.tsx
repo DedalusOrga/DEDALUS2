@@ -12,6 +12,7 @@ type TabKey =
   | "content"
   | "questions"
   | "routing"
+  | "recommendations"
   | "glossary"
   | "whitelist"
   | "cards";
@@ -35,6 +36,7 @@ export default function AdminLayout({ title, children }: Props) {
     if (p.startsWith("/admin/glossary")) return "glossary";
     if (p.startsWith("/admin/whitelist")) return "whitelist";
     if (p.startsWith("/admin/cards")) return "cards";
+    if (p.startsWith("/admin/recommendations")) return "recommendations";
 
     return "content";
   }, [location.pathname]);
@@ -198,6 +200,15 @@ export default function AdminLayout({ title, children }: Props) {
               }`}
             >
               Fragen anlegen
+            </button>
+
+            <button
+              onClick={() => navigate("/admin/recommendations")}
+              className={`${tabBase} ${
+                activeTab === "recommendations" ? tabActive : tabInactive
+              }`}
+            >
+              Empfehlungen anlegen
             </button>
 
             <button

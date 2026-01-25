@@ -60,6 +60,7 @@ import FragebogenErgebnis from "./pages/Entscheidungen/Frageboegen/FragebogenErg
 import AdminGlossary from "./pages/admin/AdminGlossary";
 import AdminAllowedEmails from "./pages/admin/AdminAllowedEmails";
 import AdminCards from "./pages/admin/AdminCards";
+import AdminRecommendationsPage from "./pages/admin/AdminRecommendationPage";
 
 // Basename sauber aus Vite ziehen (z.B. "/" lokal, "/DEDALUS2/" in Prod)
 const basename = import.meta.env.BASE_URL ?? "/";
@@ -90,6 +91,15 @@ const router = createBrowserRouter(
         </AdminProtected>
       ),
     },
+    {
+      path: "/admin/recommendations",
+      element: (
+        <AdminProtected>
+          <AdminRecommendationsPage />
+        </AdminProtected>
+      ),
+    },
+
     {
       path: "/admin/questions",
       element: (
