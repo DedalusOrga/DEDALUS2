@@ -101,22 +101,17 @@ export default function PatientenVideosDetail() {
           <h1 className="text-2xl md:text-3xl font-semibold text-emerald-800">
             {title}
           </h1>
-
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={toggleSpeak}
-              className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-5 py-2.5
-                       text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900"
-            >
-              <img src={MicrophoneIcon} alt="" className="w-5 h-5 mr-2" />
-              {isSpeaking ? "Stopp" : "Vorlesen"}
-            </button>
-
-            {/* Optional: wenn du wirklich vereinfachen willst, brauchst du auch einen Button dafür */}
-            {/* <button ... onClick={() => setUseSimple((p) => !p)}>...</button> */}
-          </div>
         </div>
+
+        {hasVideo && (
+          <div className="mb-6 flex justify-center">
+            <video
+              src={videoUrl ?? undefined}
+              controls
+              className="w-full max-w-4xl rounded-3xl shadow-sm"
+            />
+          </div>
+        )}
 
         {(boundLoading || fallbackLoading) && (
           <div className="mb-4 text-emerald-900">Inhalt wird geladen …</div>
@@ -126,15 +121,17 @@ export default function PatientenVideosDetail() {
           <div className="mb-4 text-red-700">Fehler beim Laden der Inhalte</div>
         )}
 
-        {hasVideo && (
-          <div className="mx-auto w-full max-w-2xl bg-white rounded-3xl shadow-sm p-6 md:p-8 mb-6">
-            <video
-              src={videoUrl ?? undefined}
-              controls
-              className="w-full rounded-xl"
-            />
-          </div>
-        )}
+        <div className="mb-6 flex justify-end">
+          <button
+            type="button"
+            onClick={toggleSpeak}
+            className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-5 py-2.5
+                     text-sm md:text-base font-semibold text-white shadow-md hover:bg-emerald-900"
+          >
+            <img src={MicrophoneIcon} alt="" className="w-5 h-5 mr-2" />
+            {isSpeaking ? "Stopp" : "Vorlesen"}
+          </button>
+        </div>
 
         <div className="bg-white rounded-3xl shadow-sm p-6 md:p-8">
           {/* Textbereich */}
