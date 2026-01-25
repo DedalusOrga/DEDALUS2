@@ -5,7 +5,6 @@ import type { Module } from "../components/ModuleRenderer";
 import { useContentModulesLazy } from "../hooks/useContentModulesLazy";
 import { useBoundContent } from "../hooks/useBoundContent";
 import { makePageKey } from "../utils/pageKey";
-import { GlossaryPlain } from "../glossary/GlossaryPlain";
 import { MarkdownWithGlossary } from "../glossary/MarkdownWithGlossary";
 
 export default function ZusatzoptionenDetail() {
@@ -66,6 +65,9 @@ export default function ZusatzoptionenDetail() {
     : (module?.body_md ??
       "Für diese zusätzlichen Therapieoptionen sind noch keine Inhalte hinterlegt.");
 
+  const simpleText = module?.body_md_simple ?? null;
+  const hasSimpleText = !!simpleText?.trim();
+
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">
       <div className="w-full max-w-6xl mx-auto px-6 py-10">
@@ -79,13 +81,15 @@ export default function ZusatzoptionenDetail() {
         <div className="mb-8 flex items-center justify-between gap-4">
           <h1 className="text-3xl font-semibold text-emerald-800">{title}</h1>
 
-          <button
-            type="button"
-            onClick={() => setUseSimple((p) => !p)}
-            className="rounded-full bg-emerald-800 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-emerald-900"
-          >
-            {useSimple ? "Original" : "Vereinfachen"}
-          </button>
+          {hasSimpleText && (
+            <button
+              type="button"
+              onClick={() => setUseSimple((p) => !p)}
+              className="rounded-full bg-emerald-800 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-emerald-900"
+            >
+              {useSimple ? "Original" : "Vereinfachen"}
+            </button>
+          )}
         </div>
 
         {(boundLoading || fallbackLoading) && (
