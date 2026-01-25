@@ -42,6 +42,11 @@ export const MarkdownWithGlossary: React.FC<MarkdownWithGlossaryProps> = ({
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeSanitize]}
         components={{
+          a: ({ href, children }) => (
+            <a href={href} target="_blank" rel="noopener noreferrer">
+              {children}
+            </a>
+          ),
           p: ({ children }) => (
             <p>
               <GlossaryRichChildren>{children}</GlossaryRichChildren>
