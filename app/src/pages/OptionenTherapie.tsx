@@ -125,7 +125,7 @@ export default function InformationenOverview() {
                 >
                   <div className="mx-auto flex flex-col items-center justify-center">
                     <div
-                        className={`
+                      className={`
                           flex items-center justify-center mx-auto
                           ${
                             card.id === "chemoimmun" || card.id === "radiochemo"
@@ -133,14 +133,14 @@ export default function InformationenOverview() {
                               : "h-14 w-14"
                           }
                         `}
-                      >
-                        <img
-                          src={card.icon}
-                          alt=""
-                          className="h-full w-full object-contain"
-                          aria-hidden
-                        />
-                      </div>
+                    >
+                      <img
+                        src={card.icon}
+                        alt=""
+                        className="h-full w-full object-contain"
+                        aria-hidden
+                      />
+                    </div>
                     <div
                       className="
                       mt-3 text-[15px] font-semibold leading-snug text-emerald-950

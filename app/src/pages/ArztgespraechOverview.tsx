@@ -50,6 +50,10 @@ export default function ArztgespraechOverview() {
           className="w-full max-w-4xl rounded-3xl shadow-sm"
         />
       </div>
+      <p className="mt-2 text-xs text-center text-emerald-900 opacity-70">
+        © Krebsinformationsdienst, Deutsches Krebsforschungszentrum, Fotograf
+        Tobias Schwerdt, Wiesenbach
+      </p>
     </div>
   );
 }

@@ -56,10 +56,9 @@ export default function UnterstuetzungsangeboteDetail() {
                 ? "Pflegeleistungen + ambulante Versorgung"
                 : "Unterstützungsangebote");
 
-  const text = 
-      module?.body_md ??
-      "Für diese Unterstützungsangebote sind noch keine Inhalte hinterlegt.";
-    
+  const text =
+    module?.body_md ??
+    "Für diese Unterstützungsangebote sind noch keine Inhalte hinterlegt.";
 
   return (
     <div className="min-h-screen w-full bg-emerald-50 flex flex-col">

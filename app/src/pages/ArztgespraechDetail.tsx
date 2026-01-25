@@ -132,9 +132,9 @@ export default function ArztgespraechDetail() {
         )}
       </div>
       <p className="mt-2 text-xs text-center text-emerald-900 opacity-70">
-                  © Krebsinformationsdienst, Deutsches Krebsforschungszentrum,
-                  Fotograf Tobias Schwerdt, Wiesenbach
-                </p>
+        © Krebsinformationsdienst, Deutsches Krebsforschungszentrum, Fotograf
+        Tobias Schwerdt, Wiesenbach
+      </p>
     </div>
   );
 }

@@ -61,10 +61,9 @@ export default function WeiterfuehrendeInfoDetail() {
               ? "Deutsche Krebshilfe + -gesellschaft"
               : "Weiterführende Informationen");
 
-  const text = 
-      module?.body_md ??
-      "Für diese weiterführenden Informationen sind noch keine Inhalte hinterlegt.";
-
+  const text =
+    module?.body_md ??
+    "Für diese weiterführenden Informationen sind noch keine Inhalte hinterlegt.";
 
   const activeAudioUrl = useSimple
     ? (module?.audio_simple_url ?? module?.audio_url ?? null)
@@ -93,8 +92,7 @@ export default function WeiterfuehrendeInfoDetail() {
 
           <AudioPlayer audioUrl={activeAudioUrl} />
 
-          <div className="flex gap-3">
-          </div>
+          <div className="flex gap-3"></div>
         </div>
 
         {loading && (
