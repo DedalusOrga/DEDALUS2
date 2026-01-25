@@ -14,48 +14,48 @@ import ResetPassword from "./pages/ResetPassword";
 
 import { GlossaryProvider } from "./glossary/GlossaryProvider";
 import Protected from "./components/Protected";
-import AdminProtected from "./components/AdminProtected";
+import AdminProtected from "./components/admin/AdminProtected";
 import { AuthProvider } from "./hooks/AuthProvider";
 
-import EntscheidungenOverview from "./pages/EntscheidungenOverview";
-import FrageboegenEntscheidung from "./pages/FrageboegenEntscheidung";
-import FragebogenFrage from "./pages/FragebogenFrage";
-import FragebogenFertig from "./pages/FragebogenFertig";
+import EntscheidungenOverview from "./pages/Entscheidungen/EntscheidungenOverview";
+import FrageboegenEntscheidung from "./pages/Entscheidungen/Frageboegen/FrageboegenEntscheidung";
+import FragebogenFrage from "./pages/Entscheidungen/Frageboegen/FragebogenFrage";
+import FragebogenFertig from "./pages/Entscheidungen/Frageboegen/FragebogenFertig";
 
-import PlanungOverview from "./pages/PlanungOverview";
-import PlanungDetail from "./pages/PlanungDetail";
+import PlanungOverview from "./pages/Entscheidungen/PlanungOverview";
+import PlanungDetail from "./pages/Entscheidungen/PlanungDetail";
 
-import ArztgespraechOverview from "./pages/ArztgespraechOverview";
-import ArztgespraechDetail from "./pages/ArztgespraechDetail";
+import ArztgespraechOverview from "./pages/Entscheidungen/ArztgespraechOverview";
+import ArztgespraechDetail from "./pages/Entscheidungen/ArztgespraechDetail";
 
-import OptionenTherapie from "./pages/OptionenTherapie";
-import TherapieDetail from "./pages/TherapieDetail";
+import OptionenTherapie from "./pages/Informationen/OptionenTherapie";
+import TherapieDetail from "./pages/Informationen/TherapieDetail";
 import QuestionsPage from "./pages/QuestionsPage";
-import InformationOverview from "./pages/InformationOverview";
+import InformationOverview from "./pages/Informationen/InformationOverview";
 
-import KrebsinformationenOverview from "./pages/KrebsinformationenOverview";
-import KrebsinformationenDetail from "./pages/KrebsinformationenDetail";
+import KrebsinformationenOverview from "./pages/Informationen/KrebsinformationenOverview";
+import KrebsinformationenDetail from "./pages/Informationen/KrebsinformationenDetail";
 
-import NebenwirkungenOverview from "./pages/NebenwirkungenOverview";
-import NebenwirkungenDetail from "./pages/NebenwirkungenDetail";
-import UmgangNebenwirkungenDetail from "./pages/UmgangNebenwirkungenDetail";
+import NebenwirkungenOverview from "./pages/Informationen/NebenwirkungenOverview";
+import NebenwirkungenDetail from "./pages/Informationen/NebenwirkungenDetail";
+import UmgangNebenwirkungenDetail from "./pages/Informationen/UmgangNebenwirkungenDetail";
 
-import PatientenPerspektiveOverview from "./pages/PatientenPerspektiveOverview";
-import PatientenVideosDetail from "./pages/PatientenVideosDetail";
+import PatientenPerspektiveOverview from "./pages/Informationen/PatientenPerspektiveOverview";
+import PatientenVideosDetail from "./pages/Informationen/PatientenVideosDetail";
 import PatientenNeueInhalteDetail from "./pages/PatientenNeueInhalteDetail";
 
-import ZusatzoptionenOverview from "./pages/ZusatzoptionenOverview";
-import ZusatzoptionenDetail from "./pages/ZusatzoptionenDetail";
+import ZusatzoptionenOverview from "./pages/Informationen/ZusatzoptionenOverview";
+import ZusatzoptionenDetail from "./pages/Informationen/ZusatzoptionenDetail";
 
-import UnterstuetzungsangeboteOverview from "./pages/UnterstuetzungsangeboteOverview";
-import UnterstuetzungsangeboteDetail from "./pages/UnterstuetzungsangeboteDetail";
+import UnterstuetzungsangeboteOverview from "./pages/Informationen/UnterstuetzungsangeboteOverview";
+import UnterstuetzungsangeboteDetail from "./pages/Informationen/UnterstuetzungsangeboteDetail";
 
-import WeiterfuehrendeInfoOverview from "./pages/WeiterfuehrendeInfoOverview";
-import WeiterfuehrendeInfoDetail from "./pages/WeiterfuehrendeInfoDetail";
+import WeiterfuehrendeInfoOverview from "./pages/Informationen/WeiterfuehrendeInfoOverview";
+import WeiterfuehrendeInfoDetail from "./pages/Informationen/WeiterfuehrendeInfoDetail";
 
 import AdminDecisionTrees from "./pages/admin/AdminDecisionTrees";
 import AdminQuestionsPage from "./pages/admin/AdminQuestionsPage";
-import FragebogenErgebnis from "./pages/FragebogenErgebnis";
+import FragebogenErgebnis from "./pages/Entscheidungen/Frageboegen/FragebogenErgebnis";
 
 import AdminGlossary from "./pages/admin/AdminGlossary";
 import AdminAllowedEmails from "./pages/admin/AdminAllowedEmails";

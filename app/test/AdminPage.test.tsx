@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import AdminPage from "../src/pages/AdminPage";
+import AdminPage from "../src/pages/admin/AdminPage";
 
 /* ================================
    react-router mock

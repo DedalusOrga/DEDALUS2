@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../../infrastructure/supabase/client";
 import { useAuth } from "../../hooks/AuthProvider";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from "../../components/admin/AdminLayout";
 
 type Questionnaire = {
   id: string;

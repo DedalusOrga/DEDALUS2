@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../infrastructure/supabase/client";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from "../../components/admin/AdminLayout";
 
 type Questionnaire = {
   id: string;
@@ -28,6 +28,43 @@ function label(text: string, max = 60) {
   const t = (text ?? "").trim();
   if (!t) return "";
   return t.length > max ? t.slice(0, max) + "…" : t;
+}
+function slugify(input: string): string {
+  return input
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "") // diacritics
+    .replace(/ß/g, "ss")
+    .replace(/ä/g, "ae")
+    .replace(/ö/g, "oe")
+    .replace(/ü/g, "ue")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-{2,}/g, "-");
+}
+
+async function generateUniqueCodeFromTitle(title: string): Promise<string> {
+  const base = slugify(title);
+  if (!base) throw new Error("Titel ist leer/ungültig.");
+
+  // lade existierende codes, die mit base beginnen
+  const { data, error } = await supabase
+    .from("questionnaires")
+    .select("code")
+    .ilike("code", `${base}%`);
+
+  if (error) throw error;
+
+  const existing = new Set(
+    (data ?? []).map((r: any) => String(r.code ?? "").toLowerCase()),
+  );
+
+  if (!existing.has(base)) return base;
+
+  let i = 2;
+  while (existing.has(`${base}-${i}`)) i++;
+  return `${base}-${i}`;
 }
 
 export default function AdminDecisionTrees() {

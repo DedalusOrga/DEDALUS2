@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from "../../components/admin/AdminLayout";
 import { supabase } from "../../infrastructure/supabase/client";
 
 type GlossaryRow = {
