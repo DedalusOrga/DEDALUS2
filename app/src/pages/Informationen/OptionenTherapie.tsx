@@ -7,7 +7,7 @@ import TargetIcon from "../../assets/target.svg";
 import LeafIcon from "../../assets/leaf.svg";
 import sunAndSyringeIcon from "../../assets/sunAndSyringe.svg";
 import VirusAndSyringeIcon from "../../assets/virusAndSyringe.svg";
-import pillAndSyringeIcon from "../../assets/pillAndSyringe.svg";
+import twoSyringesIcon from "../../assets/twoSyringes.svg";
 import arrowIcon from "../../assets/arrow.svg";
 
 type Therapy = {
@@ -45,7 +45,7 @@ const THERAPIES: Therapy[] = [
   {
     id: "chemoimmun",
     name: "Chemoimmuntherapie",
-    icon: pillAndSyringeIcon,
+    icon: twoSyringesIcon,
     slug: "chemoimmuntherapie",
   },
   {

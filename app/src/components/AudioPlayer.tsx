@@ -116,7 +116,7 @@ export function AudioPlayer({
               onClick={stopAudio}
               className={`${buttonBase} ${size}`}
             >
-              ⏹ Neu Start
+              ⏹ Zurücksetzten
             </button>
           )}
 
